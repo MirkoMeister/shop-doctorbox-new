@@ -183,7 +183,8 @@ body {
   vertical-align: baseline;
 }
 .hl-dark {
-  background: rgba(126, 195, 161, 0.28);
+  /* opaque on photos and dark panels: brand green box, cream text inherited */
+  background: var(--color-green);
   color: inherit;
 }
 
