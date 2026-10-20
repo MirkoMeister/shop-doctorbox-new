@@ -15,6 +15,8 @@ const MODEL = process.env.ASSISTANT_MODEL ?? "claude-opus-5-5";
 /* ------------------------------------------------------------------ input */
 const Body = z.object({
   locale: z.string().optional(),
+  /** Page context (e.g. a collection) that focuses the advice; trusted copy from our own config only */
+  topic: z.string().max(1200).optional(),
   messages: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(2000) }))
     .min(1)
@@ -113,6 +115,7 @@ export async function POST(req: NextRequest) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid" }, { status: 400 });
   const locale: Locale = parsed.data.locale && isLocale(parsed.data.locale) ? parsed.data.locale : "de";
+  const topic = parsed.data.topic?.trim() || null;
 
   // Org-level keys (not scoped to a workspace) must name the workspace per request
   const workspace = process.env.ANTHROPIC_WORKSPACE_ID;
@@ -140,6 +143,7 @@ export async function POST(req: NextRequest) {
             system: [
               { type: "text", text: systemPrompt(locale) },
               { type: "text", text: knowledge.text, cache_control: { type: "ephemeral" } },
+              ...(topic ? [{ type: "text" as const, text: (locale === "en" ? "Page context: " : "Seitenkontext: ") + topic }] : []),
             ],
             tools,
             messages,
