@@ -6,11 +6,11 @@ import { SparkIcon } from "@/components/ui/Icons";
 
 /**
  * Mobile-only bar pinned to the bottom of the screen on collection pages.
- * It appears once the hero chat has scrolled out of view and opens Mira
- * with the collection question. Hidden on large screens.
+ * It appears once the hero CTA has scrolled out of view and opens the Mira
+ * drawer (greeting and presets live there). Hidden on large screens.
  */
-export function StickyMiraCta({ label, question, topic, watch }: { label: string; question: string; topic?: string; watch: string }) {
-  const { ask, open, setOpen, turns } = useAssistant();
+export function StickyMiraCta({ label, watch }: { label: string; watch: string }) {
+  const { open, setOpen } = useAssistant();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export function StickyMiraCta({ label, question, topic, watch }: { label: string
     >
       <button
         type="button"
-        onClick={() => (turns.length ? setOpen(true) : ask(question, topic))}
+        onClick={() => setOpen(true)}
         tabIndex={visible ? 0 : -1}
         className="btn btn-primary w-full !h-12 shadow-float"
       >

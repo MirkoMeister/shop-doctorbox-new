@@ -31,7 +31,7 @@ import {
 } from "@/lib/catalog/filters";
 import { stripHtml, truncate } from "@/lib/format";
 import { localeHref, type Locale } from "@/lib/i18n/config";
-import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { Collection, ProductCard } from "@/lib/shopify/types";
 import type { ProductSort } from "@/lib/shopify/queries";
 
@@ -179,13 +179,6 @@ export function CollectionView({
                   title={dict.collection.miraTitle}
                   text={dict.collection.miraText}
                   cta={dict.collection.miraCta}
-                  question={
-                    handle
-                      ? fill(dict.collection.miraQuestion, {
-                          collection: title,
-                        })
-                      : dict.collection.miraQuestionAll
-                  }
                 />
               ),
             }}
@@ -298,12 +291,7 @@ export function CollectionView({
         )}
       </div>
       {hero && (
-        <StickyMiraCta
-          label={dict.collection.miraSticky}
-          question={fill(dict.collection.miraQuestion, { collection: title })}
-          topic={hero.chat.topic}
-          watch="hero-chat"
-        />
+        <StickyMiraCta label={dict.collection.miraSticky} watch="hero-cta" />
       )}
     </>
   );

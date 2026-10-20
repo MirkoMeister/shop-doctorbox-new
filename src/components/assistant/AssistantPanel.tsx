@@ -12,7 +12,11 @@ import { MiraAvatar } from "./MiraAvatar";
  * Side panel for Mira. Streams from /api/assistant via useChat; state lives in the tab only.
  */
 export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; dict: Dictionary; suggestions: string[] }) {
-  const { open, setOpen, turns, busy, unavailable, send } = useAssistant();
+  const { open, setOpen, turns, busy, unavailable, send, pageContext } = useAssistant();
+  const welcome = pageContext?.greeting ?? dict.assistant.welcome;
+  const starters = pageContext?.suggestions ?? suggestions;
+  const asked = new Set(turns.filter((x) => x.role === "user").map((x) => x.text));
+  const remaining = starters.filter((s) => !asked.has(s));
   const [input, setInput] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -74,10 +78,10 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
         <div ref={listRef} className="flex-1 overflow-y-auto px-5 py-5">
           {turns.length === 0 && (
             <div className="mb-4">
-              <p className="rounded-2xl rounded-tl-md bg-surface px-4 py-3 text-[0.95rem] leading-relaxed">{t.welcome}</p>
+              <p className="rounded-2xl rounded-tl-md bg-surface px-4 py-3 text-[0.95rem] leading-relaxed">{welcome}</p>
               <p className="mt-5 text-xs font-medium uppercase tracking-[0.18em] text-ink-muted">{t.suggestions}</p>
               <ul className="mt-2 flex flex-wrap gap-2">
-                {suggestions.map((s) => (
+                {starters.map((s) => (
                   <li key={s}>
                     <button type="button" onClick={() => void send(s)} className="chip chip-outline text-left hover:bg-lind">
                       {s}
@@ -88,6 +92,17 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
             </div>
           )}
           <Thread turns={turns} locale={locale} dict={dict} onNavigate={() => setOpen(false)} />
+          {turns.length > 0 && !busy && remaining.length > 0 && (
+            <ul className="mt-4 flex flex-wrap justify-end gap-2">
+              {remaining.map((s) => (
+                <li key={s}>
+                  <button type="button" onClick={() => void send(s)} className="rounded-full border border-green/60 bg-white px-3.5 py-1.5 text-left text-[0.85rem] font-medium text-green transition-colors hover:bg-green hover:text-white">
+                    {s}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <form

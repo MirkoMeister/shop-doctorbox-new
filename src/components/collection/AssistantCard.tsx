@@ -4,12 +4,12 @@ import { useAssistant } from "@/components/assistant/AssistantProvider";
 import { SparkIcon } from "@/components/ui/Icons";
 
 /** Grid tile that opens Mira with a question about the current collection. */
-export function AssistantCard({ title, text, cta, question }: { title: string; text: string; cta: string; question: string }) {
-  const { ask } = useAssistant();
+export function AssistantCard({ title, text, cta }: { title: string; text: string; cta: string }) {
+  const { setOpen } = useAssistant();
   return (
     <button
       type="button"
-      onClick={() => ask(question)}
+      onClick={() => setOpen(true)}
       className="group flex h-full w-full flex-col justify-between rounded-[var(--radius-card)] bg-moss p-5 text-left text-soft shadow-card transition-shadow hover:shadow-float sm:p-6"
     >
       <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-turquoise">

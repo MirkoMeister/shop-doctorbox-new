@@ -214,6 +214,7 @@ const de = {
     miraQuestion: "Welcher Test aus dem Bereich {collection} passt zu mir?",
     miraQuestionAll: "Welcher Test passt zu mir?",
     miraSticky: "Mira fragen für den passenden Test",
+    heroMiraCta: "Mira fragen: Welcher Test passt zu mir?",
     faq: [
       {
         q: "Welcher Test ist der richtige für mich?",
@@ -657,6 +658,7 @@ const en: Dictionary = {
     miraQuestion: "Which test in {collection} is right for me?",
     miraQuestionAll: "Which test is right for me?",
     miraSticky: "Ask Mira for the right test",
+    heroMiraCta: "Ask Mira: which test is right for me?",
     faq: [
       {
         q: "Which test is right for me?",

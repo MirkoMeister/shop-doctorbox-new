@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { HeroChat } from "@/components/collection/HeroChat";
+import { HeroCta } from "@/components/collection/HeroCta";
 import { Breadcrumbs, type Crumb } from "@/components/ui/Breadcrumbs";
 import { Highlight } from "@/components/ui/Highlight";
 import { CheckIcon } from "@/components/ui/Icons";
@@ -8,18 +8,32 @@ import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 /**
- * Full-bleed moss hero for topic collections: message left, live Mira chat right.
- * Marked data-hero="dark" so the transparent header switches to light colours.
+ * Full-bleed hero for topic collections: photo backdrop, message and one call to
+ * action that opens the Mira drawer. Marked data-hero="dark" so the transparent
+ * header switches to light colours.
  */
-export function CollectionHero({ locale, dict, copy, crumbs, image }: { locale: Locale; dict: Dictionary; copy: HeroCopy; crumbs: Crumb[]; image?: string | null }) {
+export function CollectionHero({
+  locale,
+  dict,
+  copy,
+  crumbs,
+  image,
+}: {
+  locale: Locale;
+  dict: Dictionary;
+  copy: HeroCopy;
+  crumbs: Crumb[];
+  image?: string | null;
+}) {
+  void locale;
   return (
     <section data-hero="dark" className="relative -mt-[72px] bg-moss text-soft lg:-mt-[88px]">
       <div className="absolute inset-0 overflow-hidden" aria-hidden>
         {image ? (
           <>
             <Image src={image} alt="" fill priority sizes="100vw" className="object-cover object-center" />
-            {/* readability: solid moss where the copy sits, the photo breathes behind the chat */}
-            <div className="absolute inset-0 bg-gradient-to-b from-moss/80 via-moss/55 to-moss/85 lg:bg-gradient-to-r lg:from-moss/90 lg:via-moss/60 lg:to-moss/15" />
+            {/* no colour tint: only a neutral scrim where the copy sits so white text stays legible */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/30 to-black/50 lg:bg-gradient-to-r lg:from-black/55 lg:via-black/25 lg:to-transparent" />
           </>
         ) : (
           <>
@@ -29,15 +43,16 @@ export function CollectionHero({ locale, dict, copy, crumbs, image }: { locale: 
           </>
         )}
       </div>
-      <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-10 px-4 pb-12 pt-[6.5rem] sm:px-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center lg:gap-16 lg:px-8 lg:pb-20 lg:pt-[9rem]">
-        <div className="min-w-0">
+      <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-[6.5rem] sm:px-6 lg:px-8 lg:pb-24 lg:pt-[9rem]">
+        <div className="min-w-0 max-w-2xl">
           <Breadcrumbs items={crumbs} className="mb-6 [&_*]:text-soft/70 [&_[aria-current]]:text-soft" />
           <p className="text-sm font-medium text-turquoise">{copy.kicker}</p>
           <h1 className="h-display mt-3 text-balance">
             <Highlight text={copy.headline} tone="dark" />
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-soft/85">{copy.lead}</p>
-          <ul className="mt-7 grid gap-2.5 sm:grid-cols-2">
+          <HeroCta label={dict.collection.heroMiraCta} hint={copy.chat.chips[0]} chat={copy.chat} />
+          <ul className="mt-8 grid gap-2.5 sm:grid-cols-2">
             {copy.facts.map((f) => (
               <li key={f} className="flex items-start gap-2 text-[0.95rem] text-soft/90">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-turquoise/25 text-turquoise">
@@ -47,9 +62,6 @@ export function CollectionHero({ locale, dict, copy, crumbs, image }: { locale: 
               </li>
             ))}
           </ul>
-        </div>
-        <div id="hero-chat" className="rise min-w-0 lg:w-full lg:max-w-[520px] lg:justify-self-end">
-          <HeroChat locale={locale} dict={dict} chat={copy.chat} />
         </div>
       </div>
     </section>
