@@ -55,7 +55,7 @@ export function CompareTable({ products, locale, dict }: { products: ProductCard
         {comparable.length > MAX_PRODUCTS && <p className="text-sm text-ink-muted">{fill(t.compareNote, { n: MAX_PRODUCTS })}</p>}
       </div>
 
-      <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line/70 bg-white shadow-card">
+      <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line/70 bg-white shadow-card [contain:paint]">
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
             <tr>

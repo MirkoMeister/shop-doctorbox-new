@@ -57,7 +57,7 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
   };
 
   return (
-    <div className={`fixed inset-0 z-[75] ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
+    <div className={`fixed inset-0 overflow-hidden z-[75] ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
       <button
         type="button"
         tabIndex={-1}

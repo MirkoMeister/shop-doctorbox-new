@@ -19,7 +19,7 @@ export function CollectionHero({ locale, dict, copy, crumbs, image }: { locale: 
           <>
             <Image src={image} alt="" fill priority sizes="100vw" className="object-cover object-center" />
             {/* readability: solid moss where the copy sits, the photo breathes behind the chat */}
-            <div className="absolute inset-0 bg-gradient-to-b from-moss/90 via-moss/75 to-moss/90 lg:bg-gradient-to-r lg:from-moss lg:via-moss/85 lg:to-moss/40" />
+            <div className="absolute inset-0 bg-gradient-to-b from-moss/80 via-moss/55 to-moss/85 lg:bg-gradient-to-r lg:from-moss/90 lg:via-moss/60 lg:to-moss/15" />
           </>
         ) : (
           <>

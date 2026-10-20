@@ -70,7 +70,7 @@ export function MenuDrawer({
         <Burger open={false} />
       </button>
 
-      <div id="menu-drawer" className={`fixed inset-0 z-[80] ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
+      <div id="menu-drawer" className={`fixed inset-0 overflow-hidden z-[80] ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
         <button
           type="button"
           tabIndex={-1}

@@ -32,7 +32,7 @@ export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary 
 
   return (
     <div
-      className={`fixed inset-0 z-[70] ${open ? "" : "pointer-events-none"}`}
+      className={`fixed inset-0 overflow-hidden z-[70] ${open ? "" : "pointer-events-none"}`}
       aria-hidden={!open}
     >
       <button
