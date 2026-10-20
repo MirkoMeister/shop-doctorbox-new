@@ -71,7 +71,7 @@ export async function shopifyFetch<T>(query: string, options: FetchOptions = {})
   }
   const { variables = {}, locale = "de", revalidate = 300, tags, cache } = options;
 
-  const res = await fetch(endpoint, {
+  const init: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -87,8 +87,24 @@ export async function shopifyFetch<T>(query: string, options: FetchOptions = {})
     }),
     ...(cache ? { cache } : {}),
     next: cache ? undefined : { revalidate: revalidate === false ? false : revalidate, tags },
-  });
+  };
 
+  // Storefront API throttles bursts (429) and occasionally answers 5xx while the build
+  // prerenders hundreds of pages: retry those with backoff instead of failing the build.
+  let res: Response | null = null;
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      res = await fetch(endpoint, init);
+      if (res.ok || (res.status < 500 && res.status !== 429)) break;
+      lastError = new ShopifyError(`Shopify responded with ${res.status}`);
+    } catch (err) {
+      lastError = err;
+      res = null;
+    }
+    await new Promise((r) => setTimeout(r, 400 * 2 ** attempt + Math.random() * 300));
+  }
+  if (!res) throw lastError instanceof Error ? lastError : new ShopifyError("Shopify unreachable");
   if (!res.ok) {
     throw new ShopifyError(`Shopify responded with ${res.status}`);
   }
