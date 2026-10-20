@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/home/Hero";
-import { BlogTeasers, CategoryField, HowItWorks, SectionHeading, TrustBand } from "@/components/home/Sections";
+import {
+  BlogTeasers,
+  CategoryField,
+  HowItWorks,
+  SectionHeading,
+  TrustBand,
+} from "@/components/home/Sections";
+import { TassoBanner } from "@/components/home/TassoBanner";
 import { ProductGrid } from "@/components/product/ProductCard";
 import { localeHref } from "@/lib/i18n/config";
 import { resolveLocale } from "@/lib/locale-params";
@@ -19,7 +26,10 @@ type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, dict } = await resolveLocale(params);
-  return { ...pageMetadata(locale, "/", { title: dict.meta.defaultTitle }), title: { absolute: dict.meta.defaultTitle } };
+  return {
+    ...pageMetadata(locale, "/", { title: dict.meta.defaultTitle }),
+    title: { absolute: dict.meta.defaultTitle },
+  };
 }
 
 export default async function HomePage({ params }: Props) {
@@ -35,9 +45,23 @@ export default async function HomePage({ params }: Props) {
   const rated = allProducts.filter((p) => p.rating && p.ratingCount > 0);
   const count = rated.reduce((s, p) => s + p.ratingCount, 0);
   const rating =
-    count > 0 ? { value: rated.reduce((s, p) => s + (p.rating ?? 0) * p.ratingCount, 0) / count, count } : null;
+    count > 0
+      ? {
+          value:
+            rated.reduce((s, p) => s + (p.rating ?? 0) * p.ratingCount, 0) /
+            count,
+          count,
+        }
+      : null;
 
-  const picks = (topPicks?.products.length ? topPicks.products : allProducts.filter((p) => p.ratingCount > 0)).slice(0, 8);
+  const picks = (
+    topPicks?.products.length
+      ? topPicks.products
+      : allProducts.filter((p) => p.ratingCount > 0)
+  ).slice(0, 8);
+  const tassoProducts = ["rundum-check-fur-frauen", "rundum-check-fur-manner"]
+    .map((h) => allProducts.find((p) => p.handle === h))
+    .filter((p): p is (typeof allProducts)[number] => Boolean(p));
 
   return (
     <>
@@ -48,10 +72,22 @@ export default async function HomePage({ params }: Props) {
         <SectionHeading
           title={dict.home.topPicksTitle}
           text={dict.home.topPicksText}
-          action={{ label: dict.home.allTests, href: localeHref(locale, "/collections") }}
+          action={{
+            label: dict.home.allTests,
+            href: localeHref(locale, "/collections"),
+          }}
         />
-        <ProductGrid products={picks} locale={locale} dict={dict} priorityCount={4} />
+        <ProductGrid
+          products={picks}
+          locale={locale}
+          dict={dict}
+          priorityCount={4}
+        />
       </section>
+
+      {tassoProducts.length > 0 && (
+        <TassoBanner locale={locale} dict={dict} products={tassoProducts} />
+      )}
 
       <HowItWorks dict={dict} />
       <TrustBand dict={dict} />

@@ -42,6 +42,16 @@ const de = {
     categoriesText: "Jeder Test misst klar benannte Werte. Wähle ein Thema oder suche direkt nach einem Wert.",
     topPicksTitle: "Am häufigsten [[bestellt]]",
     topPicksText: "Die Tests, mit denen die meisten Menschen bei uns starten.",
+    tasso: {
+      badge: "Neu",
+      kicker: "Blutabnahme am Oberarm mit Tasso+",
+      title: "Blut abnehmen, [[ohne Nadel-Stress]]",
+      text: "Das Tasso+ Gerät klebt am Oberarm. Ein Knopfdruck, und innerhalb weniger Minuten fließt die Kapillarblutprobe ins Röhrchen. Nahezu schmerzfrei, ohne Fingerpiks, ohne Praxistermin.",
+      steps: ["Oberarm warm reiben und Gerät aufkleben", "Roten Knopf drücken, du spürst kaum etwas", "Etwa 5 Minuten warten, Röhrchen verschließen"],
+      productsTitle: "Erhältlich für die Rundum Checks",
+      note: "Rundum Checks kommen mit dem Tasso+ Gerät im Kit. Die Analyse läuft wie gewohnt im akkreditierten Labor, der Befund kommt in die App.",
+      videoLabel: "Video: Blutabnahme mit dem Tasso+ Gerät am Oberarm",
+    },
     allTests: "Alle Tests ansehen",
     howTitle: "So funktioniert ein [[Heimtest]]",
     howText: "Vom Klick bis zum Laborbefund in der DoctorBox App.",
@@ -203,6 +213,7 @@ const de = {
     miraCta: "Mira fragen",
     miraQuestion: "Welcher Test aus dem Bereich {collection} passt zu mir?",
     miraQuestionAll: "Welcher Test passt zu mir?",
+    miraSticky: "Mira fragen für den passenden Test",
     faq: [
       {
         q: "Welcher Test ist der richtige für mich?",
@@ -474,6 +485,16 @@ const en: Dictionary = {
     categoriesText: "Every test measures clearly named values. Pick a topic or search for a value directly.",
     topPicksTitle: "Most [[ordered]]",
     topPicksText: "The tests most people start with.",
+    tasso: {
+      badge: "New",
+      kicker: "Upper-arm blood collection with Tasso+",
+      title: "Draw blood [[without needle stress]]",
+      text: "The Tasso+ device sticks to your upper arm. One press of the button and the capillary blood sample flows into the tube within a few minutes. Virtually painless, no finger prick, no clinic appointment.",
+      steps: ["Warm the upper arm and attach the device", "Press the red button, you barely feel it", "Wait about 5 minutes, close the tube"],
+      productsTitle: "Available for the all-round checks",
+      note: "All-round checks ship with the Tasso+ device in the kit. Analysis runs in the accredited lab as usual, results arrive in the app.",
+      videoLabel: "Video: blood collection with the Tasso+ device on the upper arm",
+    },
     allTests: "See all tests",
     howTitle: "How a [[home test]] works",
     howText: "From click to lab report in the DoctorBox app.",
@@ -635,6 +656,7 @@ const en: Dictionary = {
     miraCta: "Ask Mira",
     miraQuestion: "Which test in {collection} is right for me?",
     miraQuestionAll: "Which test is right for me?",
+    miraSticky: "Ask Mira for the right test",
     faq: [
       {
         q: "Which test is right for me?",

@@ -91,6 +91,12 @@ export const LabIcon = (p: P) => (
     <path d="M7.5 15h9" />
   </svg>
 );
+export const MailIcon = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="3" y="5" width="18" height="14" rx="2.5" />
+    <path d="m4 7 8 6 8-6" />
+  </svg>
+);
 export const PhoneIcon = (p: P) => (
   <svg {...base(p)}>
     <rect x="7" y="2.5" width="10" height="19" rx="2" />

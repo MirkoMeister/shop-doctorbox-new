@@ -1,9 +1,12 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AssistantCard } from "@/components/collection/AssistantCard";
 import { CollectionHero } from "@/components/collection/CollectionHero";
 import { collectionHero } from "@/content/collection-heroes";
 import { CompareTable } from "@/components/collection/CompareTable";
+import { StickyMiraCta } from "@/components/collection/StickyMiraCta";
 import { FilterBar } from "@/components/collection/FilterBar";
 import { RichText } from "@/components/content/RichText";
 import { ProductGrid } from "@/components/product/ProductCard";
@@ -73,6 +76,19 @@ export function CollectionView({
   const guideHandle = handle ? COLLECTION_GUIDES[handle] : null;
   const href = (p: string) => localeHref(locale, p);
   const hero = collectionHero(handle, locale);
+  const heroImage =
+    handle &&
+    existsSync(
+      path.join(
+        process.cwd(),
+        "public",
+        "hero",
+        "collections",
+        `${handle}.jpg`,
+      ),
+    )
+      ? `/hero/collections/${handle}.jpg`
+      : null;
 
   const trust = [
     { icon: LabIcon, text: dict.collection.trustLab },
@@ -89,6 +105,7 @@ export function CollectionView({
           dict={dict}
           copy={hero}
           crumbs={crumbs}
+          image={heroImage}
         />
       )}
       <div
@@ -280,6 +297,14 @@ export function CollectionView({
           </section>
         )}
       </div>
+      {hero && (
+        <StickyMiraCta
+          label={dict.collection.miraSticky}
+          question={fill(dict.collection.miraQuestion, { collection: title })}
+          topic={hero.chat.topic}
+          watch="hero-chat"
+        />
+      )}
     </>
   );
 }
