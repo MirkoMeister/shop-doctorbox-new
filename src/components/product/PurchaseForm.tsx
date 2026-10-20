@@ -23,7 +23,11 @@ export function PurchaseForm({
   onVariantChange?: (v: Variant) => void;
 }) {
   const { add, pending } = useCart();
-  const firstAvailable = product.variants.find((v) => v.availableForSale) ?? product.variants[0];
+  // Default: the Tasso+ upper-arm variant when it exists (less error-prone than a finger prick), else the first available
+  const firstAvailable =
+    product.variants.find((v) => v.availableForSale && v.selectedOptions.some((o) => isTasso(o.value))) ??
+    product.variants.find((v) => v.availableForSale) ??
+    product.variants[0];
   const [selected, setSelected] = useState<Record<string, string>>(
     Object.fromEntries(firstAvailable.selectedOptions.map((o) => [o.name, o.value])),
   );
@@ -114,6 +118,11 @@ export function PurchaseForm({
                     className="sr-only"
                   />
                   {val}
+                  {isTasso(val) && (
+                    <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.1em] ${isSel ? "bg-white/20 text-white" : "bg-lind text-moss"}`}>
+                      {dict.product.recommended}
+                    </span>
+                  )}
                 </label>
               );
             })}
@@ -247,6 +256,8 @@ export function PurchaseForm({
 }
 
 /** "Alle 3 Monate liefern, 20 % Rabatt" → { value: "3", unit: "Monate" } */
+const isTasso = (value: string) => /tasso/i.test(value);
+
 function planLabel(plan: { name: string; options: { name: string; value: string }[] }, locale: Locale): { value: string; unit: string } {
   const source = plan.options[0]?.value ?? plan.name;
   const m = source.match(/(\d+)\s*(Monat|Monate|month|months|Woche|Wochen|week|weeks)/i);

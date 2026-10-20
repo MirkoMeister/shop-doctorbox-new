@@ -20,15 +20,15 @@ export async function buildKnowledge(locale: Locale): Promise<Knowledge> {
   lines.push(locale === "en" ? "## Product catalogue (all active tests)" : "## Produktkatalog (alle aktiven Tests)");
   lines.push(
     locale === "en"
-      ? "Format: handle | title | price | sample material | subscription? | collections | target group | analysed values"
-      : "Format: handle | Titel | Preis | Probenmaterial | Abo? | Kategorien | Zielgruppe | analysierte Werte",
+      ? "Format: handle | title | price | sample material | subscription? | collections | target group | analysed values | blood collection"
+      : "Format: handle | Titel | Preis | Probenmaterial | Abo? | Kategorien | Zielgruppe | analysierte Werte | Blutabnahme",
   );
   for (const p of products) {
     const price = money(p.priceRange.minVariantPrice.amount);
     const samples = sampleMaterials(p.sampleMaterial).join(" / ") || "–";
     const sub = p.hasSubscription ? (locale === "en" ? "yes (-20%)" : "ja (-20 %)") : locale === "en" ? "no" : "nein";
     lines.push(
-      `${p.handle} | ${p.title} | ${price}${p.availableForSale ? "" : locale === "en" ? " (currently unavailable)" : " (derzeit nicht verfügbar)"} | ${samples} | ${sub} | ${p.productType || "–"} | ${p.targetGroup ?? "–"} | ${p.biomarkers.join(", ") || "–"}`,
+      `${p.handle} | ${p.title} | ${price}${p.availableForSale ? "" : locale === "en" ? " (currently unavailable)" : " (derzeit nicht verfügbar)"} | ${samples} | ${sub} | ${p.productType || "–"} | ${p.targetGroup ?? "–"} | ${p.biomarkers.join(", ") || "–"} | ${p.tasso ? (locale === "en" ? "Tasso+ upper arm available (preselected)" : "Tasso+ Oberarm wählbar (vorausgewählt)") : "–"}`,
     );
   }
 

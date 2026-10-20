@@ -73,6 +73,8 @@ export type ProductCard = {
   hasSubscription: boolean;
   /** Discount of the subscription plan in percent, e.g. 20 */
   subscriptionPercent: number | null;
+  /** Upper-arm blood collection with Tasso+ available as a variant */
+  tasso: boolean;
 };
 
 export type Product = ProductCard & {

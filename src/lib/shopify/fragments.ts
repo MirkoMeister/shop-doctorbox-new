@@ -55,6 +55,10 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     ratingCount: metafield(namespace: "reviews", key: "rating_count") {
       value
     }
+    options {
+      name
+      values
+    }
     subscriptionPlans: sellingPlanGroups(first: 1) {
       edges {
         node {
