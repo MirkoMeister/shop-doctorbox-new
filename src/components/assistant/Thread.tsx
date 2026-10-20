@@ -9,11 +9,19 @@ import { localeHref, type Locale } from "@/lib/i18n/config";
 import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 import { ArrowRight, DoubleCheckIcon, DropIcon } from "@/components/ui/Icons";
 
+/** Display name: drop " - Geschlechtskrankheiten-Test" style suffixes, keep "| Für Männer" qualifiers */
+export const shortName = (title: string) =>
+  title
+    .replace(/\s*[-–]\s+.*$/, "")
+    .replace(/\s*\|\s*/g, " · ")
+    .trim();
+
 const norm = (s: string) =>
   s
     .toLowerCase()
     .replace(/[„“"’'`]/g, "")
-    .replace(/\s*[-|–]\s*.*$/, "") // drop " - Geschlechtskrankheiten-Test" style suffixes
+    .replace(/\s*[-–]\s+.*$/, "") // drop suffixes after a dash
+    .replace(/\s*\|\s*/g, " ") // keep qualifiers such as "Für Männer"
     .replace(/\s+/g, " ")
     .trim();
 
@@ -45,7 +53,7 @@ function InlineProduct({ p, locale, onNavigate, tone }: { p: ProductTeaser; loca
       {p.image && (
         <Image src={shopifyImage(p.image, 96)} alt="" width={20} height={20} className="mr-1 inline-block h-5 w-5 rounded-full bg-white object-cover align-[-0.3em]" />
       )}
-      {p.title.replace(/\s*[-|–]\s*.*$/, "")}
+      {shortName(p.title)}
       <span className="ml-1.5 whitespace-nowrap text-xs font-medium opacity-80">{formatMoney({ amount: p.price, currencyCode: p.currency }, locale)}</span>
     </Link>
   );

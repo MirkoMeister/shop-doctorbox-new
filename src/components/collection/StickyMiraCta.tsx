@@ -10,7 +10,7 @@ import { SparkIcon } from "@/components/ui/Icons";
  * with the collection question. Hidden on large screens.
  */
 export function StickyMiraCta({ label, question, topic, watch }: { label: string; question: string; topic?: string; watch: string }) {
-  const { ask, open } = useAssistant();
+  const { ask, open, setOpen, turns } = useAssistant();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export function StickyMiraCta({ label, question, topic, watch }: { label: string
     >
       <button
         type="button"
-        onClick={() => ask(question, topic)}
+        onClick={() => (turns.length ? setOpen(true) : ask(question, topic))}
         tabIndex={visible ? 0 : -1}
         className="btn btn-primary w-full !h-12 shadow-float"
       >

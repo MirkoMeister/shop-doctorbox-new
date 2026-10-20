@@ -25,19 +25,31 @@ export const plainText = (parts: Part[]) =>
  * Used by the side panel and by inline chats (e.g. collection heroes).
  * `topic` is sent along so the server can focus the advice (e.g. STI).
  */
-export function useChat({ locale, dict, topic }: { locale: Locale; dict: Dictionary; topic?: string }) {
+export function useChat({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
+  const [topic, setTopicState] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const turnsRef = useRef<Turn[]>([]);
+  const topicRef = useRef<string | null>(null);
   turnsRef.current = turns;
   const t = dict.assistant;
 
+  /** Page context (e.g. the collection the visitor is on); applied to every following request */
+  const setTopic = useCallback((value: string | null) => {
+    topicRef.current = value;
+    setTopicState(value);
+  }, []);
+
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, topicOverride?: string | null) => {
       const q = text.trim();
       if (!q || busy) return;
+      if (topicOverride !== undefined) {
+        topicRef.current = topicOverride;
+        setTopicState(topicOverride);
+      }
       const userTurn: Turn = { id: nextId(), role: "user", text: q, at: Date.now() };
       const replyId = nextId();
       const history = [...turnsRef.current, userTurn];
@@ -57,7 +69,7 @@ export function useChat({ locale, dict, topic }: { locale: Locale; dict: Diction
           signal: ctrl.signal,
           body: JSON.stringify({
             locale,
-            topic,
+            topic: topicRef.current ?? undefined,
             messages: history
               .map((x) => ({ role: x.role, content: x.role === "user" ? x.text : plainText(x.parts) }))
               .filter((m) => m.content.trim()),
@@ -107,7 +119,7 @@ export function useChat({ locale, dict, topic }: { locale: Locale; dict: Diction
         setBusy(false);
       }
     },
-    [busy, locale, topic, t.unavailable, t.rateLimited, t.error],
+    [busy, locale, t.unavailable, t.rateLimited, t.error],
   );
 
   const reset = useCallback(() => {
@@ -116,5 +128,5 @@ export function useChat({ locale, dict, topic }: { locale: Locale; dict: Diction
     setBusy(false);
   }, []);
 
-  return { turns, busy, unavailable, send, reset };
+  return { turns, busy, unavailable, send, reset, topic, setTopic };
 }

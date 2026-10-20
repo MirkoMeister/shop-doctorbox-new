@@ -68,7 +68,7 @@ export default async function LocaleLayout({
       <body className="min-h-dvh flex flex-col" suppressHydrationWarning>
         <JsonLd data={[organizationJsonLd(locale), websiteJsonLd(locale)]} />
         <CartProvider locale={locale}>
-          <AssistantProvider>
+          <AssistantProvider locale={locale} dict={dict}>
           <Header locale={locale} dict={dict} collections={collections} featured={featured} />
           <main id="main" className="flex-1 pt-[72px] lg:pt-[88px]">
             {children}

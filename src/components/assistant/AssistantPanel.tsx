@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAssistant } from "./AssistantProvider";
 import { Thread } from "./Thread";
-import { useChat } from "./useChat";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { CloseIcon } from "@/components/ui/Icons";
@@ -13,8 +12,7 @@ import { MiraAvatar } from "./MiraAvatar";
  * Side panel for Mira. Streams from /api/assistant via useChat; state lives in the tab only.
  */
 export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; dict: Dictionary; suggestions: string[] }) {
-  const { open, setOpen, initialQuestion, topic } = useAssistant();
-  const { turns, busy, unavailable, send } = useChat({ locale, dict, topic: topic ?? undefined });
+  const { open, setOpen, turns, busy, unavailable, send } = useAssistant();
   const [input, setInput] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -32,19 +30,6 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
       cancelAnimationFrame(id);
     };
   }, [open, setOpen]);
-
-  // A question handed over from a page (hero, collection tile) starts the conversation
-  const [handled, setHandled] = useState<string | null>(null);
-  useEffect(() => {
-    if (open && initialQuestion && initialQuestion !== handled) {
-      const id = requestAnimationFrame(() => {
-        setHandled(initialQuestion);
-        void send(initialQuestion);
-      });
-      return () => cancelAnimationFrame(id);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialQuestion]);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });

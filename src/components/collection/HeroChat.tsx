@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MiraAvatar } from "@/components/assistant/MiraAvatar";
 import { Thread } from "@/components/assistant/Thread";
-import { useChat } from "@/components/assistant/useChat";
+import { useAssistant } from "@/components/assistant/AssistantProvider";
 import { SendIcon } from "@/components/ui/Icons";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -17,7 +17,12 @@ const time = (locale: Locale) => new Date().toLocaleTimeString(locale === "en" ?
  * The conversation runs right here with a topic focus sent to the API.
  */
 export function HeroChat({ locale, dict, chat }: { locale: Locale; dict: Dictionary; chat: CollectionHero["chat"] }) {
-  const { turns, busy, unavailable, send } = useChat({ locale, dict, topic: chat.topic });
+  const { turns, busy, unavailable, send, setTopic, open } = useAssistant();
+  // The collection focus applies to the whole conversation while this hero is on screen
+  useEffect(() => {
+    setTopic(chat.topic);
+    return () => setTopic(null);
+  }, [chat.topic, setTopic]);
   const [input, setInput] = useState("");
   const [openedAt] = useState(() => time(locale));
   const listRef = useRef<HTMLDivElement>(null);
@@ -26,8 +31,8 @@ export function HeroChat({ locale, dict, chat }: { locale: Locale; dict: Diction
   const started = turns.length > 0;
 
   useEffect(() => {
-    if (started) listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [turns, started]);
+    if (started && !open) listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+  }, [turns, started, open]);
 
   const submit = (q: string) => {
     if (!q.trim()) return;
