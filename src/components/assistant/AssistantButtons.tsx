@@ -1,7 +1,7 @@
 "use client";
 
 import { useAssistant } from "./AssistantProvider";
-import { SparkIcon } from "@/components/ui/Icons";
+import { MiraAvatar } from "./MiraAvatar";
 
 /** Round icon button for the header (light on dark heroes). */
 export function AssistantHeaderButton({ label }: { label: string }) {
@@ -12,9 +12,9 @@ export function AssistantHeaderButton({ label }: { label: string }) {
       onClick={() => setOpen(true)}
       aria-label={label}
       title={label}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-lind group-data-[tone=dark]:text-soft group-data-[tone=dark]:hover:bg-white/10"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-lind group-data-[tone=dark]:hover:bg-white/10"
     >
-      <SparkIcon width={22} height={22} />
+      <MiraAvatar size={30} className="ring-2 ring-white/70 group-data-[tone=dark]:ring-white/30" />
     </button>
   );
 }
@@ -26,9 +26,9 @@ export function AssistantHeroButton({ label, question }: { label: string; questi
     <button
       type="button"
       onClick={() => (question ? ask(question) : setOpen(true))}
-      className="inline-flex items-center gap-2 rounded-full border border-white/30 px-4 py-2 text-sm font-medium text-soft transition-colors hover:border-white/60 hover:bg-white/10"
+      className="inline-flex items-center gap-2 rounded-full border border-white/30 py-1 pl-1 pr-4 text-sm font-medium text-soft transition-colors hover:border-white/60 hover:bg-white/10"
     >
-      <SparkIcon width={16} height={16} className="text-turquoise" />
+      <MiraAvatar size={28} />
       {label}
     </button>
   );

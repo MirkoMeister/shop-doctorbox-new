@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAssistant } from "@/components/assistant/AssistantProvider";
-import { SparkIcon } from "@/components/ui/Icons";
+import { MiraAvatar } from "@/components/assistant/MiraAvatar";
 
 /**
  * Mobile-only bar pinned to the bottom of the screen on collection pages.
@@ -35,7 +35,7 @@ export function StickyMiraCta({ label, watch }: { label: string; watch: string }
         tabIndex={visible ? 0 : -1}
         className="btn btn-primary w-full !h-12 shadow-float"
       >
-        <SparkIcon width={18} height={18} />
+        <MiraAvatar size={26} className="-ml-1 ring-2 ring-white/40" />
         {label}
       </button>
     </div>

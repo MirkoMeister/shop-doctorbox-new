@@ -4,7 +4,8 @@ import { AskMiraButton } from "@/components/assistant/AskMiraButton";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Highlight } from "@/components/ui/Highlight";
-import { ArrowRight, MailIcon, PhoneIcon, PinIcon, SparkIcon } from "@/components/ui/Icons";
+import { ArrowRight, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/Icons";
+import { MiraAvatar } from "@/components/assistant/MiraAvatar";
 import { CONTACT, CONTACT_COPY } from "@/content/contact";
 import { localeHref } from "@/lib/i18n/config";
 import { SOCIAL_LINKS } from "@/lib/links";
@@ -105,9 +106,7 @@ export default async function ContactPage({ params }: Props) {
         <section className="mt-12 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div className="flex items-start gap-4">
-              <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-moss sm:flex">
-                <SparkIcon width={22} height={22} />
-              </span>
+              <MiraAvatar size={48} className="hidden shrink-0 ring-2 ring-white sm:inline-flex" />
               <div>
                 <h2 className="h4">{t.quickTitle}</h2>
                 <p className="mt-1 max-w-xl text-moss/80">{t.quick.miraText}</p>
