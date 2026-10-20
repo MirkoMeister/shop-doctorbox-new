@@ -151,7 +151,7 @@ export function TrustBand({ dict }: { dict: Dictionary }) {
 
 /* Blog teasers ------------------------------------------------------------ */
 export function ArticleCard({ article, locale, dict }: { article: Article; locale: Locale; dict: Dictionary }) {
-  const href = localeHref(locale, `/ratgeber/${article.handle}`);
+  const href = localeHref(locale, `/blog/${article.handle}`);
   const excerpt = article.excerpt ? stripHtml(article.excerpt) : truncate(stripHtml(article.contentHtml), 150);
   return (
     <article className="group flex h-full flex-col">
@@ -191,7 +191,7 @@ export function BlogTeasers({ articles, locale, dict }: { articles: Article[]; l
       <SectionHeading
         title={dict.home.blogTitle}
         text={dict.home.blogText}
-        action={{ label: dict.home.allArticles, href: localeHref(locale, "/ratgeber") }}
+        action={{ label: dict.home.allArticles, href: localeHref(locale, "/blog") }}
       />
       <ul className="grid gap-8 md:grid-cols-3">
         {articles.map((a) => (

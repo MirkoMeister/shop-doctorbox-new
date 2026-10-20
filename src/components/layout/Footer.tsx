@@ -44,6 +44,7 @@ export function Footer({
       title: dict.footer.company,
       links: [
         { label: dict.nav.about, href: href("/pages/uber-uns") },
+        { label: dict.nav.blog, href: href("/blog") },
         { label: dict.nav.guide, href: href("/ratgeber") },
         { label: dict.footer.b2b, href: href("/pages/b2b") },
         { label: "Trusted Shops", href: href("/pages/das-sagen-unsere-kunden") },

@@ -35,6 +35,7 @@ export function GuideArticle({
   products,
   related,
   relatedTitle,
+  relatedBase = GUIDE_BASE,
 }: {
   locale: Locale;
   dict: Dictionary;
@@ -52,8 +53,10 @@ export function GuideArticle({
   products: ProductCard[];
   related: RelatedGuide[];
   relatedTitle?: string;
+  /** Route the related list and "all" link point to */
+  relatedBase?: string;
 }) {
-  const base = localeHref(locale, GUIDE_BASE);
+  const base = localeHref(locale, relatedBase);
   const primary = products[0];
   const t = dict.guide;
 
@@ -193,14 +196,14 @@ export function GuideArticle({
           <div className="flex items-end justify-between gap-4">
             <h2 className="h2">{relatedTitle ?? t.related}</h2>
             <Link href={base} className="btn btn-tertiary -mr-3">
-              {t.allGuides} <ArrowRight width={16} height={16} />
+              {relatedBase === GUIDE_BASE ? t.allGuides : dict.blog.allArticles} <ArrowRight width={16} height={16} />
             </Link>
           </div>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((g) => (
               <li key={g.handle}>
                 <Link
-                  href={localeHref(locale, `${GUIDE_BASE}/${g.handle}`)}
+                  href={localeHref(locale, `${relatedBase}/${g.handle}`)}
                   className="flex items-center justify-between gap-3 rounded-2xl border border-line/70 bg-white px-4 py-3.5 shadow-card transition-shadow hover:shadow-float"
                 >
                   <span className="font-medium leading-snug">{g.title}</span>

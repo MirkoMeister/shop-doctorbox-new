@@ -150,7 +150,7 @@ export function articleJsonLd(article: Article, locale: Locale) {
     image: article.image ? [article.image.url] : undefined,
     author: article.author ? { "@type": "Person", name: article.author } : { "@id": `${siteUrl}/#organization` },
     publisher: { "@id": `${siteUrl}/#organization` },
-    mainEntityOfPage: absoluteUrl(locale, `/ratgeber/${article.handle}`),
+    mainEntityOfPage: absoluteUrl(locale, `/blog/${article.handle}`),
     description: truncate(stripHtml(article.excerpt || article.contentHtml), 200),
   };
 }

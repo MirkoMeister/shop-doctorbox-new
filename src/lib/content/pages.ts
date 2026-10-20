@@ -33,7 +33,7 @@ export async function getMigratedPage(handle: string, locale: Locale): Promise<M
   return (await tryRead(locale)) ?? (await tryRead("de"));
 }
 
-export async function listMigratedPages(locale: Locale): Promise<Pick<MigratedPage, "handle" | "title" | "updatedAt">[]> {
+export async function listMigratedPages(locale: Locale): Promise<Pick<MigratedPage, "handle" | "title" | "updatedAt" | "seoDescription">[]> {
   try {
     const files = await fs.readdir(path.join(root, locale));
     const out = await Promise.all(
@@ -41,7 +41,7 @@ export async function listMigratedPages(locale: Locale): Promise<Pick<MigratedPa
         .filter((f) => f.endsWith(".json"))
         .map(async (f) => {
           const d = JSON.parse(await fs.readFile(path.join(root, locale, f), "utf8")) as MigratedPage;
-          return { handle: d.handle, title: d.title, updatedAt: d.updatedAt };
+          return { handle: d.handle, title: d.title, updatedAt: d.updatedAt, seoDescription: d.seoDescription ?? null };
         }),
     );
     return out;

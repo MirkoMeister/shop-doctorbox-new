@@ -51,7 +51,7 @@ export function MenuDrawer({
 
   const primary = [
     { label: dict.nav.shop, href: href("/collections") },
-    { label: dict.nav.guide, href: href("/ratgeber") },
+    { label: dict.nav.blog, href: href("/blog") },
     { label: dict.nav.about, href: href("/pages/uber-uns") },
     { label: dict.nav.faq, href: href("/pages/faqs") },
     { label: dict.nav.contact, href: href("/pages/kontakt") },

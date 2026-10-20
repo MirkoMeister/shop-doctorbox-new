@@ -40,9 +40,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...products.flatMap((p) => entry(`/products/${p.handle}`, undefined, 0.8, "weekly")),
     ...collections.flatMap((c) => entry(`/collections/${c.handle}`, c.updatedAt, 0.7)),
     ...entry("/ratgeber", undefined, 0.7, "weekly"),
+    ...entry("/blog", undefined, 0.7, "weekly"),
     ...Array.from(pageHandles.entries()).flatMap(([h, u]) =>
       entry(isGuidePage(h) ? `/ratgeber/${h}` : `/pages/${h}`, u, isGuidePage(h) ? 0.6 : 0.4, "monthly"),
     ),
-    ...articles.flatMap((a) => entry(`/ratgeber/${a.handle}`, a.publishedAt, 0.6, "monthly")),
+    ...articles.flatMap((a) => entry(`/blog/${a.handle}`, a.publishedAt, 0.6, "monthly")),
   ];
 }

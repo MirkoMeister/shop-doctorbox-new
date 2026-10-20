@@ -42,6 +42,8 @@ export function isGuidePage(handle: string): boolean {
 }
 
 export const GUIDE_BASE = "/ratgeber";
+/** Shopify blog articles live here; guides (SEO pages) stay under GUIDE_BASE */
+export const BLOG_BASE = "/blog";
 
 /** Blog handles → topic labels for the overview filter (Italian blog excluded). */
 export const BLOG_TOPICS: Record<string, { de: string; en: string }> = {
