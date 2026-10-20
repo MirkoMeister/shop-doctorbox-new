@@ -55,6 +55,11 @@ export default async function ProductPage({ params }: Props) {
   const related = await getProductRecommendations(product.id, locale);
 
   const primaryCollection = product.collections.find((c) => !["produkte", "home-page", "kapillarblut", "unsere-top-picks", "vorsorge-kampagne"].includes(c.handle));
+  // "STI Basic Heimtest - Geschlechtskrankheiten-Test" → main title + quiet subtitle (same h1 text for SEO)
+  const titleParts = (() => {
+    const mm = product.title.match(/^(.*?)\s+[-–|]\s+(.+)$/);
+    return mm ? { main: mm[1], sub: mm[2] } : { main: product.title, sub: null };
+  })();
   const crumbs = [
     { label: dict.common.home, href: localeHref(locale, "/") },
     { label: dict.collection.all, href: localeHref(locale, "/collections") },
@@ -99,7 +104,10 @@ export default async function ProductPage({ params }: Props) {
         <Breadcrumbs items={crumbs} className="mb-5" />
 
         <ProductBuyBox product={product} locale={locale} dict={dict}>
-          <h1 className="h1 text-balance">{product.title}</h1>
+          <h1 className="h2 text-balance">
+            {titleParts.main}
+            {titleParts.sub && <span className="mt-1.5 block text-base font-medium tracking-normal text-ink-muted">{titleParts.sub}</span>}
+          </h1>
           <div className="mt-3">
             <Rating value={product.rating} count={product.ratingCount} dict={dict} />
           </div>
