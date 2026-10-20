@@ -375,6 +375,15 @@ body {
   font-weight: 600;
   color: var(--color-moss);
 }
+.article-inline--dark strong {
+  color: var(--color-soft);
+}
+.article-inline--dark a {
+  color: var(--color-turquoise);
+}
+.article-inline--dark a:hover {
+  color: var(--color-soft);
+}
 .article-inline ul {
   margin-top: 0.5em;
   padding-left: 1.2em;

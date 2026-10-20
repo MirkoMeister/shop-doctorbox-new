@@ -60,7 +60,8 @@ export function GuideArticle({
   const primary = products[0];
   const t = dict.guide;
 
-  const crumbs = [{ label: dict.common.home, href: localeHref(locale, "/") }, { label: t.title, href: base }, ...(topicHref ? [{ label: topicLabel, href: topicHref }] : []), { label: title }];
+  const rootLabel = relatedBase === GUIDE_BASE ? t.title : dict.blog.title;
+  const crumbs = [{ label: dict.common.home, href: localeHref(locale, "/") }, { label: rootLabel, href: base }, ...(topicHref ? [{ label: topicLabel, href: topicHref }] : []), { label: title }];
   const meta = (
     <div className={`mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm ${heroImage ? "text-soft/80" : "text-ink-muted"}`}>
       <span className="inline-flex items-center gap-1.5">
@@ -91,7 +92,7 @@ export function GuideArticle({
         /* Photo hero: image full-bleed, moss gradient for readability, title on top */
         <header data-hero="dark" className="relative -mt-[72px] overflow-hidden bg-moss text-soft lg:-mt-[88px]">
           <Image src={shopifyImage(heroImage.url, 2000)} alt={heroImage.alt ?? ""} fill priority sizes="100vw" className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-moss via-moss/75 to-moss/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/40 to-black/15" />
           <div className="relative mx-auto flex min-h-[70vh] max-w-7xl flex-col justify-end px-4 pb-12 pt-[7.5rem] sm:px-6 lg:min-h-[78vh] lg:px-8 lg:pb-16 lg:pt-[10rem]">
             <Breadcrumbs items={crumbs} className="mb-6 [&_*]:text-soft/70 [&_[aria-current]]:text-soft" />
             {topicHref ? (

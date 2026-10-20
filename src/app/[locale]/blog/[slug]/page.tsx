@@ -70,7 +70,7 @@ export default async function BlogArticlePage({ params }: Props) {
   const linked = Array.from(
     article.contentHtml.matchAll(/\/products\/([a-z0-9%\-]+)/gi),
   ).map((m) => decodeURIComponent(m[1]));
-  const products = Array.from(new Set(linked))
+  const products = Array.from(new Set([...extracted.productHandles, ...linked]))
     .map((h) => allProducts.find((pr) => pr.handle === h))
     .filter((x): x is NonNullable<typeof x> => Boolean(x))
     .slice(0, 2);
