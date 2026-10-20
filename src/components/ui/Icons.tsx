@@ -122,6 +122,16 @@ export const GlobeIcon = (p: P) => (
     <path d="M3.5 12h17M12 3.5c2.5 2.6 3.8 5.4 3.8 8.5s-1.3 5.9-3.8 8.5c-2.5-2.6-3.8-5.4-3.8-8.5S9.5 6.1 12 3.5Z" />
   </svg>
 );
+export const SendIcon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M21 3 10.5 13.5M21 3l-6.5 18-4-7.5L3 9.5 21 3Z" />
+  </svg>
+);
+export const DoubleCheckIcon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="m2 12.5 4 4L14.5 8M9.5 16.5l1 1L21 8" />
+  </svg>
+);
 export const SparkIcon = (p: P) => (
   <svg {...base(p)}>
     <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />

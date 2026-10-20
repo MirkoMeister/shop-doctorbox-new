@@ -171,13 +171,16 @@ body {
 
 /* Brand highlight: key words in headlines sit in a rounded pale-green box */
 .hl {
+  /* inline-block: the phrase moves to the next line as a unit; if it still has to wrap,
+     the words wrap inside one rounded box instead of leaving overlapping fragments */
+  display: inline-block;
   background: var(--color-lind);
   color: inherit;
   border-radius: 0.45em;
-  padding: 0.04em 0.28em;
+  padding: 0.02em 0.28em 0.06em;
   margin: 0 -0.04em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+  line-height: 1.08;
+  vertical-align: baseline;
 }
 .hl-dark {
   background: rgba(126, 195, 161, 0.28);

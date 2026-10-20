@@ -19,8 +19,8 @@ export function CollectionHero({ locale, dict, copy, crumbs }: { locale: Locale;
         <Image src="/brand/shape-circle.svg" alt="" width={369} height={369} className="absolute -bottom-32 right-[36%] w-[260px] opacity-[0.12] lg:w-[420px]" />
         <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_80%_20%,rgba(126,195,161,0.22),transparent_60%)]" />
       </div>
-      <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pb-12 pt-[6.5rem] sm:px-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center lg:gap-16 lg:px-8 lg:pb-20 lg:pt-[9rem]">
-        <div>
+      <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-10 px-4 pb-12 pt-[6.5rem] sm:px-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center lg:gap-16 lg:px-8 lg:pb-20 lg:pt-[9rem]">
+        <div className="min-w-0">
           <Breadcrumbs items={crumbs} className="mb-6 [&_*]:text-soft/70 [&_[aria-current]]:text-soft" />
           <p className="text-sm font-medium text-turquoise">{copy.kicker}</p>
           <h1 className="h-display mt-3 text-balance">
@@ -38,7 +38,7 @@ export function CollectionHero({ locale, dict, copy, crumbs }: { locale: Locale;
             ))}
           </ul>
         </div>
-        <div className="rise lg:justify-self-end lg:w-full lg:max-w-[520px]">
+        <div className="rise min-w-0 lg:w-full lg:max-w-[520px] lg:justify-self-end">
           <HeroChat locale={locale} dict={dict} chat={copy.chat} />
         </div>
       </div>

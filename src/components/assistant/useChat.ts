@@ -7,8 +7,8 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 export type Part = { type: "text"; text: string } | { type: "products"; items: ProductTeaser[]; reason?: string };
 export type Turn =
-  | { id: string; role: "user"; text: string }
-  | { id: string; role: "assistant"; parts: Part[]; pending: boolean; error?: string };
+  | { id: string; role: "user"; text: string; at: number }
+  | { id: string; role: "assistant"; parts: Part[]; pending: boolean; error?: string; at: number };
 
 // crypto.randomUUID is unavailable outside secure contexts (e.g. LAN access over http)
 let seq = 0;
@@ -38,10 +38,10 @@ export function useChat({ locale, dict, topic }: { locale: Locale; dict: Diction
     async (text: string) => {
       const q = text.trim();
       if (!q || busy) return;
-      const userTurn: Turn = { id: nextId(), role: "user", text: q };
+      const userTurn: Turn = { id: nextId(), role: "user", text: q, at: Date.now() };
       const replyId = nextId();
       const history = [...turnsRef.current, userTurn];
-      setTurns([...history, { id: replyId, role: "assistant", parts: [], pending: true }]);
+      setTurns([...history, { id: replyId, role: "assistant", parts: [], pending: true, at: Date.now() }]);
       setBusy(true);
       abortRef.current?.abort();
       const ctrl = new AbortController();

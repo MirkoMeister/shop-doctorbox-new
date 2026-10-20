@@ -6,7 +6,8 @@ import { Thread } from "./Thread";
 import { useChat } from "./useChat";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import { CloseIcon, SparkIcon } from "@/components/ui/Icons";
+import { CloseIcon } from "@/components/ui/Icons";
+import { MiraAvatar } from "./MiraAvatar";
 
 /**
  * Side panel for Mira. Streams from /api/assistant via useChat; state lives in the tab only.
@@ -74,9 +75,7 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
       >
         <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-lind text-moss">
-              <SparkIcon width={20} height={20} />
-            </span>
+            <MiraAvatar size={40} />
             <div>
               <h2 className="font-semibold leading-tight">{t.title}</h2>
               <p className="text-xs text-ink-muted">{t.subtitle}</p>
