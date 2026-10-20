@@ -392,6 +392,7 @@ const ARTICLE_FIELDS = /* GraphQL */ `
     handle
     title
     excerpt
+    summary: content(truncateAt: 700)
     publishedAt
     tags
     authorV2 {
@@ -412,11 +413,12 @@ const ARTICLE_FIELDS = /* GraphQL */ `
   ${IMAGE_FRAGMENT}
 `;
 
-type RawArticle = Omit<Article, "author" | "contentHtml"> & { authorV2: { name: string } | null; contentHtml?: string };
+type RawArticle = Omit<Article, "author" | "contentHtml" | "summary"> & { authorV2: { name: string } | null; contentHtml?: string; summary?: string | null };
 const reshapeArticle = (a: RawArticle): Article => ({
   handle: a.handle,
   title: decodeEntities(a.title),
   excerpt: a.excerpt,
+  summary: a.summary ?? null,
   contentHtml: a.contentHtml ?? "",
   publishedAt: a.publishedAt,
   image: a.image,

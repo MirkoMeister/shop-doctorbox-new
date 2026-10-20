@@ -150,9 +150,29 @@ export function TrustBand({ dict }: { dict: Dictionary }) {
 }
 
 /* Blog teasers ------------------------------------------------------------ */
+/**
+ * Card summary when no Shopify excerpt is set: the plain-text start of the article,
+ * minus the template's eyebrow and repeated title, cut at a sentence end.
+ */
+function summaryOf(article: Article): string | null {
+  const raw = article.summary ? stripHtml(article.summary) : article.contentHtml ? stripHtml(article.contentHtml) : "";
+  if (!raw) return null;
+  // templated articles start with their own CSS in the plain text: drop everything up to the last "}"
+  let text = /\{[^}]*\}/.test(raw.slice(0, 300)) ? raw.slice(raw.lastIndexOf("}") + 1) : raw;
+  const t = article.title.trim();
+  const idx = t ? text.indexOf(t) : -1;
+  if (idx !== -1 && idx < 160) text = text.slice(idx + t.length);
+  text = text.replace(/^[\s·:.\-–—]+/, "").trim();
+  if (!text) return null;
+  const cut = text.length > 150 ? text.slice(0, 150) : text;
+  const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+  return end > 60 ? cut.slice(0, end + 1) : truncate(text, 150);
+}
+
 export function ArticleCard({ article, locale, dict }: { article: Article; locale: Locale; dict: Dictionary }) {
   const href = localeHref(locale, `/blog/${article.handle}`);
-  const excerpt = article.excerpt ? stripHtml(article.excerpt) : truncate(stripHtml(article.contentHtml), 150);
+  // excerpt from Shopify → SEO description → start of the article text
+  const excerpt = article.excerpt?.trim() ? stripHtml(article.excerpt) : article.seo.description?.trim() || summaryOf(article);
   return (
     <article className="group flex h-full flex-col">
       <Link href={href} className="relative block aspect-[16/10] overflow-hidden rounded-[var(--radius-card)] bg-lind">

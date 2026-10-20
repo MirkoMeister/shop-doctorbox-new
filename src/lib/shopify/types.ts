@@ -112,6 +112,8 @@ export type Article = {
   handle: string;
   title: string;
   excerpt: string | null;
+  /** plain-text start of the article (for card summaries when no excerpt is set) */
+  summary: string | null;
   contentHtml: string;
   publishedAt: string;
   image: Image | null;
