@@ -38,8 +38,8 @@ export function Hero({
               sizes="100vw"
               className="object-cover object-[72%_center] lg:object-[center_35%]"
             />
-            {/* readability: solid moss on the left where the copy sits, photo breathes on the right */}
-            <div className="absolute inset-0 bg-gradient-to-b from-moss/85 via-moss/70 to-moss/90 lg:bg-gradient-to-r lg:from-moss lg:via-moss/80 lg:to-moss/10" />
+            {/* no colour tint: only a neutral scrim where the copy sits so white text stays legible */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/30 to-black/50 lg:bg-gradient-to-r lg:from-black/55 lg:via-black/25 lg:to-transparent" />
           </>
         ) : (
           <>
