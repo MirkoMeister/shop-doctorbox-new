@@ -24,14 +24,19 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
 
   useEffect(() => {
     if (!open) return;
+    // lock the page without a layout jump: keep the space of the vanishing scrollbar
+    const gutter = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = "hidden";
+    if (gutter > 0) document.body.style.paddingRight = `${gutter}px`;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", onKey);
-    const id = requestAnimationFrame(() => inputRef.current?.focus());
+    // focus after the slide-in so the browser does not fight the transform
+    const id = window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 400);
     return () => {
       document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
       document.removeEventListener("keydown", onKey);
-      cancelAnimationFrame(id);
+      window.clearTimeout(id);
     };
   }, [open, setOpen]);
 
@@ -52,13 +57,13 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
         tabIndex={-1}
         aria-label={dict.nav.close}
         onClick={() => setOpen(false)}
-        className={`absolute inset-0 bg-moss/40 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-moss/40 transition-opacity duration-[380ms] ease-out ${open ? "opacity-100" : "opacity-0"}`}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={t.title}
-        className={`absolute inset-y-0 right-0 flex w-full flex-col bg-white shadow-float transition-transform duration-300 ease-[cubic-bezier(.2,.7,.2,1)] sm:w-[min(100%,480px)] ${
+        className={`absolute inset-y-0 right-0 flex w-full transform-gpu flex-col bg-white shadow-float will-change-transform transition-transform duration-[380ms] ease-[cubic-bezier(.16,1,.3,1)] sm:w-[min(100%,480px)] ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >

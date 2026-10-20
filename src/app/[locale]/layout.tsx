@@ -9,6 +9,7 @@ import { Header } from "@/components/layout/Header";
 import { Analytics } from "@/components/analytics/Analytics";
 import { AssistantProvider } from "@/components/assistant/AssistantProvider";
 import { AssistantPanel } from "@/components/assistant/AssistantPanel";
+import { AssistantTab } from "@/components/assistant/AssistantTab";
 import { SUGGESTIONS } from "@/lib/assistant/prompt";
 import { isLocale, locales, siteUrl, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -76,6 +77,7 @@ export default async function LocaleLayout({
           <Footer locale={locale} dict={dict} collections={collections} />
           <CartDrawer locale={locale} dict={dict} />
           <AssistantPanel locale={locale} dict={dict} suggestions={SUGGESTIONS[locale]} />
+          <AssistantTab label={dict.assistant.open} />
           </AssistantProvider>
         </CartProvider>
         <Analytics locale={locale} />
