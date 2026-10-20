@@ -176,9 +176,9 @@ export function ArticleCard({ article, locale, dict }: { article: Article; local
           </Link>
         </h3>
         {excerpt && <p className="mt-2 line-clamp-3 text-[0.95rem] text-ink-muted">{excerpt}</p>}
-        <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-green">
-          {dict.blog.readMore} <ArrowRight width={14} height={14} />
-        </span>
+        <Link href={href} className="mt-auto inline-flex items-center gap-1 pt-3 text-sm font-medium text-green hover:underline underline-offset-4">
+          {dict.blog.readMore} <ArrowRight width={14} height={14} className="transition-transform group-hover:translate-x-0.5" />
+        </Link>
       </div>
     </article>
   );
