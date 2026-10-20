@@ -178,11 +178,15 @@ body {
   color: inherit;
   /* blob: uneven corners and a hair of tilt, like a brush dab */
   border-radius: 1.1em 0.6em 1em 0.55em / 0.6em 1em 0.55em 1.1em;
-  padding: 0.02em 0.32em 0.06em 0.3em;
+  padding: 0.02em 0.32em 0.04em 0.3em;
   margin: 0 -0.04em;
-  line-height: 1.08;
+  line-height: 1.04;
   vertical-align: baseline;
   transform: rotate(-1.2deg);
+}
+/* headlines that carry a blob get a little more leading so the box never touches the line above */
+:is(h1, h2, h3, .h-display, .h1, .h2, .h3):has(.hl) {
+  line-height: 1.18;
 }
 .hl-dark {
   /* opaque on photos and dark panels: brand green box, cream text inherited */
