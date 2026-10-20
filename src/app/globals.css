@@ -176,11 +176,13 @@ body {
   display: inline-block;
   background: var(--color-lind);
   color: inherit;
-  border-radius: 0.45em;
-  padding: 0.02em 0.28em 0.06em;
+  /* blob: uneven corners and a hair of tilt, like a brush dab */
+  border-radius: 1.1em 0.6em 1em 0.55em / 0.6em 1em 0.55em 1.1em;
+  padding: 0.02em 0.32em 0.06em 0.3em;
   margin: 0 -0.04em;
   line-height: 1.08;
   vertical-align: baseline;
+  transform: rotate(-1.2deg);
 }
 .hl-dark {
   /* opaque on photos and dark panels: brand green box, cream text inherited */
