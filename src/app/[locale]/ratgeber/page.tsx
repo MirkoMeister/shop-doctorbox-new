@@ -56,9 +56,14 @@ export default async function GuideIndex({ params }: Props) {
       description: meta.get(p.handle)?.description ?? null,
     });
   // Search index: title, SEO description, a short excerpt and the lab values the page talks about
-  const valueNames = Object.entries(VALUES).map(
-    ([key, v]) => v.title?.[locale] ?? key,
-  );
+  // value names without parentheticals ("Vitamin D (25-OH)" → "Vitamin D") so they match running text
+  const valueNames = Array.from(
+    new Set(
+      Object.entries(VALUES).map(([key, v]) =>
+        (v.title?.[locale] ?? key).replace(/\s*\(.*?\)\s*/g, "").trim(),
+      ),
+    ),
+  ).filter((n) => n.length > 2);
   const entries: GuideEntry[] = await Promise.all(
     Array.from(meta.entries())
       .filter(([h]) => isGuidePage(h))
