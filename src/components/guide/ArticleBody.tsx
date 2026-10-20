@@ -55,7 +55,11 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
           case "subtitle":
             return <p key={i} className="article-inline mt-3 text-[1.125rem] leading-relaxed text-ink-muted" dangerouslySetInnerHTML={{ __html: b.html }} />;
           case "paragraph":
-            return <p key={i} className="article-inline mt-5 text-[1.125rem] leading-[1.7]" dangerouslySetInnerHTML={{ __html: b.html }} />;
+            return /<(ul|ol)\b/.test(b.html) ? (
+              <div key={i} className="article-inline mt-5 text-[1.125rem] leading-[1.7]" dangerouslySetInnerHTML={{ __html: b.html }} />
+            ) : (
+              <p key={i} className="article-inline mt-5 text-[1.125rem] leading-[1.7]" dangerouslySetInnerHTML={{ __html: b.html }} />
+            );
           case "list": {
             const Tag = b.ordered ? "ol" : "ul";
             return (
@@ -98,7 +102,7 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
                     )}
                     {c.value && <span className="block text-3xl font-semibold tabular-nums text-moss">{c.value}</span>}
                     {c.title && <h3 className={`font-semibold leading-snug text-moss ${c.value ? "mt-1 text-[0.95rem] text-ink-muted" : ""}`}>{c.title}</h3>}
-                    {c.html && <p className="article-inline mt-2 text-[0.98rem] leading-relaxed text-ink/85" dangerouslySetInnerHTML={{ __html: c.html }} />}
+                    {c.html && <div className="article-inline mt-2 text-[0.98rem] leading-relaxed text-ink/85" dangerouslySetInnerHTML={{ __html: c.html }} />}
                     {c.points && c.points.length > 0 && (
                       <ul className="article-inline mt-3 space-y-1.5 text-[0.95rem]">
                         {c.points.map((p, j) => (
@@ -109,7 +113,7 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
                         ))}
                       </ul>
                     )}
-                    {c.note && <p className="article-inline mt-3 border-t border-ink/10 pt-3 text-sm text-ink-muted" dangerouslySetInnerHTML={{ __html: c.note }} />}
+                    {c.note && <div className="article-inline mt-3 border-t border-ink/10 pt-3 text-sm text-ink-muted" dangerouslySetInnerHTML={{ __html: c.note }} />}
                   </li>
                 ))}
               </ul>
@@ -134,7 +138,10 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
                   {b.items.map((it, k) => (
                     <li key={k} className="flex gap-4">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-moss text-sm font-semibold text-soft">{k + 1}</span>
-                      <p className="article-inline pt-1 leading-relaxed" dangerouslySetInnerHTML={{ __html: it }} />
+                      <div className="min-w-0 pt-1">
+                        {it.title && <p className="font-semibold leading-snug text-moss">{it.title}</p>}
+                        {it.html && <div className="article-inline leading-relaxed" dangerouslySetInnerHTML={{ __html: it.html }} />}
+                      </div>
                     </li>
                   ))}
                 </ol>
@@ -143,14 +150,14 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
           case "faq":
             return (
               <div key={i} className="mt-6">
-                <Accordion items={b.items.map((f) => ({ title: f.q, content: <p className="article-inline" dangerouslySetInnerHTML={{ __html: f.a }} /> }))} />
+                <Accordion items={b.items.map((f) => ({ title: f.q, content: <div className="article-inline" dangerouslySetInnerHTML={{ __html: f.a }} /> }))} />
               </div>
             );
           case "callout":
             return (
               <aside key={i} className="mt-8 rounded-2xl border-l-4 border-green bg-lind/50 p-5">
                 {b.title && <p className="font-semibold text-moss">{b.title}</p>}
-                <p className="article-inline mt-1.5 leading-relaxed" dangerouslySetInnerHTML={{ __html: b.html }} />
+                {b.html && <div className="article-inline mt-1.5 leading-relaxed" dangerouslySetInnerHTML={{ __html: b.html }} />}
                 {b.cta && <CtaLink href={b.cta.href} label={b.cta.label} className="btn btn-secondary btn-sm mt-4" />}
               </aside>
             );
@@ -233,6 +240,43 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
                   </tbody>
                 </table>
               </div>
+            );
+          case "svg":
+            return (
+              <figure key={i} className="mt-8 rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
+                {b.title && <figcaption className="mb-4 font-semibold text-moss">{b.title}</figcaption>}
+                <div className="article-svg w-full" dangerouslySetInnerHTML={{ __html: b.svg }} />
+                {b.axis.length > 0 && (
+                  <div className="relative mt-1 h-5 text-[0.7rem] text-ink-muted">
+                    {b.axis.map((a, k) => (
+                      <span key={k} className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: `${a.left}%` }}>
+                        {a.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {b.legend.length > 0 && (
+                  <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-muted">
+                    {b.legend.map((l, k) => (
+                      <li key={k} className="inline-flex items-center gap-2">
+                        <span className={`h-2.5 w-2.5 rounded-full ${k === 0 ? "bg-green" : k === 1 ? "bg-ink-muted/60" : "bg-lind-deep"}`} aria-hidden />
+                        {l}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {b.note && <p className="article-inline mt-3 text-xs leading-snug text-ink-muted" dangerouslySetInnerHTML={{ __html: b.note }} />}
+              </figure>
+            );
+          case "chips":
+            return (
+              <ul key={i} className="mt-5 flex flex-wrap gap-2">
+                {b.items.map((c, k) => (
+                  <li key={k} className={`rounded-full px-3 py-1.5 text-sm font-medium ${c.tone === "alert" ? "bg-[#fbe9e6] text-[#8f2f24]" : c.tone === "warn" ? "bg-okker/40 text-moss" : "bg-lind/70 text-moss"}`}>
+                    {c.label}
+                  </li>
+                ))}
+              </ul>
             );
           case "conclusion":
             return (

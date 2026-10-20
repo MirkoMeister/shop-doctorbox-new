@@ -375,6 +375,28 @@ body {
   font-weight: 600;
   color: var(--color-moss);
 }
+.article-inline .pill {
+  display: inline-block;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-lind) 70%, white);
+  color: var(--color-moss);
+  padding: 0.1em 0.6em;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin: 0.1em 0.15em 0.1em 0;
+}
+.article-inline .pill-warn {
+  background: color-mix(in srgb, var(--color-okker) 45%, white);
+}
+.article-inline .pill-alert {
+  background: #fbe9e6;
+  color: #8f2f24;
+}
+.article-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
 .article-inline--dark strong {
   color: var(--color-soft);
 }

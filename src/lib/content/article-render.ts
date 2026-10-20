@@ -21,13 +21,15 @@ export type Block =
   | { type: "quote"; html: Inline }
   | { type: "cards"; items: Card[] }
   | { type: "stats"; items: { value: string; label: string }[] }
-  | { type: "steps"; title: string | null; items: Inline[] }
+  | { type: "steps"; title: string | null; items: { title?: string; html: Inline }[] }
   | { type: "faq"; items: { q: string; a: Inline }[] }
   | { type: "callout"; title: string | null; html: Inline; cta?: Cta }
   | { type: "conclusion"; title: string; html: Inline; cta?: Cta }
   | { type: "chart"; title: string | null; bars: { label: string; value: number; high: boolean }[]; marker?: { index: number; label: string }; legend: { high: boolean; label: string }[]; note: Inline | null }
   | { type: "bars"; items: { label: string; value: string; pct: number; tone: CardTone }[]; note: Inline | null }
-  | { type: "table"; head: string[]; rows: Inline[][] };
+  | { type: "table"; head: string[]; rows: Inline[][] }
+  | { type: "svg"; title: string | null; svg: string; axis: { label: string; left: number }[]; legend: string[]; note: Inline | null }
+  | { type: "chips"; items: { label: string; tone: CardTone }[] };
 
 export type ExtractedArticle = {
   kicker: string | null;
@@ -318,16 +320,23 @@ function extractLegacy(html: string): ExtractedArticle {
 
 /* ------------------------------------------------------------------------------------------ */
 /* Templated articles ("BlogPage": hero, panels, cards, timeline, FAQ, Fazit box)              */
+/* Detection is generic: "*-card" → card, "*-grid" or a run of cards → grid, <details> → FAQ, */
+/* "*-pill" → chip, inline <svg> → brand-coloured vector figure.                               */
 /* ------------------------------------------------------------------------------------------ */
 
 const isTemplated = (html: string) => /class="[^"]*\b(BlogPage|section-title|hero-text-content)\b/.test(html);
 
+const cls = (n: HNode) => classes(n).join(" ");
+const endsWith = (n: HNode, suffix: string) => classes(n).some((c) => c.endsWith(suffix) || c.includes(`${suffix}--`));
+const DECOR = (n: HNode) => ["img", "svg", "style", "script", "link", "meta", "input", "button", "i"].includes(n.tag) || /(^|\s)(dot|icon|[a-z-]*-icon|[a-z-]*-dot|icon-badge|[a-z-]*-header)(\s|$)/.test(cls(n));
+const toneOfClass = (c: string): CardTone => (/--warn|warning|--risk|risk-medium/.test(c) ? "warn" : /--alert|danger|risk-high|--red/.test(c) ? "alert" : /info|recommendation|--info|risk-low|--good|--best/.test(c) ? "info" : "default");
+
 /** Serialise a subtree to sanitised inline HTML (text, strong/em/a/br; paragraphs become line breaks, lists stay lists). */
-function inlineOf(n: HChild, opts: { paragraphs?: boolean } = {}): Inline {
+function inlineOf(n: HChild): Inline {
   if (!isNode(n)) return escape(n);
-  if (["style", "script", "svg", "img", "link", "meta", "button", "input"].includes(n.tag)) return "";
+  if (DECOR(n) && n.tag !== "i") return "";
   if (n.tag === "br") return "<br>";
-  const inner = () => n.children.map((c) => inlineOf(c, opts)).join("");
+  const inner = () => n.children.map((c) => inlineOf(c)).join("");
   if (n.tag === "strong" || n.tag === "b") return `<strong>${inner()}</strong>`;
   if (n.tag === "em" || n.tag === "i") return `<em>${inner()}</em>`;
   if (n.tag === "sup" || n.tag === "sub") return `<${n.tag}>${inner()}</${n.tag}>`;
@@ -338,11 +347,12 @@ function inlineOf(n: HChild, opts: { paragraphs?: boolean } = {}): Inline {
     const external = /^https?:\/\//.test(h);
     return `<a href="${escape(h)}"${external ? ' target="_blank" rel="noopener"' : ""}>${inner()}</a>`;
   }
+  if (/(^|\s)[a-z-]*pill(\s|$|--)/.test(cls(n))) return `<span class="pill pill-${toneOfClass(cls(n))}">${escape(cleanText(textOf(n)))}</span> `;
   if (n.tag === "ul" || n.tag === "ol") {
-    const items = nodes(n).filter((c) => c.tag === "li").map((li) => `<li>${inlineOf(li, opts)}</li>`);
+    const items = nodes(n).filter((c) => c.tag === "li").map((li) => `<li>${inlineOf(li)}</li>`);
     return `<${n.tag}>${items.join("")}</${n.tag}>`;
   }
-  if (n.tag === "p" || n.tag === "div" || /^h[1-6]$/.test(n.tag)) {
+  if (n.tag === "p" || n.tag === "div" || n.tag === "label" || /^h[1-6]$/.test(n.tag)) {
     const t = inner().trim();
     return t ? `${t}<br><br>` : "";
   }
@@ -353,7 +363,35 @@ const tidy = (html: string) =>
     .replace(/\s+/g, " ")
     .replace(/(<br>\s*)+$/g, "")
     .replace(/^(\s*<br>)+/g, "")
+    .replace(/(<br>\s*){3,}/g, "<br><br>")
     .trim();
+
+/** Known-palette recolouring for inline SVG charts so they sit in the brand */
+const SVG_COLORS: Record<string, string> = {
+  "#d9534f": "#0E834B",
+  "#e0f1e7": "#CBDFC6",
+  "#9aa5b1": "#8A96A3",
+  "#cbd5e0": "#D9DEE3",
+  "#0e834b": "#0E834B",
+  "#0e4d2f": "#0E4D2F",
+};
+function svgMarkup(n: HNode): string {
+  const ser = (x: HChild): string => {
+    if (!isNode(x)) return escape(x);
+    if (x.tag === "script" || x.tag === "foreignobject") return "";
+    const attrs = Object.entries(x.attrs)
+      .filter(([k]) => !/^on/i.test(k) && k !== "class" && k !== "style" && k !== "id")
+      .map(([k, v]) => {
+        const key = { viewbox: "viewBox", preserveaspectratio: "preserveAspectRatio", strokewidth: "stroke-width" }[k] ?? k;
+        const val = SVG_COLORS[v.toLowerCase()] ?? v;
+        return `${key}="${escape(val)}"`;
+      })
+      .join(" ");
+    const inner = x.children.map(ser).join("");
+    return `<${x.tag}${attrs ? " " + attrs : ""}>${inner}</${x.tag}>`;
+  };
+  return ser(n);
+}
 
 function extractTemplated(html: string): ExtractedArticle {
   const root = parseHtml(html);
@@ -362,8 +400,9 @@ function extractTemplated(html: string): ExtractedArticle {
   let kicker: string | null = null;
   let pendingKicker: string | null = null;
 
+  const inline = (n: HNode) => tidy(n.children.map((c) => inlineOf(c)).join(""));
   const pushParagraph = (n: HNode) => {
-    const h = tidy(n.children.map((c) => inlineOf(c)).join(""));
+    const h = inline(n);
     if (h && stripHtml(h).trim()) blocks.push({ type: "paragraph", html: h });
   };
   const heading = (n: HNode, level: 2 | 3 | 4) => {
@@ -376,8 +415,9 @@ function extractTemplated(html: string): ExtractedArticle {
     }
     blocks.push(b);
   };
+  const isCtaLink = (x: HNode) => x.tag === "a" && /button|btn|cta/.test(cls(x));
   const ctaOf = (n: HNode): Cta | undefined => {
-    const a = find(n, (x) => x.tag === "a" && (hasClass(x, "cta-button") || hasClass(x, "product-button")));
+    const a = find(n, isCtaLink);
     if (!a?.attrs.href) return undefined;
     return { label: cleanText(textOf(a)), href: rewriteHref(a.attrs.href) };
   };
@@ -387,53 +427,46 @@ function extractTemplated(html: string): ExtractedArticle {
       if (m) productHandles.push(decodeURIComponent(m[1]));
     }
   };
-  const toneOf = (n: HNode): CardTone => {
-    const c = classes(n).join(" ");
-    if (/--warn|warning/.test(c)) return "warn";
-    if (/--alert|danger|red/.test(c)) return "alert";
-    if (/info-box|--info/.test(c)) return "info";
-    return "default";
-  };
-  const CARD = (n: HNode) =>
-    ["mini-card", "reason-card", "step-card", "info-box", "checklist-card", "symptom-card", "stat-card", "signal-card", "symptom-item", "benefit-card", "fact-card"].some((c) => hasClass(n, c));
-  const GRID = (n: HNode) =>
-    ["intro-split", "mini-stack", "reason-grid", "steps-grid", "stat-grid", "signal-grid", "symptoms-grid", "card-grid", "cards", "grid", "benefits-grid"].some((c) => hasClass(n, c));
+
+  const isCard = (n: HNode) =>
+    ["div", "article", "section", "li", "a"].includes(n.tag) &&
+    (endsWith(n, "-card") || endsWith(n, "-box") || endsWith(n, "-item") || endsWith(n, "-block") || /(^|\s)(card|highlight|panel-card)(\s|$)/.test(cls(n))) &&
+    !/(^|\s)(timeline-item|faq-item|selftest-item|product-card|blog-card|season-card|bar-card|flow-card|rhythm-card|chart-card|option-row)(\s|$)/.test(cls(n));
+  const isGrid = (n: HNode) => endsWith(n, "-grid") || endsWith(n, "-split") || endsWith(n, "-stack") || /(^|\s)(grid|cards|flow)(\s|$)/.test(cls(n));
 
   const cardOf = (n: HNode): Card | { stat: { value: string; label: string } } | null => {
-    // stat tile: <span class="count"> + <span class="label">
-    const count = find(n, (x) => hasClass(x, "count") || hasClass(x, "stat-value") || hasClass(x, "stat-number"));
-    const label = find(n, (x) => hasClass(x, "label") || hasClass(x, "stat-label"));
+    const count = find(n, (x) => /(^|\s)(count|stat-value|stat-number)(\s|$)/.test(cls(x)));
+    const label = find(n, (x) => /(^|\s)(label|stat-label)(\s|$)/.test(cls(x)));
     if (count && label) return { stat: { value: cleanText(textOf(count)), label: cleanText(textOf(label)) } };
-    const titleNode = find(n, (x) => /^h[2-6]$/.test(x.tag) || hasClass(x, "symptom-title") || hasClass(x, "card-title"));
+    const titleNode = find(n, (x) => /^h[2-6]$/.test(x.tag) || endsWith(x, "-title") || x.tag === "summary");
     const title = titleNode ? cleanText(textOf(titleNode)) : "";
-    const badge = find(n, (x) => hasClass(x, "signal-badge") || hasClass(x, "badge"));
-    const kickerNode = find(n, (x) => hasClass(x, "signal-kicker") || hasClass(x, "card-kicker"));
-    const note = find(n, (x) => hasClass(x, "signal-note") || hasClass(x, "note"));
-    const big = find(n, (x) => hasClass(x, "big-number") || hasClass(x, "card-number"));
-    const points = find(n, (x) => x.tag === "ul" && (hasClass(x, "signal-points") || hasClass(x, "checklist-list") || hasClass(x, "symptom-list") || hasClass(x, "info-list")));
+    const badge = find(n, (x) => endsWith(x, "-badge") || endsWith(x, "-number") || endsWith(x, "-num") || endsWith(x, "-step"));
+    const kickerNode = find(n, (x) => x !== titleNode && (endsWith(x, "-kicker") || endsWith(x, "-eyebrow") || endsWith(x, "-label") || endsWith(x, "-days") || endsWith(x, "-meta")));
+    const big = find(n, (x) => /(^|\s)(big-number|card-number)(\s|$)/.test(cls(x)) || endsWith(x, "-value"));
+    const note = find(n, (x) => endsWith(x, "-note"));
+    const points = find(n, (x) => x.tag === "ul" || x.tag === "ol");
     const skip = new Set<HNode>([titleNode, badge, kickerNode, note, points, big].filter(Boolean) as HNode[]);
-    // body: everything that is not one of the structured parts
     const bodyParts: string[] = [];
     const collect = (x: HNode) => {
       for (const c of x.children) {
         if (!isNode(c)) {
-          if (c.trim()) bodyParts.push(escape(c));
+          if (c.trim()) bodyParts.push(escape(cleanText(c)) + " ");
           continue;
         }
-        if (skip.has(c) || ["img", "svg", "style", "script"].includes(c.tag)) continue;
+        if (skip.has(c) || DECOR(c)) continue;
         if (c.tag === "div" || c.tag === "section" || c.tag === "article") collect(c);
         else bodyParts.push(inlineOf(c));
       }
     };
     collect(n);
-    const body = tidy(bodyParts.join(" "));
+    const body = tidy(bodyParts.join(""));
     if (!title && !body) return null;
-    const card: Card = { title, html: body, tone: toneOf(n) };
+    const card: Card = { title, html: body, tone: toneOfClass(cls(n)) };
     if (badge) card.badge = cleanText(textOf(badge));
     if (kickerNode) card.kicker = cleanText(textOf(kickerNode));
-    if (points) card.points = nodes(points).filter((li) => li.tag === "li").map((li) => tidy(inlineOf(li)));
-    if (note) card.note = tidy(note.children.map((c) => inlineOf(c)).join(""));
     if (big) card.value = cleanText(textOf(big));
+    if (points) card.points = nodes(points).filter((li) => li.tag === "li").map((li) => tidy(inlineOf(li)));
+    if (note) card.note = inline(note);
     return card;
   };
 
@@ -441,6 +474,7 @@ function extractTemplated(html: string): ExtractedArticle {
     const cards: Card[] = [];
     const stats: { value: string; label: string }[] = [];
     for (const c of cardNodes) {
+      noteProduct(c);
       const r = cardOf(c);
       if (!r) continue;
       if ("stat" in r) stats.push(r.stat);
@@ -449,33 +483,36 @@ function extractTemplated(html: string): ExtractedArticle {
     if (stats.length) blocks.push({ type: "stats", items: stats });
     if (cards.length) blocks.push({ type: "cards", items: cards });
   };
+  const leafCards = (n: HNode) => findAll(n, isCard).filter((x) => !findAll(x, isCard).length);
 
   const walk = (n: HNode, ctx: { inFaq: boolean }) => {
-    for (const c of n.children) {
+    const kids = n.children;
+    for (let i = 0; i < kids.length; i++) {
+      const c = kids[i];
       if (!isNode(c)) {
         if (c.trim()) blocks.push({ type: "paragraph", html: escape(cleanText(c)) });
         continue;
       }
       const tag = c.tag;
-      if (["style", "script", "link", "meta", "svg", "button", "form", "input", "nav", "footer", "noscript", "iframe"].includes(tag)) continue;
+      const k = cls(c);
+      if (["style", "script", "link", "meta", "button", "form", "input", "nav", "footer", "noscript", "iframe", "svg"].includes(tag)) continue;
       if (tag === "img") {
         const src = c.attrs.src ?? c.attrs["data-src"] ?? "";
         const alt = c.attrs.alt ?? "";
         if (isContentImage(src, alt)) blocks.push({ type: "image", src, alt });
         continue;
       }
-      // hero: lead paragraphs + highlight; title/eyebrow come from the article itself
-      if (hasClass(c, "hero") && (tag === "section" || tag === "div")) {
+      // hero: lead paragraphs + highlight; title and eyebrow come from the article itself
+      if (/(^|\s)hero(\s|$)/.test(k) && (tag === "section" || tag === "div")) {
         const eyebrow = find(c, (x) => hasClass(x, "hero-eyebrow"));
         if (eyebrow && !kicker) kicker = cleanText(textOf(eyebrow));
         const textContent = find(c, (x) => hasClass(x, "hero-text-content")) ?? c;
         for (const p of nodes(textContent)) {
           if (p.tag === "p") pushParagraph(p);
           else if (hasClass(p, "hero-highlight")) {
-            const h4 = find(p, (x) => x.tag === "h4" || x.tag === "strong");
-            const title = h4 && h4.tag === "h4" ? cleanText(textOf(h4)) : null;
+            const h4 = find(p, (x) => x.tag === "h4");
             const body = tidy(p.children.filter((x) => !(isNode(x) && x === h4)).map((x) => inlineOf(x)).join(""));
-            if (body) blocks.push({ type: "callout", title, html: body });
+            if (body) blocks.push({ type: "callout", title: h4 ? cleanText(textOf(h4)) : null, html: body });
           }
         }
         continue;
@@ -485,13 +522,13 @@ function extractTemplated(html: string): ExtractedArticle {
         continue;
       }
       if (hasClass(c, "section-subtitle")) {
-        const h = tidy(c.children.map((x) => inlineOf(x)).join(""));
+        const h = inline(c);
         if (h) blocks.push({ type: "subtitle", html: h });
         continue;
       }
       if (hasClass(c, "cta-section") || hasClass(c, "fazit-box")) {
         const titleNode = find(c, (x) => x.tag === "h2" || x.tag === "h3");
-        const title = titleNode ? cleanText(textOf(titleNode)) : pendingKicker ?? "Fazit";
+        const title = titleNode ? cleanText(textOf(titleNode)) : (pendingKicker ?? "Fazit");
         const textNode = find(c, (x) => hasClass(x, "cta-text")) ?? c;
         const body = tidy(
           textNode.children
@@ -504,85 +541,107 @@ function extractTemplated(html: string): ExtractedArticle {
         pendingKicker = null;
         continue;
       }
-      if (hasClass(c, "product-card") || hasClass(c, "product-grid") || hasClass(c, "blog-grid") || hasClass(c, "blog-card")) {
+      if (/(^|\s)(product-card|product-grid|blog-grid|blog-card|test-card|test-row)(\s|$)/.test(k)) {
         noteProduct(c);
+        if (!/product|blog/.test(k)) {
+          // test teasers inside the text: keep as a compact card with link
+          pushCards([c]);
+        }
         continue;
       }
-      if (hasClass(c, "cta-strip")) {
+      if (/(^|\s)(cta-strip|sti-cta-row|cta-row)(\s|$)/.test(k)) {
         const p = find(c, (x) => x.tag === "p");
-        const body = p ? tidy(p.children.map((x) => inlineOf(x)).join("")) : tidy(c.children.filter((x) => !(isNode(x) && x.tag === "a")).map((x) => inlineOf(x)).join(""));
+        const body = p ? inline(p) : tidy(c.children.filter((x) => !(isNode(x) && x.tag === "a")).map((x) => inlineOf(x)).join(""));
         noteProduct(c);
-        if (body) blocks.push({ type: "callout", title: null, html: body, cta: ctaOf(c) });
+        if (body || ctaOf(c)) blocks.push({ type: "callout", title: null, html: body, cta: ctaOf(c) });
         continue;
       }
-      // vertical bar chart (season-chart): columns with % heights, optional "now" marker, legend, note
-      if (hasClass(c, "season-card") || hasClass(c, "season-chart") || hasClass(c, "chart-card")) {
-        const chart = hasClass(c, "season-chart") ? c : find(c, (x) => hasClass(x, "season-chart") || hasClass(x, "chart"));
+      // vertical bar chart (season-chart)
+      if (/(^|\s)(season-card|season-chart|chart-card)(\s|$)/.test(k)) {
+        const chart = hasClass(c, "season-chart") ? c : find(c, (x) => hasClass(x, "season-chart"));
         if (chart) {
           const titleNode = nodes(c).find((x) => /^h[2-6]$/.test(x.tag));
-          const cols = nodes(chart).filter((x) => hasClass(x, "season-col") || hasClass(x, "col"));
+          const cols = nodes(chart).filter((x) => hasClass(x, "season-col"));
           const bars = cols.map((col) => {
-            const bar = find(col, (x) => hasClass(x, "season-bar") || hasClass(x, "bar"));
-            const label = find(col, (x) => hasClass(x, "season-label") || hasClass(x, "label"));
+            const bar = find(col, (x) => hasClass(x, "season-bar"));
+            const label = find(col, (x) => hasClass(x, "season-label"));
             const full = label ? (find(label, (x) => hasClass(x, "full")) ?? label) : null;
             const h = Number((bar?.attrs.style ?? "").match(/height:\s*([\d.]+)%/)?.[1] ?? 0);
-            return { label: full ? cleanText(textOf(full)) : "", value: Math.max(0, Math.min(100, h)), high: bar ? /--sun|--high|--good/.test(classes(bar).join(" ")) : false };
+            return { label: full ? cleanText(textOf(full)) : "", value: Math.max(0, Math.min(100, h)), high: bar ? /--sun|--high|--good/.test(cls(bar)) : false };
           });
           const nowIdx = cols.findIndex((x) => hasClass(x, "season-col--now") || find(x, (y) => hasClass(y, "season-now")));
           const nowNode = nowIdx >= 0 ? find(cols[nowIdx], (y) => hasClass(y, "season-now")) : null;
           const nowFull = nowNode ? (find(nowNode, (x) => hasClass(x, "full")) ?? nowNode) : null;
-          const legend = findAll(c, (x) => hasClass(x, "season-legend") || hasClass(x, "legend")).flatMap((l) =>
-            nodes(l).map((s) => ({ high: Boolean(find(s, (d) => /--sun|--high|--good/.test(classes(d).join(" ")))), label: cleanText(textOf(s)) })),
-          );
+          const legend = findAll(c, (x) => endsWith(x, "-legend")).flatMap((l) => nodes(l).map((s) => ({ high: Boolean(find(s, (d) => /--sun|--high|--good/.test(cls(d)))), label: cleanText(textOf(s)) })));
           const noteNode = find(c, (x) => hasClass(x, "chart-note"));
           if (bars.length) {
-            blocks.push({
-              type: "chart",
-              title: titleNode ? cleanText(textOf(titleNode)) : null,
-              bars,
-              marker: nowIdx >= 0 && nowFull ? { index: nowIdx, label: cleanText(textOf(nowFull)) } : undefined,
-              legend,
-              note: noteNode ? tidy(noteNode.children.map((x) => inlineOf(x)).join("")) : null,
-            });
+            blocks.push({ type: "chart", title: titleNode ? cleanText(textOf(titleNode)) : null, bars, marker: nowIdx >= 0 && nowFull ? { index: nowIdx, label: cleanText(textOf(nowFull)) } : undefined, legend, note: noteNode ? inline(noteNode) : null });
             continue;
           }
         }
       }
-      // horizontal bars (bar-card): label + value + fill width
+      // inline SVG figure (e.g. rhythm-card): keep the vector, recoloured, with axis/legend/note
+      const svgNode = tag !== "p" && (endsWith(c, "-card") || endsWith(c, "-chart")) ? find(c, (x) => x.tag === "svg") : null;
+      if (svgNode) {
+        const titleNode = nodes(c).find((x) => /^h[2-6]$/.test(x.tag));
+        const axis = findAll(c, (x) => endsWith(x, "-axis")).flatMap((a) => nodes(a).map((s) => ({ label: cleanText(textOf(s)), left: Number((s.attrs.style ?? "").match(/left:\s*([\d.]+)%/)?.[1] ?? 0) })));
+        const legend = findAll(c, (x) => endsWith(x, "-legend")).flatMap((l) => nodes(l).map((s) => cleanText(textOf(s))));
+        const noteNode = find(c, (x) => hasClass(x, "chart-note"));
+        blocks.push({ type: "svg", title: titleNode ? cleanText(textOf(titleNode)) : null, svg: svgMarkup(svgNode), axis, legend, note: noteNode ? inline(noteNode) : null });
+        // cards that follow inside the same container
+        for (const sub of nodes(c)) if (isGrid(sub)) pushCards(leafCards(sub));
+        continue;
+      }
+      // horizontal bars (bar-card)
       if (hasClass(c, "bar-card")) {
         const items = findAll(c, (x) => hasClass(x, "bar-row")).map((row) => {
           const label = find(row, (x) => hasClass(x, "bar-label"));
           const strong = label ? find(label, (x) => x.tag === "strong" || hasClass(x, "bar-value")) : null;
           const span = label ? find(label, (x) => x.tag === "span") : null;
-          const fill = find(row, (x) => hasClass(x, "bar-fill") || hasClass(x, "fill"));
+          const fill = find(row, (x) => hasClass(x, "bar-fill"));
           const pct = Number((fill?.attrs.style ?? "").match(/width:\s*([\d.]+)%/)?.[1] ?? 0);
-          const tone: CardTone = fill && /--alert|--danger/.test(classes(fill).join(" ")) ? "alert" : fill && /--warn/.test(classes(fill).join(" ")) ? "warn" : "default";
-          return { label: span ? cleanText(textOf(span)) : label ? cleanText(textOf(label)) : "", value: strong ? cleanText(textOf(strong)) : "", pct: Math.max(0, Math.min(100, pct)), tone };
+          return { label: span ? cleanText(textOf(span)) : label ? cleanText(textOf(label)) : "", value: strong ? cleanText(textOf(strong)) : "", pct: Math.max(0, Math.min(100, pct)), tone: fill ? toneOfClass(cls(fill)) : ("default" as CardTone) };
         });
         const noteNode = find(c, (x) => hasClass(x, "chart-note"));
-        if (items.length) blocks.push({ type: "bars", items, note: noteNode ? tidy(noteNode.children.map((x) => inlineOf(x)).join("")) : null });
+        if (items.length) blocks.push({ type: "bars", items, note: noteNode ? inline(noteNode) : null });
         continue;
       }
       if (hasClass(c, "chart-note")) {
-        const h = tidy(c.children.map((x) => inlineOf(x)).join(""));
+        const h = inline(c);
         if (h) blocks.push({ type: "paragraph", html: `<em>${h}</em>` });
         continue;
       }
-      if (hasClass(c, "timeline-card") || hasClass(c, "timeline")) {
-        const titleNode = hasClass(c, "timeline-card") ? nodes(c).find((x) => /^h[2-6]$/.test(x.tag)) : undefined;
-        const items = findAll(c, (x) => hasClass(x, "timeline-item")).map((it) => {
+      // process flow / timeline → steps (optionally with titles)
+      if (/(^|\s)(timeline-card|timeline|flow-card|flow|steps)(\s|$)/.test(k) && !isCard(c)) {
+        const titleNode = nodes(c).find((x) => /^h[2-6]$/.test(x.tag));
+        const stepNodes = findAll(c, (x) => hasClass(x, "timeline-item") || hasClass(x, "flow-step") || /(^|\s)step(\s|$)/.test(cls(x)));
+        const items = stepNodes.map((it) => {
           const body = find(it, (x) => hasClass(x, "timeline-body")) ?? it;
-          return tidy(body.children.map((x) => inlineOf(x)).join(""));
-        });
-        if (items.length) blocks.push({ type: "steps", title: titleNode ? cleanText(textOf(titleNode)) : null, items });
-        continue;
+          const t = find(it, (x) => /^h[3-6]$/.test(x.tag));
+          const html = tidy(body.children.filter((x) => !(isNode(x) && (x === t || endsWith(x, "-num") || endsWith(x, "-step") || endsWith(x, "-number")))).map((x) => inlineOf(x)).join(""));
+          return { title: t ? cleanText(textOf(t)) : undefined, html };
+        }).filter((x) => x.title || x.html);
+        if (items.length) {
+          blocks.push({ type: "steps", title: titleNode ? cleanText(textOf(titleNode)) : null, items });
+          continue;
+        }
       }
-      // FAQ: div.faq > .item (strong + p)  |  section#faq with cards (h3 = question)
-      if (hasClass(c, "faq") && !hasClass(c, "faq-section")) {
-        const items = nodes(c)
-          .filter((x) => hasClass(x, "item") || x.tag === "details")
+      // FAQ: div.faq > .item | runs of <details> | section#faq with cards (question = title)
+      if (tag === "details" || (hasClass(c, "faq") && nodes(c).some((x) => hasClass(x, "item") || x.tag === "details"))) {
+        const detailsRun: HNode[] = [];
+        if (tag === "details") {
+          let j = i;
+          while (j < kids.length) {
+            const d = kids[j];
+            if (isNode(d) && d.tag === "details") detailsRun.push(d);
+            else if (isNode(d)) break;
+            j++;
+          }
+          i = j - 1;
+        } else detailsRun.push(...nodes(c).filter((x) => hasClass(x, "item") || x.tag === "details"));
+        const items = detailsRun
           .map((it) => {
-            const q = find(it, (x) => x.tag === "strong" || x.tag === "summary" || /^h[2-6]$/.test(x.tag));
+            const q = find(it, (x) => x.tag === "summary" || x.tag === "strong" || /^h[2-6]$/.test(x.tag));
             const a = tidy(it.children.filter((x) => !(isNode(x) && x === q)).map((x) => inlineOf(x)).join(""));
             return q ? { q: cleanText(textOf(q)), a } : null;
           })
@@ -592,8 +651,14 @@ function extractTemplated(html: string): ExtractedArticle {
           continue;
         }
       }
-      if (GRID(c)) {
-        const cardNodes = findAll(c, CARD).filter((x) => !findAll(x, CARD).length || hasClass(x, "signal-card"));
+      // standalone pills → chips
+      const pillKids = nodes(c).filter((x) => /(^|\s)[a-z-]*pill(\s|$|--)/.test(cls(x)));
+      if (pillKids.length >= 2 && pillKids.length === nodes(c).length) {
+        blocks.push({ type: "chips", items: pillKids.map((x) => ({ label: cleanText(textOf(x)), tone: toneOfClass(cls(x)) })) });
+        continue;
+      }
+      if (isGrid(c) || (nodes(c).length >= 2 && nodes(c).every((x) => isCard(x) || DECOR(x)))) {
+        const cardNodes = leafCards(c);
         if (ctx.inFaq && cardNodes.length) {
           blocks.push({
             type: "faq",
@@ -602,10 +667,29 @@ function extractTemplated(html: string): ExtractedArticle {
               .filter((r): r is Card => Boolean(r) && !("stat" in (r as object)))
               .map((r) => ({ q: r.title, a: r.html })),
           });
-        } else pushCards(cardNodes);
-        continue;
+          continue;
+        }
+        if (cardNodes.length) {
+          pushCards(cardNodes);
+          continue;
+        }
       }
-      if (CARD(c)) {
+      if (isCard(c)) {
+        // a card that wraps several cards (quiz, nested layouts) is really a grid
+        const inner = leafCards(c).filter((x) => x !== c);
+        if (inner.length >= 2) {
+          pushCards(inner);
+          continue;
+        }
+        if (/(^|\s)(highlight|recommendation-box|faq-note|info-box|support-card|quick-check-card)(\s|$)/.test(k) && !inner.length) {
+          const r = cardOf(c);
+          if (r && !("stat" in r)) {
+            const html = [r.html, r.points?.length ? `<ul>${r.points.map((p) => `<li>${p}</li>`).join("")}</ul>` : ""].filter(Boolean).join("<br>");
+            blocks.push({ type: "callout", title: r.title || null, html, cta: ctaOf(c) });
+            noteProduct(c);
+            continue;
+          }
+        }
         pushCards([c]);
         continue;
       }
@@ -614,7 +698,7 @@ function extractTemplated(html: string): ExtractedArticle {
         heading(c, Math.min(4, Math.max(2, Number(tag[1]))) as 2 | 3 | 4);
         continue;
       }
-      if (tag === "p") {
+      if (tag === "p" || tag === "label") {
         pushParagraph(c);
         continue;
       }
@@ -624,13 +708,23 @@ function extractTemplated(html: string): ExtractedArticle {
         continue;
       }
       if (tag === "blockquote") {
-        const h = tidy(c.children.map((x) => inlineOf(x)).join(""));
+        const h = inline(c);
         if (h) blocks.push({ type: "quote", html: h });
         continue;
       }
       if (tag === "table") {
         const t = tableBlock(c);
         if (t) blocks.push(t);
+        continue;
+      }
+      if (isCtaLink(c)) {
+        const cta = ctaOf(c) ?? (c.attrs.href ? { label: cleanText(textOf(c)), href: rewriteHref(c.attrs.href) } : undefined);
+        noteProduct(c);
+        if (cta) blocks.push({ type: "callout", title: null, html: "", cta });
+        continue;
+      }
+      if (tag === "a") {
+        blocks.push({ type: "paragraph", html: inlineOf(c) });
         continue;
       }
       // structural element → recurse
@@ -673,17 +767,21 @@ function extractTemplated(html: string): ExtractedArticle {
       case "stats":
         return b.items.map((s) => `${s.value} ${s.label}`).join(" ");
       case "steps":
-        return `${b.title ?? ""} ${b.items.map(stripHtml).join(" ")}`;
+        return `${b.title ?? ""} ${b.items.map((x) => `${x.title ?? ""} ${stripHtml(x.html)}`).join(" ")}`;
       case "faq":
         return b.items.map((f) => `${f.q} ${stripHtml(f.a)}`).join(" ");
       case "image":
         return "";
       case "chart":
         return `${b.title ?? ""} ${b.bars.map((x) => x.label).join(" ")} ${stripHtml(b.note ?? "")}`;
+      case "svg":
+        return `${b.title ?? ""} ${b.legend.join(" ")} ${stripHtml(b.note ?? "")}`;
       case "bars":
         return b.items.map((x) => `${x.label} ${x.value}`).join(" ");
       case "table":
         return [...b.head, ...b.rows.flat().map(stripHtml)].join(" ");
+      case "chips":
+        return b.items.map((x) => x.label).join(" ");
       default:
         return stripHtml(b.html);
     }
