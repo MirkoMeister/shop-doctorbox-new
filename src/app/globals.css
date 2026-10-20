@@ -58,6 +58,10 @@ body {
 
 /* in @layer base so utilities like focus:outline-none can switch it off where a wrapper shows the focus */
 @layer base {
+  html,
+  body {
+    overflow-x: clip;
+  }
   :focus-visible {
     outline: 3px solid var(--color-turquoise);
     outline-offset: 3px;

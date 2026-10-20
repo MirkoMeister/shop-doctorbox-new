@@ -7,6 +7,7 @@ import { CollectionHero } from "@/components/collection/CollectionHero";
 import { collectionHero } from "@/content/collection-heroes";
 import { CompareTable } from "@/components/collection/CompareTable";
 import { StickyMiraCta } from "@/components/collection/StickyMiraCta";
+import { miraDemo } from "@/content/mira-demo";
 import { FilterBar } from "@/components/collection/FilterBar";
 import { RichText } from "@/components/content/RichText";
 import { ProductGrid } from "@/components/product/ProductCard";
@@ -177,8 +178,9 @@ export function CollectionView({
               node: (
                 <AssistantCard
                   title={dict.collection.miraTitle}
-                  text={dict.collection.miraText}
                   cta={dict.collection.miraCta}
+                  online={dict.assistant.online}
+                  demo={miraDemo(handle, locale)}
                 />
               ),
             }}
