@@ -9,7 +9,7 @@ import { classes, cleanText, find, findAll, hasClass, isNode, nodes, parseHtml, 
 export type Inline = string; // sanitised inline HTML: text, <strong>, <em>, <a href>, <br>
 
 export type CardTone = "default" | "warn" | "alert" | "info";
-export type Card = { title: string; html: Inline; tone?: CardTone; badge?: string; kicker?: string; points?: Inline[]; note?: Inline };
+export type Card = { title: string; html: Inline; tone?: CardTone; badge?: string; kicker?: string; points?: Inline[]; note?: Inline; value?: string };
 export type Cta = { label: string; href: string };
 
 export type Block =
@@ -24,7 +24,10 @@ export type Block =
   | { type: "steps"; title: string | null; items: Inline[] }
   | { type: "faq"; items: { q: string; a: Inline }[] }
   | { type: "callout"; title: string | null; html: Inline; cta?: Cta }
-  | { type: "conclusion"; title: string; html: Inline; cta?: Cta };
+  | { type: "conclusion"; title: string; html: Inline; cta?: Cta }
+  | { type: "chart"; title: string | null; bars: { label: string; value: number; high: boolean }[]; marker?: { index: number; label: string }; legend: { high: boolean; label: string }[]; note: Inline | null }
+  | { type: "bars"; items: { label: string; value: string; pct: number; tone: CardTone }[]; note: Inline | null }
+  | { type: "table"; head: string[]; rows: Inline[][] };
 
 export type ExtractedArticle = {
   kicker: string | null;
@@ -406,8 +409,9 @@ function extractTemplated(html: string): ExtractedArticle {
     const badge = find(n, (x) => hasClass(x, "signal-badge") || hasClass(x, "badge"));
     const kickerNode = find(n, (x) => hasClass(x, "signal-kicker") || hasClass(x, "card-kicker"));
     const note = find(n, (x) => hasClass(x, "signal-note") || hasClass(x, "note"));
+    const big = find(n, (x) => hasClass(x, "big-number") || hasClass(x, "card-number"));
     const points = find(n, (x) => x.tag === "ul" && (hasClass(x, "signal-points") || hasClass(x, "checklist-list") || hasClass(x, "symptom-list") || hasClass(x, "info-list")));
-    const skip = new Set<HNode>([titleNode, badge, kickerNode, note, points].filter(Boolean) as HNode[]);
+    const skip = new Set<HNode>([titleNode, badge, kickerNode, note, points, big].filter(Boolean) as HNode[]);
     // body: everything that is not one of the structured parts
     const bodyParts: string[] = [];
     const collect = (x: HNode) => {
@@ -429,6 +433,7 @@ function extractTemplated(html: string): ExtractedArticle {
     if (kickerNode) card.kicker = cleanText(textOf(kickerNode));
     if (points) card.points = nodes(points).filter((li) => li.tag === "li").map((li) => tidy(inlineOf(li)));
     if (note) card.note = tidy(note.children.map((c) => inlineOf(c)).join(""));
+    if (big) card.value = cleanText(textOf(big));
     return card;
   };
 
@@ -510,6 +515,59 @@ function extractTemplated(html: string): ExtractedArticle {
         if (body) blocks.push({ type: "callout", title: null, html: body, cta: ctaOf(c) });
         continue;
       }
+      // vertical bar chart (season-chart): columns with % heights, optional "now" marker, legend, note
+      if (hasClass(c, "season-card") || hasClass(c, "season-chart") || hasClass(c, "chart-card")) {
+        const chart = hasClass(c, "season-chart") ? c : find(c, (x) => hasClass(x, "season-chart") || hasClass(x, "chart"));
+        if (chart) {
+          const titleNode = nodes(c).find((x) => /^h[2-6]$/.test(x.tag));
+          const cols = nodes(chart).filter((x) => hasClass(x, "season-col") || hasClass(x, "col"));
+          const bars = cols.map((col) => {
+            const bar = find(col, (x) => hasClass(x, "season-bar") || hasClass(x, "bar"));
+            const label = find(col, (x) => hasClass(x, "season-label") || hasClass(x, "label"));
+            const full = label ? (find(label, (x) => hasClass(x, "full")) ?? label) : null;
+            const h = Number((bar?.attrs.style ?? "").match(/height:\s*([\d.]+)%/)?.[1] ?? 0);
+            return { label: full ? cleanText(textOf(full)) : "", value: Math.max(0, Math.min(100, h)), high: bar ? /--sun|--high|--good/.test(classes(bar).join(" ")) : false };
+          });
+          const nowIdx = cols.findIndex((x) => hasClass(x, "season-col--now") || find(x, (y) => hasClass(y, "season-now")));
+          const nowNode = nowIdx >= 0 ? find(cols[nowIdx], (y) => hasClass(y, "season-now")) : null;
+          const nowFull = nowNode ? (find(nowNode, (x) => hasClass(x, "full")) ?? nowNode) : null;
+          const legend = findAll(c, (x) => hasClass(x, "season-legend") || hasClass(x, "legend")).flatMap((l) =>
+            nodes(l).map((s) => ({ high: Boolean(find(s, (d) => /--sun|--high|--good/.test(classes(d).join(" ")))), label: cleanText(textOf(s)) })),
+          );
+          const noteNode = find(c, (x) => hasClass(x, "chart-note"));
+          if (bars.length) {
+            blocks.push({
+              type: "chart",
+              title: titleNode ? cleanText(textOf(titleNode)) : null,
+              bars,
+              marker: nowIdx >= 0 && nowFull ? { index: nowIdx, label: cleanText(textOf(nowFull)) } : undefined,
+              legend,
+              note: noteNode ? tidy(noteNode.children.map((x) => inlineOf(x)).join("")) : null,
+            });
+            continue;
+          }
+        }
+      }
+      // horizontal bars (bar-card): label + value + fill width
+      if (hasClass(c, "bar-card")) {
+        const items = findAll(c, (x) => hasClass(x, "bar-row")).map((row) => {
+          const label = find(row, (x) => hasClass(x, "bar-label"));
+          const strong = label ? find(label, (x) => x.tag === "strong" || hasClass(x, "bar-value")) : null;
+          const span = label ? find(label, (x) => x.tag === "span") : null;
+          const fill = find(row, (x) => hasClass(x, "bar-fill") || hasClass(x, "fill"));
+          const pct = Number((fill?.attrs.style ?? "").match(/width:\s*([\d.]+)%/)?.[1] ?? 0);
+          const tone: CardTone = fill && /--alert|--danger/.test(classes(fill).join(" ")) ? "alert" : fill && /--warn/.test(classes(fill).join(" ")) ? "warn" : "default";
+          return { label: span ? cleanText(textOf(span)) : label ? cleanText(textOf(label)) : "", value: strong ? cleanText(textOf(strong)) : "", pct: Math.max(0, Math.min(100, pct)), tone };
+        });
+        const noteNode = find(c, (x) => hasClass(x, "chart-note"));
+        if (items.length) blocks.push({ type: "bars", items, note: noteNode ? tidy(noteNode.children.map((x) => inlineOf(x)).join("")) : null });
+        continue;
+      }
+      if (hasClass(c, "chart-note")) {
+        const h = tidy(c.children.map((x) => inlineOf(x)).join(""));
+        if (h) blocks.push({ type: "paragraph", html: `<em>${h}</em>` });
+        continue;
+      }
       if (hasClass(c, "timeline-card") || hasClass(c, "timeline")) {
         const titleNode = hasClass(c, "timeline-card") ? nodes(c).find((x) => /^h[2-6]$/.test(x.tag)) : undefined;
         const items = findAll(c, (x) => hasClass(x, "timeline-item")).map((it) => {
@@ -570,7 +628,11 @@ function extractTemplated(html: string): ExtractedArticle {
         if (h) blocks.push({ type: "quote", html: h });
         continue;
       }
-      if (tag === "table") continue;
+      if (tag === "table") {
+        const t = tableBlock(c);
+        if (t) blocks.push(t);
+        continue;
+      }
       // structural element → recurse
       const faq = ctx.inFaq || c.attrs.id === "faq" || hasClass(c, "faq-section");
       walk(c, { inFaq: faq });
@@ -616,6 +678,12 @@ function extractTemplated(html: string): ExtractedArticle {
         return b.items.map((f) => `${f.q} ${stripHtml(f.a)}`).join(" ");
       case "image":
         return "";
+      case "chart":
+        return `${b.title ?? ""} ${b.bars.map((x) => x.label).join(" ")} ${stripHtml(b.note ?? "")}`;
+      case "bars":
+        return b.items.map((x) => `${x.label} ${x.value}`).join(" ");
+      case "table":
+        return [...b.head, ...b.rows.flat().map(stripHtml)].join(" ");
       default:
         return stripHtml(b.html);
     }
@@ -624,6 +692,41 @@ function extractTemplated(html: string): ExtractedArticle {
   return { kicker, lead, productHandles: Array.from(new Set(productHandles)), blocks, toc, words, readingMinutes: Math.max(1, Math.round(words / 200)) };
 }
 
+function tableBlock(tableNode: HNode): Block | null {
+  const rows = findAll(tableNode, (x) => x.tag === "tr");
+  const head: string[] = [];
+  const body: Inline[][] = [];
+  for (const tr of rows) {
+    const cells = nodes(tr).filter((x) => x.tag === "td" || x.tag === "th");
+    if (!cells.length) continue;
+    if (cells.every((x) => x.tag === "th") && head.length === 0 && body.length === 0) head.push(...cells.map((x) => cleanText(textOf(x))));
+    else body.push(cells.map((x) => tidy(x.children.map((y) => inlineOf(y)).join(""))));
+  }
+  return body.length ? { type: "table", head, rows: body } : null;
+}
+
+/**
+ * Classic articles: tables are lifted out before the streaming extractor runs
+ * (it would flatten cells into paragraphs) and put back as table blocks.
+ */
+function extractLegacyWithTables(html: string): ExtractedArticle {
+  const tables: Block[] = [];
+  const marked = html.replace(/<table[\s\S]*?<\/table>/gi, (seg) => {
+    const t = tableBlock(parseHtml(seg));
+    if (!t) return "";
+    tables.push(t);
+    return `<p>__TABLE_${tables.length - 1}__</p>`;
+  });
+  const out = extractLegacy(marked);
+  if (!tables.length) return out;
+  out.blocks = out.blocks.map((b) => {
+    if (b.type !== "paragraph") return b;
+    const m = stripHtml(b.html).trim().match(/^__TABLE_(\d+)__$/);
+    return m ? tables[Number(m[1])] : b;
+  });
+  return out;
+}
+
 export function extractArticle(html: string): ExtractedArticle {
-  return isTemplated(html) ? extractTemplated(html) : extractLegacy(html);
+  return isTemplated(html) ? extractTemplated(html) : extractLegacyWithTables(html);
 }

@@ -96,7 +96,8 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
                         {c.kicker && <span className="text-xs font-semibold uppercase tracking-[0.14em] text-green">{c.kicker}</span>}
                       </div>
                     )}
-                    {c.title && <h3 className="font-semibold leading-snug text-moss">{c.title}</h3>}
+                    {c.value && <span className="block text-3xl font-semibold tabular-nums text-moss">{c.value}</span>}
+                    {c.title && <h3 className={`font-semibold leading-snug text-moss ${c.value ? "mt-1 text-[0.95rem] text-ink-muted" : ""}`}>{c.title}</h3>}
                     {c.html && <p className="article-inline mt-2 text-[0.98rem] leading-relaxed text-ink/85" dangerouslySetInnerHTML={{ __html: c.html }} />}
                     {c.points && c.points.length > 0 && (
                       <ul className="article-inline mt-3 space-y-1.5 text-[0.95rem]">
@@ -152,6 +153,86 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
                 <p className="article-inline mt-1.5 leading-relaxed" dangerouslySetInnerHTML={{ __html: b.html }} />
                 {b.cta && <CtaLink href={b.cta.href} label={b.cta.label} className="btn btn-secondary btn-sm mt-4" />}
               </aside>
+            );
+          case "chart": {
+            const max = Math.max(1, ...b.bars.map((x) => x.value));
+            return (
+              <figure key={i} className="mt-8 rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
+                {b.title && <figcaption className="mb-5 font-semibold text-moss">{b.title}</figcaption>}
+                <div className="relative flex h-44 items-end gap-1.5 sm:gap-2">
+                  {b.bars.map((bar, k) => (
+                    <div key={k} className="relative flex h-full flex-1 flex-col items-center justify-end">
+                      {b.marker && b.marker.index === k && (
+                        <span className="absolute -top-1 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-moss px-2 py-0.5 text-[0.65rem] font-semibold text-soft">{b.marker.label}</span>
+                      )}
+                      <div
+                        className={`w-full rounded-t-md ${bar.high ? "bg-green" : "bg-lind"} ${b.marker && b.marker.index === k ? "ring-2 ring-moss/40" : ""}`}
+                        style={{ height: `${Math.max(4, (bar.value / max) * 100)}%` }}
+                        aria-label={`${bar.label}: ${bar.value}%`}
+                      />
+                      <span className="mt-2 text-[0.7rem] text-ink-muted">{bar.label}</span>
+                    </div>
+                  ))}
+                </div>
+                {b.legend.length > 0 && (
+                  <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-muted">
+                    {b.legend.map((l, k) => (
+                      <li key={k} className="inline-flex items-center gap-2">
+                        <span className={`h-2.5 w-2.5 rounded-full ${l.high ? "bg-green" : "bg-lind"}`} aria-hidden />
+                        {l.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {b.note && <p className="article-inline mt-3 text-xs leading-snug text-ink-muted" dangerouslySetInnerHTML={{ __html: b.note }} />}
+              </figure>
+            );
+          }
+          case "bars":
+            return (
+              <figure key={i} className="mt-8 rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
+                <ul className="space-y-4">
+                  {b.items.map((it, k) => (
+                    <li key={k}>
+                      <div className="flex items-baseline justify-between gap-3 text-sm">
+                        <span className="text-ink/85">{it.label}</span>
+                        <span className="font-semibold tabular-nums text-moss">{it.value}</span>
+                      </div>
+                      <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-surface">
+                        <div className={`h-full rounded-full ${it.tone === "alert" ? "bg-[#c5493a]" : it.tone === "warn" ? "bg-okker" : "bg-green"}`} style={{ width: `${it.pct}%` }} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {b.note && <p className="article-inline mt-4 text-xs leading-snug text-ink-muted" dangerouslySetInnerHTML={{ __html: b.note }} />}
+              </figure>
+            );
+          case "table":
+            return (
+              <div key={i} className="mt-8 overflow-x-auto rounded-[var(--radius-card)] border border-line/70 [contain:paint]">
+                <table className="w-full min-w-[480px] border-collapse text-[0.95rem]">
+                  {b.head.length > 0 && (
+                    <thead>
+                      <tr className="bg-surface text-left">
+                        {b.head.map((h, k) => (
+                          <th key={k} className="px-4 py-3 font-semibold text-moss">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                  )}
+                  <tbody>
+                    {b.rows.map((r, k) => (
+                      <tr key={k} className="border-t border-line/60 align-top">
+                        {r.map((cell, j) => (
+                          <td key={j} className="article-inline px-4 py-3 leading-relaxed" dangerouslySetInnerHTML={{ __html: cell }} />
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             );
           case "conclusion":
             return (
