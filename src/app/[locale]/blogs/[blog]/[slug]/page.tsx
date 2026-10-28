@@ -83,10 +83,8 @@ export default async function BlogArticlePage({ params }: Props) {
     .map((h) => allProducts.find((pr) => pr.handle === h))
     .filter((x): x is NonNullable<typeof x> => Boolean(x))
     .slice(0, 2);
-  const related = (blog?.articles ?? [])
-    .filter((a) => a.handle !== article.handle)
-    .slice(0, 6)
-    .map((a) => ({ href: articleHref(a.blog.handle, a.handle), title: a.title }));
+  const relatedArticles = (blog?.articles ?? []).filter((a) => a.handle !== article.handle).slice(0, 3);
+  const related = relatedArticles.map((a) => ({ href: articleHref(a.blog.handle, a.handle), title: a.title }));
   const topicLabel =
     BLOG_TOPICS[article.blog.handle]?.[locale] ?? article.blog.title;
   const lead =
@@ -126,6 +124,7 @@ export default async function BlogArticlePage({ params }: Props) {
         body={<ArticleBody blocks={extracted.blocks} />}
         products={products}
         related={related}
+        relatedArticles={relatedArticles}
         relatedTitle={dict.blog.more}
         kind="blog"
       />

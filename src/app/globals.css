@@ -499,3 +499,18 @@ body {
   color: #d9a13b;
   white-space: nowrap;
 }
+
+/* campaign bar: endless marquee, static for reduced motion */
+.promo-track {
+  animation: promo-marquee 38s linear infinite;
+}
+.promo-bar:hover .promo-track {
+  animation-play-state: paused;
+}
+@keyframes promo-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .promo-track { animation: none; }
+}

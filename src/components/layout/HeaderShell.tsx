@@ -20,7 +20,7 @@ export function HeaderShell({ children }: { children: React.ReactNode }) {
   return (
     <header
       data-tone={darkHero ? "dark" : "light"}
-      className={`group absolute inset-x-0 top-0 z-50 ${darkHero ? "bg-transparent" : "border-b border-line/60 bg-white"}`}
+      className={`group absolute inset-x-0 top-[var(--promo-h,0px)] z-50 ${darkHero ? "bg-transparent" : "border-b border-line/60 bg-white"}`}
     >
       {children}
     </header>

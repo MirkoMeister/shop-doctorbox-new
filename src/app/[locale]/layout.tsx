@@ -1,3 +1,5 @@
+import { AnnouncementBar } from "@/components/promo/AnnouncementBar";
+import { halloweenActive } from "@/content/halloween";
 import type { Metadata, Viewport } from "next";
 import { Host_Grotesk } from "next/font/google";
 import { notFound } from "next/navigation";
@@ -58,17 +60,19 @@ export default async function LocaleLayout({
     getNavCollections(locale).catch(() => []),
     getCollection(TOP_PICKS_COLLECTION, locale).catch(() => null),
   ]);
+  const promo = halloweenActive();
   const top = picks?.products[0];
   const featured = top
     ? { handle: top.handle, title: top.title, image: top.featuredImage?.url ?? null, subtitle: top.targetGroup ?? null }
     : null;
 
   return (
-    <html lang={locale} className={host.variable}>
+    <html lang={locale} className={host.variable} style={promo ? ({ "--promo-h": "40px" } as React.CSSProperties) : undefined}>
       <body className="min-h-dvh flex flex-col" suppressHydrationWarning>
         <JsonLd data={[organizationJsonLd(locale), websiteJsonLd(locale)]} />
         <CartProvider locale={locale}>
           <AssistantProvider locale={locale} dict={dict}>
+          {promo && <AnnouncementBar locale={locale} />}
           <Header locale={locale} dict={dict} collections={collections} featured={featured} />
           <main id="main" className="flex-1 pt-[72px] lg:pt-[88px]">
             {children}

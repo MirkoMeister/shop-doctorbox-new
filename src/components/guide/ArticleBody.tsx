@@ -5,7 +5,7 @@ import { Accordion } from "@/components/ui/Accordion";
 import { ArrowRight, CheckIcon } from "@/components/ui/Icons";
 
 const TONE: Record<NonNullable<Card["tone"]>, string> = {
-  default: "bg-surface",
+  default: "bg-soft",
   info: "bg-lind/50",
   warn: "bg-okker/35",
   alert: "bg-[#fbe9e6]",
@@ -33,7 +33,7 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
     <div className="article-body">
       {blocks.map((b, i) => {
         const el = renderBlock(b, i);
-        return WIDE.has(b.type) ? el : <div key={i} className="article-measure [&:first-child>*]:mt-0 [&:first-child>*]:border-t-0 [&:first-child>*]:pt-0">{el}</div>;
+        return WIDE.has(b.type) ? el : <div key={i} className="article-measure [&:first-child>*]:mt-0">{el}</div>;
       })}
     </div>
   );
@@ -47,9 +47,9 @@ function renderBlock(b: Block, i: number): React.ReactNode {
           case "heading": {
             if (b.level === 2)
               return (
-                <div key={i} className="mt-14 border-t border-line pt-8">
-                  {b.kicker && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-green">{b.kicker}</p>}
-                  <h2 id={b.id} className="scroll-mt-28 text-[clamp(1.5rem,1.3rem+0.8vw,1.875rem)] font-semibold leading-tight tracking-[-0.02em] text-moss">
+                <div key={i} className="mt-16">
+                  {b.kicker && <p className="mb-2 text-sm font-medium text-green">{b.kicker}</p>}
+                  <h2 id={b.id} className="scroll-mt-28 text-[clamp(1.625rem,1.4rem+0.9vw,2rem)] font-semibold leading-tight tracking-[-0.02em] text-moss">
                     {b.text}
                   </h2>
                 </div>
@@ -67,12 +67,12 @@ function renderBlock(b: Block, i: number): React.ReactNode {
             );
           }
           case "subtitle":
-            return <p key={i} className="article-inline mt-3 text-[1.125rem] leading-relaxed text-ink-muted" dangerouslySetInnerHTML={{ __html: b.html }} />;
+            return <p key={i} className="article-inline mt-3 text-[1.125rem] leading-relaxed text-ink/70" dangerouslySetInnerHTML={{ __html: b.html }} />;
           case "paragraph":
             return /<(ul|ol)\b/.test(b.html) ? (
-              <div key={i} className="article-inline mt-5 text-[1.125rem] leading-[1.7]" dangerouslySetInnerHTML={{ __html: b.html }} />
+              <div key={i} className="article-inline mt-5 text-[1.125rem] leading-[1.75]" dangerouslySetInnerHTML={{ __html: b.html }} />
             ) : (
-              <p key={i} className="article-inline mt-5 text-[1.125rem] leading-[1.7]" dangerouslySetInnerHTML={{ __html: b.html }} />
+              <p key={i} className="article-inline mt-5 text-[1.125rem] leading-[1.75]" dangerouslySetInnerHTML={{ __html: b.html }} />
             );
           case "list": {
             const Tag = b.ordered ? "ol" : "ul";
@@ -101,17 +101,17 @@ function renderBlock(b: Block, i: number): React.ReactNode {
               </figure>
             );
           case "quote":
-            return <blockquote key={i} className="article-inline mt-8 border-l-4 border-lind-deep pl-5 text-xl leading-relaxed text-moss" dangerouslySetInnerHTML={{ __html: b.html }} />;
+            return <blockquote key={i} className="article-inline mt-10 text-[1.375rem] font-medium leading-relaxed text-moss before:mb-2 before:block before:h-1 before:w-12 before:rounded-full before:bg-lind-deep" dangerouslySetInnerHTML={{ __html: b.html }} />;
           case "cards": {
             const single = b.items.length === 1;
             return (
-              <ul key={i} className={`mt-6 grid gap-3 ${single ? "" : "sm:grid-cols-2"}`}>
+              <ul key={i} className={`mt-8 grid gap-4 ${single ? "" : "sm:grid-cols-2"}`}>
                 {b.items.map((c, k) => (
-                  <li key={k} className={`flex flex-col rounded-2xl p-5 ${TONE[c.tone ?? "default"]}`}>
+                  <li key={k} className={`flex flex-col rounded-[var(--radius-card)] p-6 ${TONE[c.tone ?? "default"]}`}>
                     {(c.badge || c.kicker) && (
                       <div className="mb-2 flex items-center gap-2.5">
                         {c.badge && <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-moss text-xs font-semibold text-soft">{c.badge}</span>}
-                        {c.kicker && <span className="text-xs font-semibold uppercase tracking-[0.14em] text-green">{c.kicker}</span>}
+                        {c.kicker && <span className="text-sm font-medium text-green">{c.kicker}</span>}
                       </div>
                     )}
                     {c.value && <span className="block text-3xl font-semibold tabular-nums text-moss">{c.value}</span>}
@@ -135,9 +135,9 @@ function renderBlock(b: Block, i: number): React.ReactNode {
           }
           case "stats":
             return (
-              <ul key={i} className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <ul key={i} className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
                 {b.items.map((s, k) => (
-                  <li key={k} className="rounded-2xl bg-lind/50 p-4">
+                  <li key={k} className="rounded-[var(--radius-card)] bg-lind/50 p-5">
                     <span className="block text-2xl font-semibold tabular-nums text-moss">{s.value}</span>
                     <span className="mt-1 block text-sm leading-snug text-ink-muted">{s.label}</span>
                   </li>
@@ -169,7 +169,7 @@ function renderBlock(b: Block, i: number): React.ReactNode {
             );
           case "callout":
             return (
-              <aside key={i} className="mt-8 rounded-2xl border-l-4 border-green bg-lind/50 p-5">
+              <aside key={i} className="mt-8 rounded-[var(--radius-card)] bg-soft p-6">
                 {b.title && <p className="font-semibold text-moss">{b.title}</p>}
                 {b.html && <div className="article-inline mt-1.5 leading-relaxed" dangerouslySetInnerHTML={{ __html: b.html }} />}
                 {b.cta && <CtaLink href={b.cta.href} label={b.cta.label} className="btn btn-secondary btn-sm mt-4" />}
@@ -325,7 +325,7 @@ function renderBlock(b: Block, i: number): React.ReactNode {
             );
           case "conclusion":
             return (
-              <section key={i} className="mt-14 rounded-[var(--radius-panel)] bg-moss p-6 text-soft sm:p-8">
+              <section key={i} className="mt-16 rounded-[var(--radius-panel)] bg-moss p-6 text-soft sm:p-8 lg:p-10">
                 <h2 className="h3">{b.title}</h2>
                 {b.html && <div className="article-inline article-inline--dark mt-3 text-[1.05rem] leading-relaxed text-soft/85" dangerouslySetInnerHTML={{ __html: b.html }} />}
                 {b.cta && <CtaLink href={b.cta.href} label={b.cta.label} className="btn btn-on-dark mt-6" />}
