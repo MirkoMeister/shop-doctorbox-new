@@ -7,8 +7,10 @@ type Edges<T> = { edges: { node: T }[] } | null | undefined;
 
 export type RawProductCard = Omit<
   ProductCard,
-  "biomarkers" | "sampleMaterial" | "targetGroup" | "rating" | "ratingCount" | "hasSubscription" | "subscriptionPercent" | "tasso"
+  "biomarkers" | "sampleMaterial" | "targetGroup" | "rating" | "ratingCount" | "hasSubscription" | "subscriptionPercent" | "tasso" | "ingredients" | "dosage"
 > & {
+  ingredientsText: RawMeta;
+  dosageText: RawMeta;
   options: { name: string; values: string[] }[];
   biomarkers: RawMeta;
   sampleMaterial: RawMeta;
@@ -91,6 +93,22 @@ function subscriptionPercent(raw: RawProductCard): number | null {
   return null;
 }
 
+/** Metafield text (plain, multi-line or HTML) as one line of plain text */
+function plainText(v: string | null | undefined): string | null {
+  if (!v) return null;
+  let t = v.trim();
+  if (t.startsWith("{")) {
+    try {
+      const walk = (n: { value?: string; children?: unknown[] }): string => (n.value ?? "") + (n.children ?? []).map((c) => walk(c as { value?: string; children?: unknown[] })).join(" ");
+      t = walk(JSON.parse(t) as { value?: string; children?: unknown[] });
+    } catch {
+      /* keep as is */
+    }
+  }
+  t = t.replace(/<[^>]+>/g, " ").replace(/[•\t]+/g, " ").replace(/\s+/g, " ").trim();
+  return t || null;
+}
+
 export function reshapeProductCard(raw: RawProductCard): ProductCard {
   const ratingCount = Number(raw.ratingCount?.value ?? 0) || 0;
   const rating = parseRating(raw.rating?.value);
@@ -115,6 +133,8 @@ export function reshapeProductCard(raw: RawProductCard): ProductCard {
     hasSubscription: edgesToArray(raw.subscriptionPlans).length > 0,
     subscriptionPercent: subscriptionPercent(raw),
     tasso: (raw.options ?? []).some((o) => o.values.some((v) => /tasso/i.test(v))),
+    ingredients: plainText(raw.ingredientsText?.value),
+    dosage: plainText(raw.dosageText?.value),
   };
 }
 

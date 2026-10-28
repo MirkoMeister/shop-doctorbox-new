@@ -78,6 +78,9 @@ export type ProductCard = {
   subscriptionPercent: number | null;
   /** Upper-arm blood collection with Tasso+ available as a variant */
   tasso: boolean;
+  /** Supplements: ingredients and recommended use as plain text (for Mira and cards) */
+  ingredients: string | null;
+  dosage: string | null;
 };
 
 export type Product = ProductCard & {

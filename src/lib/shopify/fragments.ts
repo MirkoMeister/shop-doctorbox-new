@@ -57,6 +57,12 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     ratingCount: metafield(namespace: "reviews", key: "rating_count") {
       value
     }
+    ingredientsText: metafield(namespace: "custom", key: "inhaltsstoffe") {
+      value
+    }
+    dosageText: metafield(namespace: "custom", key: "einnahmeempfehlung") {
+      value
+    }
     options {
       name
       values

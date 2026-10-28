@@ -23,13 +23,23 @@ export async function buildKnowledge(locale: Locale): Promise<Knowledge> {
       ? "Format: handle | title | price | sample material | subscription? | collections | target group | analysed values | blood collection"
       : "Format: handle | Titel | Preis | Probenmaterial | Abo? | Kategorien | Zielgruppe | analysierte Werte | Blutabnahme",
   );
-  for (const p of products) {
+  const supplements = products.filter((p) => p.productType === "Nahrungsergänzungsmittel");
+  for (const p of products.filter((x) => x.productType !== "Nahrungsergänzungsmittel")) {
     const price = money(p.priceRange.minVariantPrice.amount);
     const samples = sampleMaterials(p.sampleMaterial).join(" / ") || "–";
     const sub = p.hasSubscription ? (locale === "en" ? "yes (-20%)" : "ja (-20 %)") : locale === "en" ? "no" : "nein";
     lines.push(
       `${p.handle} | ${p.title} | ${price}${p.availableForSale ? "" : locale === "en" ? " (currently unavailable)" : " (derzeit nicht verfügbar)"} | ${samples} | ${sub} | ${p.productType || "–"} | ${p.targetGroup ?? "–"} | ${p.biomarkers.join(", ") || "–"} | ${p.tasso ? (locale === "en" ? "Tasso+ upper arm available (preselected)" : "Tasso+ Oberarm wählbar (vorausgewählt)") : "–"}`,
     );
+  }
+
+  if (supplements.length) {
+    lines.push("");
+    lines.push(locale === "en" ? "## Supplements (no lab tests, sold alongside)" : "## Nahrungsergänzungsmittel (keine Labortests, werden ergänzend verkauft)");
+    lines.push(locale === "en" ? "Format: handle | title | brand | price | description | ingredients | recommended use (manufacturer)" : "Format: handle | Titel | Marke | Preis | Beschreibung | Inhaltsstoffe | Einnahmeempfehlung (Hersteller)");
+    for (const p of supplements) {
+      lines.push(`${p.handle} | ${p.title} | ${p.vendor.replace(/\s+GmbH$/i, "")} | ${money(p.priceRange.minVariantPrice.amount)}${p.availableForSale ? "" : locale === "en" ? " (currently unavailable)" : " (derzeit nicht verfügbar)"} | ${p.excerpt ?? "–"} | ${p.ingredients ?? "–"} | ${p.dosage ?? "–"}`);
+    }
   }
 
   lines.push("");

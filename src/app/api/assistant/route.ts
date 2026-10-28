@@ -51,7 +51,7 @@ const tools: Anthropic.Tool[] = [
     input_schema: {
       type: "object",
       properties: {
-        handles: { type: "array", items: { type: "string" }, description: "One to four product handles from the catalogue" },
+        handles: { type: "array", items: { type: "string" }, description: "One to four product handles from the catalogue (tests or supplements)" },
         reason: { type: "string", description: "One sentence on why these fit (optional)" },
       },
       required: ["handles"],
