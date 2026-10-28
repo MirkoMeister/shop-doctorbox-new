@@ -472,7 +472,7 @@ export const COLLECTION_HEROES: Record<string, Record<Locale, CollectionHero>> =
         title: "Mira, deine Nährstoff-Beratung",
         greeting:
           "Hi, ich bin Mira. Kennst du deine Werte schon? Dann helfe ich dir, das passende Präparat zu finden. Falls nicht, zeige ich dir zuerst den Test, der dir sagt, was dir wirklich fehlt.",
-        chips: ["Was bringt Omega-3?", "Ich kenne meine Werte noch nicht", "Welches Präparat für besseren Schlaf?", "Kreatin auch ohne Sport?"],
+        chips: ["Ich schlafe schlecht, was hilft?", "Mehr Energie und Fokus im Alltag", "Ich kenne meine Werte noch nicht", "Formel oder Einzelstoff, was passt zu mir?"],
         placeholder: "Was möchtest du wissen?",
         topic:
           "Kategorie Nahrungsergänzungsmittel: Vitamin D3 von biomo (Kapseln vegan, Tabletten 60/120, Tropfen) und das Youngle-Sortiment (Omega-3, Glycin & NAC, Essentials+, Sleep+, Focus+, Recovery+, Mobility+, Metabolism+, Immunity+, Men+, Fem+, Trimethylglycin, Taurin, Apigenin, Hyaluron, Sulforaphan, Kreatin, Ubiquinol Q10, Berberin, Spermidin, AKG). Erkläre, wofür ein Präparat gedacht ist, und empfiehl vor der Einnahme die Messung der passenden Werte (z. B. Omega-3-Index, Vitamin D, Ferritin). Gib keine konkreten Dosierungsempfehlungen und keine Diagnosen; bei Medikamenten, Schwangerschaft oder Vorerkrankungen ärztlich abstimmen. " +
@@ -488,7 +488,7 @@ export const COLLECTION_HEROES: Record<string, Record<Locale, CollectionHero>> =
         title: "Mira, your nutrient advisor",
         greeting:
           "Hi, I'm Mira. Do you already know your values? Then I'll help you find the right supplement. If not, I'll first show you the test that tells you what you are really missing.",
-        chips: ["What does omega-3 do?", "I don't know my values yet", "Which supplement for better sleep?", "Creatine without sport?"],
+        chips: ["I sleep badly, what helps?", "More energy and focus every day", "I don't know my values yet", "Formula or single active, what fits me?"],
         placeholder: "What would you like to know?",
         topic:
           "Category supplements: vitamin D3 by biomo (vegan capsules, tablets 60/120, drops) and the Youngle range (omega-3, glycine & NAC, Essentials+, Sleep+, Focus+, Recovery+, Mobility+, Metabolism+, Immunity+, Men+, Fem+, trimethylglycine, taurine, apigenin, hyaluron, sulforaphane, creatine, ubiquinol Q10, berberine, spermidine, AKG). Explain what a supplement is meant for and recommend measuring the matching values before taking it (e.g. omega-3 index, vitamin D, ferritin). Give no specific dosage recommendations and no diagnoses; with medication, pregnancy or conditions consult a doctor. " +

@@ -7,7 +7,7 @@ import { stripHtml, truncate } from "@/lib/format";
 import { absoluteUrl, localeHref } from "@/lib/i18n/config";
 import { resolveLocale } from "@/lib/locale-params";
 import { breadcrumbJsonLd, JsonLd, pageMetadata } from "@/lib/seo";
-import { getCollection, getCollections, getNavCollections, getPage, type ProductSort } from "@/lib/shopify/queries";
+import { getCollection, getCollections, getNavCollections, getPage, SUPPLEMENTS_COLLECTION, type ProductSort } from "@/lib/shopify/queries";
 
 export const revalidate = 300;
 
@@ -46,9 +46,11 @@ export default async function CollectionPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const sort = ((Array.isArray(sp.sort) ? sp.sort[0] : sp.sort) as ProductSort) || "relevance";
   const guideHandle = COLLECTION_GUIDES[p.handle];
-  const [collection, nav, guide] = await Promise.all([
+  const [collection, nav, measure, guide] = await Promise.all([
     getCollection(p.handle, locale, sort),
     getNavCollections(locale),
+    // supplements page: the nutrient tests for the measure-first block
+    p.handle === SUPPLEMENTS_COLLECTION ? getCollection("nahrstoffe-vitamine", locale).catch(() => null) : Promise.resolve(null),
     guideHandle
       ? getPage(guideHandle, locale)
           .then((pg) => pg?.title ?? null)
@@ -85,6 +87,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         searchParams={sp}
         crumbs={crumbs}
         otherCollections={nav.filter((c) => c.handle !== collection.handle)}
+        measureTests={measure?.products ?? []}
         guideTitle={guide ? guide.replace(/\s*\|\s*DoctorBox.*$/i, "").replace(/\s*-\s*DoctorBox Heimtests$/, "") : null}
       />
     </>

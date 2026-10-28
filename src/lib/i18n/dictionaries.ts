@@ -115,6 +115,7 @@ const de = {
   },
   product: {
     analysedValues: "Analysierte Werte",
+    oneValue: "1 analysierter Wert",
     sampleMaterial: "Probenmaterial",
     targetGroup: "Für wen",
     reviews: "Bewertungen",
@@ -268,6 +269,9 @@ const de = {
     miraQuestionAll: "Welcher Test passt zu mir?",
     miraSticky: "Mira fragen für den passenden Test",
     heroMiraCta: "Mira fragen: Welcher Test passt zu mir?",
+    heroMiraCtaSupplements: "Mira fragen: Welches Supplement passt zu mir?",
+    miraStickySupplements: "Mira fragen für das passende Supplement",
+    miraTitleSupplements: "Nicht sicher, welches Supplement passt?",
     faq: [
       {
         q: "Welcher Test ist der richtige für mich?",
@@ -640,6 +644,7 @@ const en: Dictionary = {
   },
   product: {
     analysedValues: "Analysed values",
+    oneValue: "1 analysed value",
     sampleMaterial: "Sample material",
     targetGroup: "Who it's for",
     reviews: "reviews",
@@ -793,6 +798,9 @@ const en: Dictionary = {
     miraQuestionAll: "Which test is right for me?",
     miraSticky: "Ask Mira for the right test",
     heroMiraCta: "Ask Mira: which test is right for me?",
+    heroMiraCtaSupplements: "Ask Mira: which supplement is right for me?",
+    miraStickySupplements: "Ask Mira for the right supplement",
+    miraTitleSupplements: "Not sure which supplement fits?",
     faq: [
       {
         q: "Which test is right for me?",

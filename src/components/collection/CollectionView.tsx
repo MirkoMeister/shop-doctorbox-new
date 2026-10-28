@@ -9,6 +9,7 @@ import { collectionHero } from "@/content/collection-heroes";
 import { CompareTable } from "@/components/collection/CompareTable";
 import { StickyMiraCta } from "@/components/collection/StickyMiraCta";
 import { StiDiscreet, StiFaq, StiSituations, StiWindows } from "@/components/collection/StiLanding";
+import { SupplementsView } from "@/components/collection/SupplementsView";
 import { STI_COLLECTION, stiCopy } from "@/content/sti-landing";
 import { isSupplement } from "@/lib/shopify/reshape";
 import { miraDemo } from "@/content/mira-demo";
@@ -58,6 +59,7 @@ export function CollectionView({
   crumbs,
   otherCollections,
   guideTitle,
+  measureTests = [],
 }: {
   locale: Locale;
   dict: Dictionary;
@@ -71,6 +73,8 @@ export function CollectionView({
   crumbs: Crumb[];
   otherCollections: Collection[];
   guideTitle?: string | null;
+  /** supplements page: the tests shown in the measure-first block */
+  measureTests?: ProductCard[];
 }) {
   const filters = parseFilters(searchParams);
   const facets = computeFacets(products);
@@ -113,6 +117,7 @@ export function CollectionView({
           copy={hero}
           crumbs={crumbs}
           image={heroImage}
+          ctaLabel={supplements ? dict.collection.heroMiraCtaSupplements : undefined}
         />
       )}
       <div
@@ -130,9 +135,11 @@ export function CollectionView({
           </>
         )}
 
-        {hero ? (
+        {supplements && <SupplementsView products={products} tests={measureTests} locale={locale} dict={dict} />}
+
+        {!supplements && (hero ? (
           <header className="mb-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-end">
-            <h2 className="h2">{supplements ? dict.collection.allProductsIn : dict.collection.allIn}</h2>
+            <h2 className="h2">{dict.collection.allIn}</h2>
             <div>
               <p className="mb-2 text-sm font-medium text-ink">
                 {dict.collection.searchHint}
@@ -170,8 +177,10 @@ export function CollectionView({
               <InlineSearch locale={locale} dict={dict} />
             </div>
           </header>
-        )}
+        ))}
 
+        {!supplements && (
+        <>
         <Suspense>
           <FilterBar
             dict={dict}
@@ -229,22 +238,7 @@ export function CollectionView({
           </>
         )}
 
-        {/* Unsure? Supplements: measure first, then supplement */}
-        {supplements ? (
-          <section className="mt-16 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-10">
-            <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-              <div>
-                <h2 className="h3">
-                  <Highlight text={dict.collection.supplementsTitle} />
-                </h2>
-                <p className="mt-2 max-w-xl text-moss/80">{dict.collection.supplementsText}</p>
-              </div>
-              <Link href={href("/collections/nahrstoffe-vitamine")} className="btn btn-primary">
-                {dict.collection.supplementsCta} <ArrowRight width={16} height={16} />
-              </Link>
-            </div>
-          </section>
-        ) : (
+        {/* Unsure? */}
         <section className="mt-16 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-10">
           <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
             <div>
@@ -285,6 +279,7 @@ export function CollectionView({
             </div>
           </div>
         </section>
+        </>
         )}
 
         {/* Explanation (SEO text from Shopify) + FAQ, after the products */}
@@ -331,7 +326,7 @@ export function CollectionView({
         )}
       </div>
       {hero && (
-        <StickyMiraCta label={dict.collection.miraSticky} watch="hero-cta" />
+        <StickyMiraCta label={supplements ? dict.collection.miraStickySupplements : dict.collection.miraSticky} watch="hero-cta" />
       )}
     </>
   );

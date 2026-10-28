@@ -18,12 +18,15 @@ export function CollectionHero({
   copy,
   crumbs,
   image,
+  ctaLabel,
 }: {
   locale: Locale;
   dict: Dictionary;
   copy: HeroCopy;
   crumbs: Crumb[];
   image?: string | null;
+  /** overrides the "which test" label, e.g. on the supplements page */
+  ctaLabel?: string;
 }) {
   void locale;
   return (
@@ -51,7 +54,7 @@ export function CollectionHero({
             <Highlight text={copy.headline} tone="dark" />
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-soft/85">{copy.lead}</p>
-          <HeroCta label={dict.collection.heroMiraCta} hint={copy.chat.chips[0]} chat={copy.chat} />
+          <HeroCta label={ctaLabel ?? dict.collection.heroMiraCta} hint={copy.chat.chips[0]} chat={copy.chat} />
           <ul className="mt-8 grid gap-2.5 sm:grid-cols-2">
             {copy.facts.map((f) => (
               <li key={f} className="flex items-start gap-2 text-[0.95rem] text-soft/90">
