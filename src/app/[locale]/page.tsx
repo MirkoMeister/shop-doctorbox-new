@@ -7,6 +7,7 @@ import {
   SectionHeading,
   TrustBand,
 } from "@/components/home/Sections";
+import { NewsletterSection } from "@/components/home/NewsletterSection";
 import { StiSpotlight } from "@/components/home/StiSpotlight";
 import { TassoBanner } from "@/components/home/TassoBanner";
 import { ProductGrid } from "@/components/product/ProductCard";
@@ -94,6 +95,7 @@ export default async function HomePage({ params }: Props) {
       <HowItWorks dict={dict} />
       <TrustBand dict={dict} />
       <BlogTeasers articles={articles} locale={locale} dict={dict} />
+      <NewsletterSection locale={locale} dict={dict} />
     </>
   );
 }
