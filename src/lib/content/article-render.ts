@@ -535,12 +535,15 @@ function extractTemplated(html: string): ExtractedArticle {
         const textContent = find(c, (x) => hasClass(x, "hero-text-content")) ?? c;
         for (const p of nodes(textContent)) {
           if (p.tag === "p") pushParagraph(p);
+          else if (p.tag === "h2" || p.tag === "h3") heading(p, p.tag === "h2" ? 2 : 3);
           else if (hasClass(p, "hero-highlight")) {
             const h4 = find(p, (x) => x.tag === "h4");
             const body = tidy(p.children.filter((x) => !(isNode(x) && x === h4)).map((x) => inlineOf(x)).join(""));
             if (body) blocks.push({ type: "callout", title: h4 ? cleanText(textOf(h4)) : null, html: body });
           }
         }
+        // some articles never close the hero section, so the whole <main> sits inside it: walk it like top-level content
+        for (const inner of findAll(c, (x) => x.tag === "main")) walk(inner, ctx);
         continue;
       }
       if (hasClass(c, "section-eyebrow") || hasClass(c, "fazit-eyebrow")) {
