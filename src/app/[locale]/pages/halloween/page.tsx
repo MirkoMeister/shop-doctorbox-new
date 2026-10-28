@@ -11,7 +11,9 @@ import { HALLOWEEN, halloweenActive, halloweenCopy } from "@/content/halloween";
 import { localeHref } from "@/lib/i18n/config";
 import { resolveLocale } from "@/lib/locale-params";
 import { pageMetadata } from "@/lib/seo";
-import { getAllProducts } from "@/lib/shopify/queries";
+import { InlineSearch } from "@/components/search/InlineSearch";
+import { shopifyImage } from "@/lib/format";
+import { getAllProducts, getNavCollections, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
 
 export const revalidate = 300;
 
@@ -28,7 +30,8 @@ export default async function HalloweenPage({ params }: Props) {
   const { locale, dict } = await resolveLocale(params);
   const t = halloweenCopy(locale);
   const active = halloweenActive();
-  const all = await getAllProducts(locale).catch(() => []);
+  const [all, collections] = await Promise.all([getAllProducts(locale).catch(() => []), getNavCollections(locale).catch(() => [])]);
+  const topics = collections.filter((c) => c.handle !== SUPPLEMENTS_COLLECTION);
   const deals = HALLOWEEN.products.map((h) => all.find((p) => p.handle === h)).filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   return (
@@ -86,6 +89,41 @@ export default async function HalloweenPage({ params }: Props) {
                 <DealCard product={p} percent={HALLOWEEN.percent} badge={t.dealBadge} withCode={t.withCode} instead={t.instead} locale={locale} dict={dict} />
               </li>
             ))}
+          </ul>
+        </section>
+
+        {/* Applies to every home test: search and topics */}
+        <section className="mt-20 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-10" aria-labelledby="all-title">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:items-start">
+            <div>
+              <h2 id="all-title" className="h2 text-balance">
+                <Highlight text={t.allTitle} />
+              </h2>
+              <p className="mt-3 text-lg text-moss/80">{t.allText}</p>
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-medium">{t.searchHint}</p>
+              <InlineSearch locale={locale} dict={dict} />
+            </div>
+          </div>
+          <ul className="mt-8 flex flex-wrap gap-2.5">
+            {topics.map((c) => (
+              <li key={c.handle}>
+                <Link href={localeHref(locale, `/collections/${c.handle}`)} className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2.5 text-[0.95rem] font-medium text-moss transition-colors hover:bg-white">
+                  {c.image && (
+                    <span className="relative -ml-1 h-7 w-7 overflow-hidden rounded-full bg-white">
+                      <Image src={shopifyImage(c.image.url, 96)} alt="" fill sizes="28px" className="object-cover" />
+                    </span>
+                  )}
+                  {c.title}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link href={localeHref(locale, "/collections")} className="inline-flex items-center gap-2 rounded-full bg-moss px-4 py-2.5 text-[0.95rem] font-medium text-soft hover:bg-moss-deep">
+                {t.allCta} <ArrowRight width={16} height={16} />
+              </Link>
+            </li>
           </ul>
         </section>
 

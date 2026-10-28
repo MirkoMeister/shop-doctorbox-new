@@ -50,16 +50,20 @@ export type HalloweenCopy = {
   endedText: string;
   endedCta: string;
   finePrint: string;
+  allTitle: string;
+  allText: string;
+  allCta: string;
+  searchHint: string;
 };
 
 const de: HalloweenCopy = {
   metaTitle: "Halloween-Special: 20 % auf Heimtests mit Code HALLOWEEN26",
   metaDescription: "Nur bis 31. Oktober: 20 % Rabatt auf ausgewählte DoctorBox Heimtests mit dem Code HALLOWEEN26. Rundum Checks, STI Pro, Allergietest und mehr.",
-  bar: "Halloween-Special: 20 % auf Heimtests mit Code HALLOWEEN26, nur bis 31. Oktober",
+  bar: "Halloween-Special: 20 % auf alle Heimtests mit Code HALLOWEEN26, nur bis 31. Oktober",
   barCta: "Zu den Angeboten",
   kicker: "Halloween-Special bis 31. Oktober",
   title: "Gruselig gute [[Heimtest-Deals]]",
-  lead: "20 % auf unsere beliebtesten Checks, bevor die Geisterstunde schlägt. Code kopieren, Test wählen, im Warenkorb einlösen.",
+  lead: "20 % auf alle DoctorBox Heimtests, bevor die Geisterstunde schlägt. Code kopieren, Test wählen, im Warenkorb einlösen.",
   codeLabel: "Dein Code",
   copy: "Code kopieren",
   copied: "Kopiert",
@@ -67,8 +71,8 @@ const de: HalloweenCopy = {
   units: ["Tage", "Std.", "Min.", "Sek."],
   cta: "Zu den Angeboten",
   note: "Der Rabatt wird im Warenkorb abgezogen. Gültig bis 31. Oktober, 23:59 Uhr.",
-  dealsTitle: "Unsere [[Halloween-Angebote]]",
-  dealsText: "Ausgewählte Heimtests zum schaurig guten Preis. Der Preis mit Code gilt nach Eingabe von HALLOWEEN26 im Warenkorb.",
+  dealsTitle: "Die [[beliebtesten]] Deals",
+  dealsText: "Acht Checks, mit denen die meisten starten. Der Preis mit Code gilt nach Eingabe von HALLOWEEN26 im Warenkorb, und er gilt genauso für jeden anderen Heimtest.",
   dealBadge: "−20 % mit Code",
   withCode: "mit Code",
   instead: "statt",
@@ -81,17 +85,21 @@ const de: HalloweenCopy = {
   endedTitle: "Die Geisterstunde ist vorbei",
   endedText: "Das Halloween-Special ist beendet. Unsere Heimtests gibt es weiterhin, und Mira hilft dir, den passenden zu finden.",
   endedCta: "Alle Heimtests ansehen",
-  finePrint: "Gültig bis 31.10.2026, 23:59 Uhr, auf die hier gezeigten Heimtests, nicht kombinierbar mit anderen Codes oder Abo-Rabatten. Ein Code pro Bestellung.",
+  finePrint: "Gültig bis 31.10.2026, 23:59 Uhr, auf alle DoctorBox Heimtests, nicht kombinierbar mit anderen Codes oder Abo-Rabatten. Ein Code pro Bestellung.",
+  allTitle: "Gilt für [[alle Heimtests]]",
+  allText: "Nicht nur die acht oben: Jeder DoctorBox Heimtest ist mit HALLOWEEN26 20 % günstiger. Such nach einem Wert oder stöbere nach Thema.",
+  allCta: "Alle Heimtests ansehen",
+  searchHint: "Welchen Wert möchtest du prüfen?",
 };
 
 const en: HalloweenCopy = {
   metaTitle: "Halloween special: 20% off home tests with code HALLOWEEN26",
   metaDescription: "Until 31 October only: 20% off selected DoctorBox home tests with the code HALLOWEEN26. All-round checks, STI Pro, allergy test and more.",
-  bar: "Halloween special: 20% off home tests with code HALLOWEEN26, until 31 October only",
+  bar: "Halloween special: 20% off all home tests with code HALLOWEEN26, until 31 October only",
   barCta: "See the deals",
   kicker: "Halloween special until 31 October",
   title: "Spookily good [[home test deals]]",
-  lead: "20% off our most popular checks before the witching hour strikes. Copy the code, pick a test, redeem it in the cart.",
+  lead: "20% off every DoctorBox home test before the witching hour strikes. Copy the code, pick a test, redeem it in the cart.",
   codeLabel: "Your code",
   copy: "Copy code",
   copied: "Copied",
@@ -99,8 +107,8 @@ const en: HalloweenCopy = {
   units: ["days", "hrs", "min", "sec"],
   cta: "See the deals",
   note: "The discount is deducted in the cart. Valid until 31 October, 23:59.",
-  dealsTitle: "Our [[Halloween deals]]",
-  dealsText: "Selected home tests at a spookily good price. The code price applies after entering HALLOWEEN26 in the cart.",
+  dealsTitle: "The [[most popular]] deals",
+  dealsText: "Eight checks most people start with. The code price applies after entering HALLOWEEN26 in the cart, and it applies to every other home test just the same.",
   dealBadge: "−20% with code",
   withCode: "with code",
   instead: "instead of",
@@ -113,7 +121,11 @@ const en: HalloweenCopy = {
   endedTitle: "The witching hour has passed",
   endedText: "The Halloween special has ended. Our home tests are still here, and Mira helps you find the right one.",
   endedCta: "See all home tests",
-  finePrint: "Valid until 31 Oct 2026, 23:59, on the home tests shown here; cannot be combined with other codes or subscription discounts. One code per order.",
+  finePrint: "Valid until 31 Oct 2026, 23:59, on all DoctorBox home tests; cannot be combined with other codes or subscription discounts. One code per order.",
+  allTitle: "Applies to [[every home test]]",
+  allText: "Not just the eight above: every DoctorBox home test is 20% cheaper with HALLOWEEN26. Search for a value or browse by topic.",
+  allCta: "See all home tests",
+  searchHint: "Which value do you want to check?",
 };
 
 export const halloweenCopy = (locale: Locale): HalloweenCopy => (locale === "en" ? en : de);
