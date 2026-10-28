@@ -168,7 +168,7 @@ export function articleJsonLd(article: Article, locale: Locale) {
     headline: article.title,
     datePublished: article.publishedAt,
     image: article.image ? [article.image.url] : undefined,
-    author: article.author ? { "@type": "Person", name: article.author } : { "@id": `${siteUrl}/#organization` },
+    author: { "@id": `${siteUrl}/#organization` }, // articles are published by the DoctorBox team
     publisher: { "@id": `${siteUrl}/#organization` },
     mainEntityOfPage: absoluteUrl(locale, articleHref(article.blog.handle, article.handle)),
     description: truncate(stripHtml(article.excerpt || article.contentHtml), 200),

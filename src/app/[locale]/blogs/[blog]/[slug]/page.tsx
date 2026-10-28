@@ -114,7 +114,7 @@ export default async function BlogArticlePage({ params }: Props) {
         lead={lead}
         readingMinutes={extracted.readingMinutes}
         publishedAt={article.publishedAt}
-        author={article.author}
+        author="DoctorBox" /* editorial team, not the individual Shopify author */
         heroImage={
           article.image
             ? { url: article.image.url, alt: article.image.altText }
