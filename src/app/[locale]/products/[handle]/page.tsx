@@ -213,8 +213,6 @@ export default async function ProductPage({ params }: Props) {
 
       {youngle && <SupplementDetails content={youngle} locale={locale} productTitle={product.title} />}
 
-      <ProductReviews reviews={reviews} locale={locale} dict={dict} />
-
       {infoItems.length > 0 && <BiomarkerInfo items={infoItems} topic={topic} />}
 
       {supplement ? (
@@ -250,6 +248,9 @@ export default async function ProductPage({ params }: Props) {
           <ProductGrid products={relatedShown} locale={locale} dict={dict} />
         </section>
       )}
+
+      {/* Reviews sit late on the page so the explanatory sections read in one flow */}
+      <ProductReviews reviews={reviews} locale={locale} dict={dict} />
 
       {!supplement && (
         <section className="mx-auto mt-20 max-w-3xl px-4 sm:px-6 lg:px-8">

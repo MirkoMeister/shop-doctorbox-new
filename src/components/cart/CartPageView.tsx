@@ -8,7 +8,7 @@ import { useCart } from "./CartProvider";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Highlight } from "@/components/ui/Highlight";
 import { ArrowRight, CheckIcon, DropIcon, MinusIcon, PinIcon, PlusIcon, SearchIcon, ShieldIcon, SparkIcon, TruckIcon } from "@/components/ui/Icons";
-import { HALLOWEEN, halloweenActive } from "@/content/halloween";
+import { activeCampaign } from "@/content/campaigns";
 import { POPULAR_SEARCHES } from "@/content/search-suggestions";
 import { formatMoney, shopifyImage } from "@/lib/format";
 import { localeHref, type Locale } from "@/lib/i18n/config";
@@ -143,7 +143,8 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
   const subtotal = parseFloat(cart.cost.subtotalAmount.amount);
   const total = parseFloat(cart.cost.totalAmount.amount);
   const discount = Math.max(0, subtotal - total);
-  const promo = halloweenActive() && hasTests && !applied;
+  const campaign = activeCampaign(locale);
+  const promo = campaign && hasTests && !applied ? campaign : null;
 
   async function submitCode(value: string) {
     const ok = await applyDiscount(value);
@@ -179,10 +180,10 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
 
       {promo && (
         <div className="mt-5 rounded-2xl bg-soft p-4">
-          <p className="font-semibold">{fill(dict.cart.promoTitle, { percent: HALLOWEEN.percent })}</p>
-          <p className="mt-1 text-sm text-ink-muted">{fill(dict.cart.promoText, { code: HALLOWEEN.code })}</p>
-          <button type="button" onClick={() => submitCode(HALLOWEEN.code)} disabled={pending} className="btn btn-secondary btn-sm mt-3">
-            {dict.cart.promoApply} · {HALLOWEEN.code}
+          <p className="font-semibold">{fill(dict.cart.promoTitle, { percent: promo.percent })}</p>
+          <p className="mt-1 text-sm text-ink-muted">{fill(dict.cart.promoText, { code: promo.code, until: promo.until })}</p>
+          <button type="button" onClick={() => submitCode(promo.code)} disabled={pending} className="btn btn-secondary btn-sm mt-3">
+            {dict.cart.promoApply} · {promo.code}
           </button>
         </div>
       )}

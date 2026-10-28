@@ -5,6 +5,7 @@ import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { REGISTER_TEST_URL } from "@/lib/links";
 import type { Collection } from "@/lib/shopify/types";
+import type { ActiveCampaign } from "@/content/campaigns";
 import { CartButton } from "./CartButton";
 import { HeaderShell } from "./HeaderShell";
 import { LangSwitch } from "./LangSwitch";
@@ -26,11 +27,13 @@ export function Header({
   dict,
   collections,
   featured,
+  campaign = null,
 }: {
   locale: Locale;
   dict: Dictionary;
   collections: Collection[];
   featured: FeaturedTeaser | null;
+  campaign?: ActiveCampaign | null;
 }) {
   const href = (p: string) => localeHref(locale, p);
 
@@ -44,7 +47,7 @@ export function Header({
       </a>
       <div className="mx-auto grid h-[72px] max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:h-[88px] lg:px-8">
         <div className="flex items-center gap-1">
-          <MenuDrawer locale={locale} dict={dict} collections={collections} featured={featured} />
+          <MenuDrawer locale={locale} dict={dict} collections={collections} featured={featured} campaign={campaign} />
         </div>
 
         <Link href={href("/")} className="flex items-center justify-center" aria-label={dict.meta.siteName}>
