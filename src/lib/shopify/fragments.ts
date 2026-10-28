@@ -99,21 +99,6 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
       type
       value
     }
-    benefits: metafield(namespace: "shopify", key: "product-benefits") {
-      type
-      value
-      references(first: 12) {
-        nodes {
-          ... on Metaobject {
-            handle
-            fields {
-              key
-              value
-            }
-          }
-        }
-      }
-    }
     updatedAt
     seo {
       title

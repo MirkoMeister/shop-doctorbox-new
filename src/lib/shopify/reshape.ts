@@ -26,12 +26,7 @@ type RawVariant = Omit<Variant, "sellingPlanAllocations" | "storeAvailability"> 
 };
 
 export type RawProduct = RawProductCard &
-  Omit<Product, keyof ProductCard | "images" | "variants" | "sellingPlanGroups" | "collections" | "ingredientsHtml" | "dosageHtml" | "benefits"> & {
-    benefits: {
-      type: string;
-      value: string;
-      references: { nodes: { handle: string; fields: { key: string; value: string | null }[] }[] } | null;
-    } | null;
+  Omit<Product, keyof ProductCard | "images" | "variants" | "sellingPlanGroups" | "collections" | "ingredientsHtml" | "dosageHtml"> & {
     ingredients: { type: string; value: string } | null;
     dosage: { type: string; value: string } | null;
     images: Edges<Product["images"][number]>;
@@ -122,26 +117,6 @@ export function reshapeProductCard(raw: RawProductCard): ProductCard {
   };
 }
 
-/** Taxonomy metaobjects carry the label in "label" or "name"; text lists arrive as a JSON array */
-function parseBenefits(field: RawProduct["benefits"]): string[] {
-  if (!field) return [];
-  const refs = field.references?.nodes ?? [];
-  if (refs.length) {
-    return refs
-      .map((r) => r.fields.find((f) => f.key === "label" || f.key === "name")?.value?.trim() ?? "")
-      .filter(Boolean);
-  }
-  if (field.type.startsWith("list.")) {
-    try {
-      const arr = JSON.parse(field.value) as unknown;
-      if (Array.isArray(arr)) return arr.map((x) => String(x).trim()).filter((x) => x && !x.startsWith("gid://"));
-    } catch {
-      /* fall through */
-    }
-  }
-  return field.value.trim() ? [field.value.trim()] : [];
-}
-
 export function reshapeProduct(raw: RawProduct): Product {
   const card = reshapeProductCard(raw);
   return {
@@ -154,7 +129,6 @@ export function reshapeProduct(raw: RawProduct): Product {
     updatedAt: raw.updatedAt,
     ingredientsHtml: metafieldToHtml(raw.ingredients),
     dosageHtml: metafieldToHtml(raw.dosage),
-    benefits: parseBenefits(raw.benefits),
     collections: edgesToArray(raw.collections),
     sellingPlanGroups: edgesToArray(raw.sellingPlanGroups).map((g) => ({
       name: g.name,

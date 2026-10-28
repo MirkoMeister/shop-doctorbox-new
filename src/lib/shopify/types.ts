@@ -94,8 +94,6 @@ export type Product = ProductCard & {
   ingredientsHtml: string | null;
   /** "custom.einnahmeempfehlung" metafield rendered as HTML (supplements) */
   dosageHtml: string | null;
-  /** Shopify category metafield "product-benefits" (labels of the referenced taxonomy values) */
-  benefits: string[];
 };
 
 export type Collection = {

@@ -132,16 +132,6 @@ export default async function ProductPage({ params }: Props) {
           {supplement && product.vendor && (
             <p className="mt-2 text-sm font-medium text-green">{fill(dict.product.by, { vendor: product.vendor.replace(/\s+GmbH$/i, "") })}</p>
           )}
-          {product.benefits.length > 0 && (
-            <ul className="mt-5 grid gap-2 text-[0.95rem]" aria-label={dict.product.benefits}>
-              {product.benefits.map((b) => (
-                <li key={b} className="flex items-start gap-2.5">
-                  <CheckIcon width={18} height={18} className="mt-0.5 shrink-0 text-green" />
-                  <span className="font-medium leading-snug">{b}</span>
-                </li>
-              ))}
-            </ul>
-          )}
           <div className="mt-3">
             <Rating value={product.rating} count={product.ratingCount} dict={dict} />
           </div>
