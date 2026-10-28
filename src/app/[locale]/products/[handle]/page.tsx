@@ -19,6 +19,7 @@ import { fill } from "@/lib/i18n/dictionaries";
 import { resolveLocale } from "@/lib/locale-params";
 import { breadcrumbJsonLd, faqJsonLd, JsonLd, pageMetadata, productJsonLd } from "@/lib/seo";
 import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
+import { isYoungle, SupplementTrust } from "@/components/supplements/SupplementTrust";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
 import { stripHtml, truncate } from "@/lib/format";
 
@@ -161,7 +162,7 @@ export default async function ProductPage({ params }: Props) {
 
       </div>
 
-      <TrustMarquee dict={dict} />
+      {supplement && isYoungle(product.vendor) ? <SupplementTrust locale={locale} /> : <TrustMarquee dict={dict} />}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mt-12 max-w-4xl [&_.prose-db]:max-w-none">
