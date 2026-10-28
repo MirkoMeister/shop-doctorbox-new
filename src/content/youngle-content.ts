@@ -21,7 +21,7 @@ const byLocale = data as Record<"de" | "en", Record<string, YoungleContent>>;
  * Products that show the sections. Content exists for all 21 Youngle handles
  * (keys of the JSON); add handles here to roll it out, or set to null for all.
  */
-export const YOUNGLE_CONTENT_ENABLED: string[] | null = ["kreatin-pulver"];
+export const YOUNGLE_CONTENT_ENABLED: string[] | null = null;
 
 export function youngleContent(handle: string, locale: Locale): YoungleContent | null {
   if (YOUNGLE_CONTENT_ENABLED && !YOUNGLE_CONTENT_ENABLED.includes(handle)) return null;
