@@ -12,8 +12,23 @@ export class ShopifyError extends Error {
   constructor(
     message: string,
     public readonly errors?: unknown,
+    /** true when the only problem is a missing Storefront API access scope */
+    public readonly accessDenied = false,
   ) {
     super(message);
+  }
+}
+
+/** Resolve to `fallback` instead of failing when the token lacks a scope (content, selling plans …) */
+export async function soft<T>(p: Promise<T>, fallback: T, what: string): Promise<T> {
+  try {
+    return await p;
+  } catch (err) {
+    if (err instanceof ShopifyError && err.accessDenied) {
+      console.warn(`[shopify] ${what}: access scope missing → showing nothing`);
+      return fallback;
+    }
+    throw err;
   }
 }
 
@@ -78,7 +93,7 @@ export async function shopifyFetch<T>(query: string, options: FetchOptions = {})
       "X-Shopify-Storefront-Access-Token": token,
     },
     body: JSON.stringify({
-      query: dedupeFragments(query),
+      query: dedupeFragments(sellingPlansDenied ? stripSellingPlans(query) : query),
       variables: {
         language: shopifyLanguage(locale),
         country: "DE",
@@ -110,16 +125,47 @@ export async function shopifyFetch<T>(query: string, options: FetchOptions = {})
   }
   const json = (await res.json()) as { data?: T; errors?: unknown[] };
   if (json.errors && json.errors.length) {
-    // Access-scope errors on optional fields should not take the page down
-    const fatal = (json.errors as { message?: string }[]).filter(
-      (e) => !/Access denied/i.test(e.message ?? ""),
-    );
+    const errs = json.errors as { message?: string }[];
+    const denied = errs.filter((e) => /Access denied/i.test(e.message ?? ""));
+    const fatal = errs.filter((e) => !/Access denied/i.test(e.message ?? ""));
+    // Selling plans are optional for the shop: if the token lost that scope, drop the
+    // selling-plan selections from the query and retry once, remembering the outcome.
+    if (!fatal.length && denied.some((e) => /sellingPlan/i.test(e.message ?? "")) && !sellingPlansDenied) {
+      sellingPlansDenied = true;
+      console.warn("[shopify] token lacks unauthenticated_read_selling_plans → subscriptions disabled");
+      return shopifyFetch<T>(query, options);
+    }
     if (fatal.length || !json.data) {
       console.error("[shopify]", JSON.stringify(json.errors).slice(0, 800));
-      throw new ShopifyError("Shopify GraphQL error", json.errors);
+      throw new ShopifyError("Shopify GraphQL error", json.errors, denied.length > 0 && !fatal.length);
     }
   }
   return json.data as T;
+}
+
+/** Set once the Storefront token proved to lack the selling-plans scope */
+let sellingPlansDenied = false;
+
+/** Removes every `…sellingPlanGroups(…) { … }` / `sellingPlanAllocations(…) { … }` selection, braces balanced */
+export function stripSellingPlans(query: string): string {
+  const re = /(\w+:\s*)?(sellingPlanGroups|sellingPlanAllocations)\s*\([^)]*\)\s*\{/g;
+  let out = "";
+  let i = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(query))) {
+    const start = m.index;
+    let depth = 1;
+    let j = re.lastIndex;
+    while (j < query.length && depth > 0) {
+      if (query[j] === "{") depth++;
+      else if (query[j] === "}") depth--;
+      j++;
+    }
+    out += query.slice(i, start);
+    i = j;
+    re.lastIndex = j;
+  }
+  return out + query.slice(i);
 }
 
 /** Collapses Relay `edges { node }` into a plain array. */

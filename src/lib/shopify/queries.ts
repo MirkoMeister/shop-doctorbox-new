@@ -1,6 +1,6 @@
 import "server-only";
 import type { Locale } from "@/lib/i18n/config";
-import { nodes, shopifyFetch } from "./client";
+import { nodes, shopifyFetch, soft } from "./client";
 import { CART_FRAGMENT, IMAGE_FRAGMENT, PRODUCT_CARD_FRAGMENT, PRODUCT_FRAGMENT } from "./fragments";
 import {
   cleanTitle,
@@ -344,7 +344,7 @@ const PAGE_QUERY = /* GraphQL */ `
   }
 `;
 
-export async function getPage(handle: string, locale: Locale): Promise<Page | null> {
+async function _getPage(handle: string, locale: Locale): Promise<Page | null> {
   const data = await shopifyFetch<{ page: Page | null }>(PAGE_QUERY, {
     variables: { handle },
     locale,
@@ -352,6 +352,10 @@ export async function getPage(handle: string, locale: Locale): Promise<Page | nu
   });
   return data.page;
 }
+export function getPage(handle: string, locale: Locale): Promise<Page | null> {
+  return soft(_getPage(handle, locale), null, "getPage");
+}
+
 
 const PAGES_QUERY = /* GraphQL */ `
   query Pages($after: String, ${CTX_VARS}) ${CTX} {
@@ -371,7 +375,7 @@ const PAGES_QUERY = /* GraphQL */ `
   }
 `;
 
-export async function getAllPageHandles(locale: Locale): Promise<Pick<Page, "handle" | "title" | "updatedAt">[]> {
+async function _getAllPageHandles(locale: Locale): Promise<Pick<Page, "handle" | "title" | "updatedAt">[]> {
   const out: Pick<Page, "handle" | "title" | "updatedAt">[] = [];
   let after: string | null = null;
   do {
@@ -386,6 +390,10 @@ export async function getAllPageHandles(locale: Locale): Promise<Pick<Page, "han
   } while (after);
   return out;
 }
+export function getAllPageHandles(locale: Locale): Promise<Pick<Page, "handle" | "title" | "updatedAt">[]> {
+  return soft(_getAllPageHandles(locale), [], "getAllPageHandles");
+}
+
 
 const ARTICLE_FIELDS = /* GraphQL */ `
   fragment ArticleFields on Article {
@@ -447,7 +455,7 @@ const BLOGS_QUERY = /* GraphQL */ `
 
 export const EXCLUDED_BLOGS = ["blog-salute-sessuale"];
 
-export async function getBlogs(locale: Locale): Promise<Blog[]> {
+async function _getBlogs(locale: Locale): Promise<Blog[]> {
   const data = await shopifyFetch<{ blogs: { edges: { node: Blog }[] } }>(BLOGS_QUERY, {
     locale,
     tags: ["blogs"],
@@ -456,6 +464,10 @@ export async function getBlogs(locale: Locale): Promise<Blog[]> {
     .filter((b) => !EXCLUDED_BLOGS.includes(b.handle))
     .map((b) => ({ ...b, title: decodeEntities(b.title) }));
 }
+export function getBlogs(locale: Locale): Promise<Blog[]> {
+  return soft(_getBlogs(locale), [], "getBlogs");
+}
+
 
 const BLOG_QUERY = /* GraphQL */ `
   query Blog($handle: String!, ${CTX_VARS}) ${CTX} {
@@ -478,7 +490,7 @@ const BLOG_QUERY = /* GraphQL */ `
   ${ARTICLE_FIELDS}
 `;
 
-export async function getBlog(handle: string, locale: Locale): Promise<(Blog & { articles: Article[] }) | null> {
+async function _getBlog(handle: string, locale: Locale): Promise<(Blog & { articles: Article[] }) | null> {
   if (EXCLUDED_BLOGS.includes(handle)) return null;
   const data = await shopifyFetch<{
     blog: (Blog & { articles: { edges: { node: RawArticle }[] } }) | null;
@@ -486,6 +498,10 @@ export async function getBlog(handle: string, locale: Locale): Promise<(Blog & {
   if (!data.blog) return null;
   const { articles, ...rest } = data.blog;
   return { ...rest, title: decodeEntities(rest.title), articles: nodes(articles).map(reshapeArticle) };
+}
+
+export function getBlog(handle: string, locale: Locale): Promise<(Blog & { articles: Article[] }) | null> {
+  return soft(_getBlog(handle, locale), null, "getBlog");
 }
 
 const ARTICLE_QUERY = /* GraphQL */ `
@@ -500,7 +516,7 @@ const ARTICLE_QUERY = /* GraphQL */ `
   ${ARTICLE_FIELDS}
 `;
 
-export async function getArticle(blog: string, handle: string, locale: Locale): Promise<Article | null> {
+async function _getArticle(blog: string, handle: string, locale: Locale): Promise<Article | null> {
   if (EXCLUDED_BLOGS.includes(blog)) return null;
   const data = await shopifyFetch<{ blog: { articleByHandle: RawArticle | null } | null }>(ARTICLE_QUERY, {
     variables: { blog, handle },
@@ -510,6 +526,10 @@ export async function getArticle(blog: string, handle: string, locale: Locale): 
   const a = data.blog?.articleByHandle;
   return a ? reshapeArticle(a) : null;
 }
+export function getArticle(blog: string, handle: string, locale: Locale): Promise<Article | null> {
+  return soft(_getArticle(blog, handle, locale), null, "getArticle");
+}
+
 
 const ARTICLES_QUERY = /* GraphQL */ `
   query Articles($first: Int!, $after: String, ${CTX_VARS}) ${CTX} {
@@ -528,7 +548,7 @@ const ARTICLES_QUERY = /* GraphQL */ `
   ${ARTICLE_FIELDS}
 `;
 
-export async function getLatestArticles(locale: Locale, limit = 3): Promise<Article[]> {
+async function _getLatestArticles(locale: Locale, limit = 3): Promise<Article[]> {
   const data = await shopifyFetch<{ articles: { edges: { node: RawArticle }[] } }>(ARTICLES_QUERY, {
     variables: { first: Math.min(limit * 2, 50) },
     locale,
@@ -539,8 +559,12 @@ export async function getLatestArticles(locale: Locale, limit = 3): Promise<Arti
     .slice(0, limit)
     .map(reshapeArticle);
 }
+export function getLatestArticles(locale: Locale, limit = 3): Promise<Article[]> {
+  return soft(_getLatestArticles(locale, limit), [], "getLatestArticles");
+}
 
-export async function getAllArticles(locale: Locale): Promise<Article[]> {
+
+async function _getAllArticles(locale: Locale): Promise<Article[]> {
   const out: Article[] = [];
   let after: string | null = null;
   do {
@@ -552,6 +576,10 @@ export async function getAllArticles(locale: Locale): Promise<Article[]> {
   } while (after);
   return out.filter((a) => !EXCLUDED_BLOGS.includes(a.blog.handle));
 }
+export function getAllArticles(locale: Locale): Promise<Article[]> {
+  return soft(_getAllArticles(locale), [], "getAllArticles");
+}
+
 
 const POLICIES_QUERY = /* GraphQL */ `
   query Policies(${CTX_VARS}) ${CTX} {
@@ -574,13 +602,17 @@ export const POLICY_HANDLES = [
   "legal-notice",
 ] as const;
 
-export async function getPolicies(locale: Locale): Promise<Policy[]> {
+async function _getPolicies(locale: Locale): Promise<Policy[]> {
   const data = await shopifyFetch<{ shop: Record<string, Policy | null> }>(POLICIES_QUERY, {
     locale,
     tags: ["policies"],
   });
   return Object.values(data.shop).filter((p): p is Policy => Boolean(p));
 }
+export function getPolicies(locale: Locale): Promise<Policy[]> {
+  return soft(_getPolicies(locale), [], "getPolicies");
+}
+
 
 export async function getPolicy(handle: string, locale: Locale): Promise<Policy | null> {
   const all = await getPolicies(locale);
