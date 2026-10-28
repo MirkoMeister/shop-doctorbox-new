@@ -57,6 +57,11 @@ const de = {
       note: "Bei den Rundum Checks und vielen weiteren Tests als Blutabnahme-Variante wählbar und vorausgewählt. Weniger Fehlproben als beim Fingerpiks, die Analyse läuft wie gewohnt im akkreditierten Labor.",
       videoLabel: "Video: Blutabnahme mit dem Tasso+ Gerät am Oberarm",
     },
+    insurance: {
+      title: "Darmkrebstest über deine Krankenkasse?",
+      text: "Den kostenlosen Test bestellst du über die Seite deiner Kasse, nicht hier im Shop.",
+      cta: "Krankenkasse wählen",
+    },
     newsletter: {
       kicker: "Newsletter",
       title: "Gesundheitswissen, [[bevor du es brauchst]]",
@@ -576,6 +581,11 @@ const en: Dictionary = {
       productsTitle: "Available for the all-round checks",
       note: "Available and preselected as the blood collection option for the all-round checks and many other tests. Fewer failed samples than a finger prick, analysis runs in the accredited lab as usual.",
       videoLabel: "Video: blood collection with the Tasso+ device on the upper arm",
+    },
+    insurance: {
+      title: "Bowel cancer test via your health insurer?",
+      text: "The free test is ordered on your insurer's page, not here in the shop.",
+      cta: "Choose your insurer",
     },
     newsletter: {
       kicker: "Newsletter",
