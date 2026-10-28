@@ -58,7 +58,10 @@ export default async function ProductPage({ params }: Props) {
   // Shopify's recommendations are tests; supplements relate to the other supplements
   const supplementsCollection = supplement ? await getCollection(SUPPLEMENTS_COLLECTION, locale).catch(() => null) : null;
   const related = supplement
-    ? (supplementsCollection?.products ?? []).filter((p) => p.id !== product.id && p.availableForSale).slice(0, 4)
+    ? (supplementsCollection?.products ?? [])
+        .filter((p) => p.id !== product.id && p.availableForSale)
+        .sort((x, y) => Number(y.vendor === product.vendor) - Number(x.vendor === product.vendor))
+        .slice(0, 4)
     : await getProductRecommendations(product.id, locale);
 
   const primaryCollection =
