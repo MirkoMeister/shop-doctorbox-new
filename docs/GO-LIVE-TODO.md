@@ -29,7 +29,7 @@ Shopify betreibt UCP-Profil, MCP-Server und Katalog selbst. Der Headless-Shop re
 
 - [ ] **Halloween:** Rabattcode `HALLOWEEN26` in Shopify auf alle Heimtests anlegen (die Seite verspricht 20 % auf alle Tests). Aktion endet automatisch am 31.10., 23:59.
 - [ ] **Youngle:** Metafelder für die 20 restlichen Produkte aus `docs/youngle-produktangaben.xlsx` füllen (AKG ist befüllt).
-- [ ] **Youngle-Texte prüfen (Health Claims):** Die Produktseiten zeigen seit 28.10. die Herstellertexte von youngle.com (Produktvorteile erklärt, „Was kannst du erwarten?“, Wirkstoffe im Detail; Quelle `src/content/youngle-content.json`, lesbar in `docs/youngle-weiterfuehrende-inhalte.csv` und im Tabellenblatt „Weiterführende Inhalte“). Aussagen wie „unterstützt Herzgesundheit“ sind gesundheitsbezogene Angaben nach Health-Claims-Verordnung; mit Youngle klären, welche zugelassen sind, sonst Einträge in der JSON kürzen.
+- [ ] **Youngle-Texte prüfen (Health Claims):** Die Produktseiten zeigen seit 28.10. die Herstellertexte von youngle.com (Produktvorteile erklärt, „Was kannst du erwarten?“, Wirkstoffe im Detail; Quelle `src/content/youngle-content.json`, lesbar in `docs/youngle-weiterfuehrende-inhalte.csv` und im Tabellenblatt „Weiterführende Inhalte“). Aussagen wie „unterstützt Herzgesundheit“ sind gesundheitsbezogene Angaben nach Health-Claims-Verordnung; mit Youngle klären, welche zugelassen sind, sonst Einträge in der JSON kürzen. Detailliste je Produkt: `docs/youngle-health-claims.md`.
 - [ ] **Apotheken:** Liste vom CEO in `src/content/pharmacies.json` eintragen.
 - [ ] **Tasso-Wortlaut** „komplett schmerzfrei“ medizinisch/rechtlich freigeben (Hersteller sagt „nahezu schmerzfrei“).
 - [ ] **Mira-Texte** zu STI-Zeitfenstern und Supplements medizinisch gegenlesen.
