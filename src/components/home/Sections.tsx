@@ -81,6 +81,14 @@ export function CategoryField({
               {dict.collection.all} <ArrowRight width={16} height={16} />
             </Link>
           </li>
+          <li>
+            <Link
+              href={localeHref(locale, "/pages/eigener-test")}
+              className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-moss/40 px-4 py-2.5 text-[0.95rem] font-medium text-moss transition-colors hover:bg-white"
+            >
+              {dict.nav.builder}
+            </Link>
+          </li>
         </ul>
       </div>
     </section>

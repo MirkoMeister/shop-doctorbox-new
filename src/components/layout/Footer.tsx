@@ -26,7 +26,8 @@ export function Footer({
       title: dict.footer.shop,
       links: [
         { label: dict.collection.all, href: href("/collections") },
-        ...collections.slice(0, 7).map((c) => ({ label: c.title, href: href(`/collections/${c.handle}`) })),
+        ...collections.slice(0, 6).map((c) => ({ label: c.title, href: href(`/collections/${c.handle}`) })),
+        { label: dict.nav.builder, href: href("/pages/eigener-test") },
       ],
     },
     {
@@ -34,6 +35,7 @@ export function Footer({
       links: [
         { label: dict.nav.faq, href: href("/pages/faqs") },
         { label: dict.nav.tasso, href: href("/pages/tasso") },
+        { label: dict.nav.pharmacies, href: href("/pages/apotheken") },
         { label: dict.nav.results, href: href("/pages/mein-testergebnis") },
         { label: dict.nav.registerTest, href: REGISTER_TEST_URL, external: true },
         { label: dict.footer.payment, href: href("/pages/zahlung") },

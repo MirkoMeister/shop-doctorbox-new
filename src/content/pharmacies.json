@@ -1,0 +1,15 @@
+{
+  "updated": "2026-10-28",
+  "locations": [
+    {
+      "name": "DoctorBox (Abholung)",
+      "street": "Taubenstr. 26",
+      "zip": "10117",
+      "city": "Berlin",
+      "services": ["pickup"],
+      "hours": "Mo–Fr 9–17 Uhr",
+      "phone": "+49 30 34045468",
+      "note": "Abholung nach Bestellbestätigung, Ausgabe durch das DoctorBox Team."
+    }
+  ]
+}
