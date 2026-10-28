@@ -46,7 +46,7 @@ export type ExtractedArticle = {
 };
 
 const BLOCK_TAGS = new Set(["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote", "img", "td", "th"]);
-const SKIP_TAGS = new Set(["style", "script", "link", "noscript", "svg", "button", "form", "select", "textarea", "iframe", "input", "nav", "header", "footer", "aside"]);
+const SKIP_TAGS = new Set(["style", "script", "link", "noscript", "svg", "button", "form", "select", "textarea", "iframe", "input", "nav", "header", "footer"]);
 const KEEP_INLINE = new Set(["strong", "b", "em", "i", "a", "br", "sup", "sub"]);
 const VOID_TAGS = new Set(["br", "img", "hr", "input", "link", "meta", "source", "wbr", "col", "embed", "track", "area", "base"]);
 
@@ -347,7 +347,7 @@ function scaleOf(c: HNode): Scale | null {
   return { title: titleNode ? cleanText(textOf(titleNode)) : null, band: bandText, from: bandNums[0] ?? min, to: bandNums[1] ?? bandNums[0] ?? max, min, max, ticks, labels, note: noteNode ? tidy(noteNode.children.map((c) => inlineOf(c)).join("")) : null };
 }
 
-const isTemplated = (html: string) => /class="[^"]*\b(BlogPage|section-title|hero-text-content)\b/.test(html);
+const isTemplated = (html: string) => /class="[^"]*\b(BlogPage|section-title|hero-text-content|dbx-container|dbx-wrap|dbx-hero)\b/.test(html);
 
 const cls = (n: HNode) => classes(n).join(" ");
 const endsWith = (n: HNode, suffix: string) => classes(n).some((c) => c.endsWith(suffix) || c.includes(`${suffix}--`));
@@ -528,6 +528,40 @@ function extractTemplated(html: string): ExtractedArticle {
         if (isContentImage(src, alt)) blocks.push({ type: "image", src, alt });
         continue;
       }
+      // dbx template (dbx-wrap / dbx-hero family)
+      if (/(^|\s)dbx-(wrap|full|full-inner|grid|card|section|container|media|faq)(\s|$)/.test(k)) {
+        walk(c, { inFaq: ctx.inFaq || hasClass(c, "dbx-faq") });
+        continue;
+      }
+      if (hasClass(c, "dbx-hero")) {
+        const eyebrow = find(c, (x) => hasClass(x, "dbx-eyebrow"));
+        if (eyebrow && !kicker) kicker = cleanText(textOf(eyebrow));
+        const sub = find(c, (x) => hasClass(x, "dbx-sub"));
+        if (sub) pushParagraph(sub);
+        continue;
+      }
+      if (/(^|\s)dbx-(article-stats|cta-row|divider|stat-item)(\s|$)/.test(k)) continue;
+      if (/(^|\s)dbx-(info|faktenbox|sticky-tip|quote)(\s|$)/.test(k)) {
+        const content = find(c, (x) => hasClass(x, "dbx-info-content")) ?? c;
+        const strong = nodes(content).find((x) => x.tag === "strong");
+        const title = strong ? cleanText(textOf(strong)) : null;
+        const body = tidy(content.children.filter((x) => !(isNode(x) && (x === strong || DECOR(x)))).map((x) => inlineOf(x)).join(""));
+        const bullets = body.split(/\s*•\s*/).map((x) => x.trim()).filter(Boolean);
+        if (bullets.length >= 2 && body.includes("•")) blocks.push({ type: "cards", items: [{ title: title ?? "", html: "", tone: "info", points: bullets }] });
+        else if (body || title) blocks.push({ type: "callout", title, html: body });
+        continue;
+      }
+      if (hasClass(c, "dbx-products") || hasClass(c, "dbx-pcard")) {
+        for (const a of findAll(c, (x) => x.tag === "a")) {
+          const m = (a.attrs.href ?? "").match(/\/products\/([a-z0-9%\-]+)/i);
+          if (m) productHandles.push(decodeURIComponent(m[1]));
+        }
+        continue;
+      }
+      if (hasClass(c, "dbx-lead")) {
+        pushParagraph(c);
+        continue;
+      }
       // hero: lead paragraphs + highlight; title and eyebrow come from the article itself
       if (/(^|\s)hero(\s|$)/.test(k) && (tag === "section" || tag === "div")) {
         const eyebrow = find(c, (x) => hasClass(x, "hero-eyebrow"));
@@ -540,11 +574,27 @@ function extractTemplated(html: string): ExtractedArticle {
             const h4 = find(p, (x) => x.tag === "h4");
             const body = tidy(p.children.filter((x) => !(isNode(x) && x === h4)).map((x) => inlineOf(x)).join(""));
             if (body) blocks.push({ type: "callout", title: h4 ? cleanText(textOf(h4)) : null, html: body });
-          }
+          } else if (!DECOR(p) && !hasClass(p, "hero-bg") && !hasClass(p, "hero-content")) walk({ tag: "div", attrs: {}, children: [p] }, ctx);
         }
         // some articles never close the hero section, so the whole <main> sits inside it: walk it like top-level content
         for (const inner of findAll(c, (x) => x.tag === "main")) walk(inner, ctx);
         continue;
+      }
+      // info box / aside: heading, paragraphs and a bullet list → one highlighted card
+      if (hasClass(c, "info-box") || (tag === "aside" && !hasClass(c, "faq"))) {
+        const titleNode = find(c, (x) => /^h[2-4]$/.test(x.tag));
+        const list = find(c, (x) => x.tag === "ul" || x.tag === "ol");
+        const body = tidy(
+          c.children
+            .filter((x) => isNode(x) && x !== titleNode && x !== list && !DECOR(x))
+            .map((x) => inlineOf(x))
+            .join(""),
+        );
+        const points = list ? nodes(list).filter((li) => li.tag === "li").map((li) => tidy(inlineOf(li))) : [];
+        if (body || points.length) {
+          blocks.push({ type: "cards", items: [{ title: titleNode ? cleanText(textOf(titleNode)) : "", html: body, tone: "info", points }] });
+          continue;
+        }
       }
       if (hasClass(c, "section-eyebrow") || hasClass(c, "fazit-eyebrow")) {
         pendingKicker = cleanText(textOf(c));
