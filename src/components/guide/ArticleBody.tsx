@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Block, Card } from "@/lib/content/article-render";
+import type { Block, Card, Scale } from "@/lib/content/article-render";
 import { Accordion } from "@/components/ui/Accordion";
 import { ArrowRight, CheckIcon } from "@/components/ui/Icons";
 
@@ -25,7 +25,7 @@ function CtaLink({ href, label, className }: { href: string; label: string; clas
 }
 
 /** Blocks that may use the full article width; everything else keeps the reading measure */
-const WIDE = new Set<Block["type"]>(["cards", "stats", "steps", "chart", "bars", "scale", "table", "svg", "image", "chips", "conclusion"]);
+const WIDE = new Set<Block["type"]>(["cards", "stats", "steps", "chart", "bars", "scale", "days", "table", "svg", "image", "chips", "conclusion"]);
 
 /** Renders extracted article blocks in the shop's own typography. */
 export function ArticleBody({ blocks }: { blocks: Block[] }) {
@@ -127,6 +127,7 @@ function renderBlock(b: Block, i: number): React.ReactNode {
                         ))}
                       </ul>
                     )}
+                    {c.figure && <ScaleFigure s={c.figure} inCard />}
                     {c.note && <div className="article-inline mt-3 border-t border-ink/10 pt-3 text-sm text-ink-muted" dangerouslySetInnerHTML={{ __html: c.note }} />}
                   </li>
                 ))}
@@ -228,37 +229,26 @@ function renderBlock(b: Block, i: number): React.ReactNode {
                 {b.note && <p className="article-inline mt-4 text-xs leading-snug text-ink-muted" dangerouslySetInnerHTML={{ __html: b.note }} />}
               </figure>
             );
-          case "scale": {
-            const span = b.max - b.min || 1;
-            const left = ((b.from - b.min) / span) * 100;
-            const width = Math.max(2, ((b.to - b.from) / span) * 100);
+          case "scale":
+            return <ScaleFigure key={i} s={b} />;
+          case "days":
             return (
               <figure key={i} className="mt-8 rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
                 {b.title && <figcaption className="font-semibold text-moss">{b.title}</figcaption>}
-                <div className="relative mt-10 h-3 rounded-full bg-surface" role="img" aria-label={b.band}>
-                  <span className="absolute top-0 h-full rounded-full bg-green" style={{ left: `${left}%`, width: `${width}%` }} />
-                  <span
-                    className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-lind px-2.5 py-0.5 text-xs font-semibold text-moss"
-                    style={{ left: `${left + width / 2}%` }}
-                  >
-                    {b.band}
-                  </span>
-                </div>
-                <div className="relative mt-2 h-5 text-xs tabular-nums text-ink-muted">
-                  {b.ticks.map((t, k) => {
-                    const n = parseFloat(t.replace(",", ".").replace(/[^\d.]/g, ""));
-                    const x = Number.isNaN(n) ? (k / Math.max(1, b.ticks.length - 1)) * 100 : ((n - b.min) / span) * 100;
-                    return (
-                      <span key={k} className="absolute whitespace-nowrap" style={{ left: `${x}%`, transform: x <= 0 ? "none" : x >= 100 ? "translateX(-100%)" : "translateX(-50%)" }}>
-                        {t}
-                      </span>
-                    );
-                  })}
-                </div>
+                <ol className="mt-4 flex flex-wrap gap-1.5" aria-label={b.title ?? undefined}>
+                  {b.cells.map((c, k) => (
+                    <li
+                      key={k}
+                      className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-1.5 text-sm tabular-nums ${c.hl ? "bg-green font-semibold text-white" : "bg-surface text-ink-muted"}`}
+                      aria-current={c.hl ? "true" : undefined}
+                    >
+                      {c.label}
+                    </li>
+                  ))}
+                </ol>
                 {b.note && <p className="article-inline mt-4 text-xs leading-snug text-ink-muted" dangerouslySetInnerHTML={{ __html: b.note }} />}
               </figure>
             );
-          }
           case "table":
             return (
               <div key={i} className="mt-8 overflow-x-auto rounded-[var(--radius-card)] border border-line/70 [contain:paint]">
@@ -336,4 +326,50 @@ function renderBlock(b: Block, i: number): React.ReactNode {
     }
   }
   return null;
+}
+
+/** Range on a scale: highlighted band on a track, or a gradient track with tick rows */
+function ScaleFigure({ s, inCard = false }: { s: Scale; inCard?: boolean }) {
+  const span = s.max - s.min || 1;
+  const left = ((s.from - s.min) / span) * 100;
+  const width = Math.max(2, ((s.to - s.from) / span) * 100);
+  // with a band the ticks sit at their value; a plain gradient track (range-bar) keeps the template's even grid,
+  // and a second label row aligns with the ticks above it
+  const pos = (t: string, k: number, n: number) => {
+    const v = parseFloat(t.replace(",", ".").replace(/[^\d.]/g, ""));
+    const even = (k / Math.max(1, n - 1)) * 100;
+    if (!s.band || Number.isNaN(v) || t.includes("<") || t.includes(">")) return even;
+    return ((v - s.min) / span) * 100;
+  };
+  const row = (items: string[], cls: string) =>
+    items.length > 0 && (
+      <div className={`relative h-5 ${cls}`}>
+        {items.map((t, k) => {
+          const x = pos(t, k, items.length);
+          return (
+            <span key={k} className="absolute whitespace-nowrap" style={{ left: `${x}%`, transform: x <= 0 ? "none" : x >= 100 ? "translateX(-100%)" : "translateX(-50%)" }}>
+              {t}
+            </span>
+          );
+        })}
+      </div>
+    );
+  return (
+    <figure className={inCard ? "mt-4" : "mt-8 rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6"}>
+      {s.title && <figcaption className="font-semibold text-moss">{s.title}</figcaption>}
+      <div className={`relative h-3 rounded-full ${s.band ? "mt-10 bg-surface" : "mt-4 bg-gradient-to-r from-lind via-green to-moss"}`} role="img" aria-label={s.band ?? s.title ?? undefined}>
+        {s.band && (
+          <>
+            <span className="absolute top-0 h-full rounded-full bg-green" style={{ left: `${left}%`, width: `${width}%` }} />
+            <span className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-lind px-2.5 py-0.5 text-xs font-semibold text-moss" style={{ left: `${left + width / 2}%` }}>
+              {s.band}
+            </span>
+          </>
+        )}
+      </div>
+      {row(s.ticks, "mt-2 text-xs font-medium tabular-nums text-ink")}
+      {row(s.labels, "mt-0.5 text-[0.7rem] text-ink-muted")}
+      {s.note && <p className="article-inline mt-4 text-xs leading-snug text-ink-muted" dangerouslySetInnerHTML={{ __html: s.note }} />}
+    </figure>
+  );
 }

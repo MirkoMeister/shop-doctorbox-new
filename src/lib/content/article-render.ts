@@ -9,7 +9,8 @@ import { classes, cleanText, find, findAll, hasClass, isNode, nodes, parseHtml, 
 export type Inline = string; // sanitised inline HTML: text, <strong>, <em>, <a href>, <br>
 
 export type CardTone = "default" | "warn" | "alert" | "info";
-export type Card = { title: string; html: Inline; tone?: CardTone; badge?: string; kicker?: string; points?: Inline[]; note?: Inline; value?: string };
+export type Scale = { title: string | null; band: string | null; from: number; to: number; min: number; max: number; ticks: string[]; labels: string[]; note: Inline | null };
+export type Card = { title: string; html: Inline; tone?: CardTone; badge?: string; kicker?: string; points?: Inline[]; note?: Inline; value?: string; figure?: Scale };
 export type Cta = { label: string; href: string };
 
 export type Block =
@@ -27,7 +28,8 @@ export type Block =
   | { type: "conclusion"; title: string; html: Inline; cta?: Cta }
   | { type: "chart"; title: string | null; bars: { label: string; value: number; high: boolean }[]; marker?: { index: number; label: string }; legend: { high: boolean; label: string }[]; note: Inline | null }
   | { type: "bars"; items: { label: string; value: string; pct: number; tone: CardTone }[]; note: Inline | null }
-  | { type: "scale"; title: string | null; band: string; from: number; to: number; min: number; max: number; ticks: string[]; note: Inline | null }
+  | ({ type: "scale" } & Scale)
+  | { type: "days"; title: string | null; cells: { label: string; hl: boolean }[]; note: Inline | null }
   | { type: "table"; head: string[]; rows: Inline[][] }
   | { type: "svg"; title: string | null; svg: string; axis: { label: string; left: number }[]; legend: string[]; note: Inline | null }
   | { type: "chips"; items: { label: string; tone: CardTone }[] };
@@ -322,6 +324,29 @@ function extractLegacy(html: string): ExtractedArticle {
 /* "*-pill" → chip, inline <svg> → brand-coloured vector figure.                               */
 /* ------------------------------------------------------------------------------------------ */
 
+
+const SCALE_CARD = /(^|\s)(scale-card|length-card|range-bar|range-card)(\s|$)/;
+const SCALE_TRACK = /(^|\s)(scale-track|length-scale|range-track)(\s|$)/;
+/** scale-card / length-card (highlighted band + ticks) and range-bar (gradient track + tick rows) → Scale, else null */
+function scaleOf(c: HNode): Scale | null {
+  if (!SCALE_CARD.test(cls(c))) return null;
+  const track = find(c, (x) => SCALE_TRACK.test(cls(x)));
+  if (!track) return null;
+  const titleNode = find(c, (x) => /^h[2-4]$/.test(x.tag));
+  const band = find(c, (x) => /(^|\s)(scale-band|length-band|range-band)(\s|$)/.test(cls(x)));
+  const tickRows = findAll(c, (x) => /(^|\s)(scale-ticks|length-ticks|range-ticks)(\s|$)/.test(cls(x))).map((t) => nodes(t).map((x) => cleanText(textOf(x))).filter(Boolean));
+  const num = (t: string) => parseFloat(t.replace(",", ".").replace(/[^\d.]/g, ""));
+  const ticks = tickRows[0] ?? [];
+  const labels = tickRows[1] ?? [];
+  const tickNums = ticks.map(num).filter((n) => !Number.isNaN(n));
+  if (tickNums.length < 2) return null;
+  const bandText = band ? cleanText(textOf(band)) : null;
+  const bandNums = (bandText?.match(/\d+(?:[.,]\d+)?/g) ?? []).map(num);
+  const noteNode = find(c, (x) => hasClass(x, "chart-note"));
+  const min = Math.min(...tickNums), max = Math.max(...tickNums);
+  return { title: titleNode ? cleanText(textOf(titleNode)) : null, band: bandText, from: bandNums[0] ?? min, to: bandNums[1] ?? bandNums[0] ?? max, min, max, ticks, labels, note: noteNode ? tidy(noteNode.children.map((c) => inlineOf(c)).join("")) : null };
+}
+
 const isTemplated = (html: string) => /class="[^"]*\b(BlogPage|section-title|hero-text-content)\b/.test(html);
 
 const cls = (n: HNode) => classes(n).join(" ");
@@ -443,7 +468,9 @@ function extractTemplated(html: string): ExtractedArticle {
     const big = find(n, (x) => /(^|\s)(big-number|card-number)(\s|$)/.test(cls(x)) || endsWith(x, "-value"));
     const note = find(n, (x) => endsWith(x, "-note"));
     const points = find(n, (x) => x.tag === "ul" || x.tag === "ol");
-    const skip = new Set<HNode>([titleNode, badge, kickerNode, note, points, big].filter(Boolean) as HNode[]);
+    const figureNode = find(n, (x) => SCALE_CARD.test(cls(x)));
+    const figure = figureNode ? scaleOf(figureNode) : null;
+    const skip = new Set<HNode>([titleNode, badge, kickerNode, note, points, big, figure ? figureNode : null].filter(Boolean) as HNode[]);
     const bodyParts: string[] = [];
     const collect = (x: HNode) => {
       for (const c of x.children) {
@@ -465,6 +492,7 @@ function extractTemplated(html: string): ExtractedArticle {
     if (big) card.value = cleanText(textOf(big));
     if (points) card.points = nodes(points).filter((li) => li.tag === "li").map((li) => tidy(inlineOf(li)));
     if (note) card.note = inline(note);
+    if (figure) card.figure = { ...figure, title: figure.title === title ? null : figure.title };
     return card;
   };
 
@@ -604,20 +632,24 @@ function extractTemplated(html: string): ExtractedArticle {
         if (items.length) blocks.push({ type: "bars", items, note: noteNode ? inline(noteNode) : null });
         continue;
       }
-      // highlighted range on a scale (scale-card): "ca. 2,5 bis 5 kg" on a 0–10 kg track
-      if (hasClass(c, "scale-card")) {
-        const titleNode = find(c, (x) => /^h[2-4]$/.test(x.tag));
-        const band = find(c, (x) => hasClass(x, "scale-band"));
-        const ticks = findAll(c, (x) => hasClass(x, "scale-ticks")).flatMap((t) => nodes(t).map((x) => cleanText(textOf(x)))).filter(Boolean);
-        const num = (t: string) => parseFloat(t.replace(",", ".").replace(/[^\d.]/g, ""));
-        const tickNums = ticks.map(num).filter((n) => !Number.isNaN(n));
-        const bandText = band ? cleanText(textOf(band)) : "";
-        const bandNums = (bandText.match(/\d+(?:[.,]\d+)?/g) ?? []).map(num);
-        const noteNode = find(c, (x) => hasClass(x, "chart-note"));
-        if (tickNums.length >= 2 && bandNums.length >= 1) {
-          const min = Math.min(...tickNums), max = Math.max(...tickNums);
-          const from = bandNums[0], to = bandNums[1] ?? bandNums[0];
-          blocks.push({ type: "scale", title: titleNode ? cleanText(textOf(titleNode)) : null, band: bandText, from, to, min, max, ticks, note: noteNode ? inline(noteNode) : null });
+      // day strip (day-card): cycle days 1–28 with highlighted days
+      if (hasClass(c, "day-card") || hasClass(c, "day-strip")) {
+        const strip = hasClass(c, "day-strip") ? c : find(c, (x) => hasClass(x, "day-strip"));
+        if (strip) {
+          const titleNode = find(c, (x) => /^h[2-4]$/.test(x.tag));
+          const cells = nodes(strip).map((x) => ({ label: cleanText(textOf(x)), hl: hasClass(x, "hl") })).filter((x) => x.label);
+          const noteNode = find(c, (x) => hasClass(x, "chart-note"));
+          if (cells.length >= 3) {
+            blocks.push({ type: "days", title: titleNode ? cleanText(textOf(titleNode)) : null, cells, note: noteNode ? inline(noteNode) : null });
+            continue;
+          }
+        }
+      }
+      // range on a scale (scale-card, length-card, range-bar)
+      {
+        const sc = scaleOf(c);
+        if (sc) {
+          blocks.push({ type: "scale", ...sc });
           continue;
         }
       }
@@ -798,7 +830,9 @@ function extractTemplated(html: string): ExtractedArticle {
       case "chips":
         return b.items.map((x) => x.label).join(" ");
       case "scale":
-        return [b.title ?? "", b.band, ...b.ticks].join(" ");
+        return [b.title ?? "", b.band ?? "", ...b.ticks, ...b.labels].join(" ");
+      case "days":
+        return b.title ?? "";
       default:
         return stripHtml(b.html);
     }
