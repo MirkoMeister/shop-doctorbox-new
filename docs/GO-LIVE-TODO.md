@@ -28,6 +28,7 @@ Shopify betreibt UCP-Profil, MCP-Server und Katalog selbst. Der Headless-Shop re
 ## 4. Inhalte
 
 - [ ] **Halloween:** Rabattcode `HALLOWEEN26` in Shopify auf alle Heimtests anlegen (die Seite verspricht 20 % auf alle Tests). Aktion endet automatisch am 31.10., 23:59.
+- [ ] **Movember:** Rabattcode `MOVEMBER26` in Shopify anlegen (20 % auf alle Heimtests, 1.–30.11.). Seite `/pages/movember` (Inhalt `src/content/movember.ts`) ist schon online, Ankündigungsleiste, Menü-Karte und Warenkorb-Hinweis schalten am 1.11. automatisch von Halloween auf Movember um. Hero-Bild ist das Shopify-Bild der Kollektion Männergesundheit; bei Bedarf eigenes Bild unter `public/hero/` hinterlegen. Fakten im Hero (5 Jahre, Prostatakrebs Nr. 1, ab 45/50) mit Quellen gegenlesen.
 - [ ] **Youngle:** Metafelder für die 20 restlichen Produkte aus `docs/youngle-produktangaben.xlsx` füllen (AKG ist befüllt).
 - [ ] **Youngle-Texte prüfen (Health Claims):** Die Produktseiten zeigen seit 28.10. die Herstellertexte von youngle.com (Produktvorteile erklärt, „Was kannst du erwarten?“, Wirkstoffe im Detail; Quelle `src/content/youngle-content.json`, lesbar in `docs/youngle-weiterfuehrende-inhalte.csv` und im Tabellenblatt „Weiterführende Inhalte“). Aussagen wie „unterstützt Herzgesundheit“ sind gesundheitsbezogene Angaben nach Health-Claims-Verordnung; mit Youngle klären, welche zugelassen sind, sonst Einträge in der JSON kürzen. Detailliste je Produkt: `docs/youngle-health-claims.md`.
 - [ ] **Apotheken:** Liste vom CEO in `src/content/pharmacies.json` eintragen.
