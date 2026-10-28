@@ -15,7 +15,7 @@ export type RelatedGuide = { href: string; title: string };
 
 /**
  * Reading layout shared by guide pages and blog articles: calm header, optional
- * hero image, sticky table of contents, article column with a comfortable measure,
+ * hero image, table of contents ahead of the text, one reading column with a comfortable measure,
  * recommended test in the sidebar and at the end, related content to continue.
  */
 export function GuideArticle({
@@ -60,7 +60,6 @@ export function GuideArticle({
   allHref?: string;
 }) {
   const base = allHref ?? localeHref(locale, kind === "guide" ? GUIDE_BASE : BLOG_BASE);
-  const primary = products[0];
   const t = dict.guide;
 
   const rootLabel = kind === "guide" ? t.title : dict.blog.title;
@@ -129,44 +128,23 @@ export function GuideArticle({
       )}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)] lg:gap-16 xl:grid-cols-[minmax(0,280px)_minmax(0,1fr)_minmax(0,280px)]">
-        {/* Sidebar: table of contents */}
-        <aside className="lg:sticky lg:top-28 lg:self-start">
-          {toc.length > 1 && (
-            <>
-              <details className="rounded-2xl border border-line bg-white lg:hidden">
-                <summary className="cursor-pointer list-none px-4 py-3 font-semibold [&::-webkit-details-marker]:hidden">{t.contents}</summary>
-                <ol className="space-y-1 border-t border-line px-4 py-3">
-                  {toc.map((h, i) => (
-                    <li key={h.id}>
-                      <a href={`#${h.id}`} className="flex gap-2 py-1 text-[0.95rem] text-ink-muted hover:text-green">
-                        <span className="tabular-nums text-ink-muted/60">{String(i + 1).padStart(2, "0")}</span>
-                        {h.text}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </details>
-              <nav aria-label={t.contents} className="hidden lg:block">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-ink-muted">{t.contents}</p>
-                <ol className="mt-3 space-y-1 border-l border-line">
-                  {toc.map((h) => (
-                    <li key={h.id}>
-                      <a href={`#${h.id}`} className="-ml-px block border-l-2 border-transparent py-1.5 pl-4 text-[0.95rem] leading-snug text-ink-muted transition-colors hover:border-green hover:text-ink">
-                        {h.text}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            </>
-          )}
-          {primary && (
-            <div className="mt-8 hidden lg:block xl:hidden">
-              <TestTeaser product={primary} locale={locale} dict={dict} compact />
-            </div>
-          )}
-        </aside>
+      <div className="mx-auto mt-12 max-w-3xl">
+        {/* Table of contents, ahead of the text: one reading column */}
+        {toc.length > 1 && (
+          <nav aria-label={t.contents} className="mb-10 rounded-[var(--radius-card)] border border-line/70 bg-surface p-5 sm:p-6">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-ink-muted">{t.contents}</p>
+            <ol className="mt-3 grid gap-1 sm:grid-cols-2 sm:gap-x-8">
+              {toc.map((h, i) => (
+                <li key={h.id}>
+                  <a href={`#${h.id}`} className="flex gap-2.5 py-1 text-[0.95rem] leading-snug text-ink-muted transition-colors hover:text-green">
+                    <span className="shrink-0 tabular-nums text-green">{String(i + 1).padStart(2, "0")}</span>
+                    {h.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
 
         {/* Article */}
         <div className="min-w-0">
@@ -188,11 +166,6 @@ export function GuideArticle({
 
           <p className="mt-10 border-t border-line pt-4 text-xs text-ink-muted">{dict.footer.medical}</p>
         </div>
-
-        {/* Right rail (xl): recommended test */}
-        <aside className="hidden xl:block xl:sticky xl:top-28 xl:self-start">
-          {primary && <TestTeaser product={primary} locale={locale} dict={dict} compact />}
-        </aside>
       </div>
 
       {related.length > 0 && (

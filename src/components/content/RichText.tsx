@@ -22,5 +22,6 @@ export function RichText({ html, locale, className = "" }: { html: string; local
     // keep internal links in the current language
     out = out.replace(/href="\/(products|collections|pages|policies|blogs|blog)(\/|")/g, `href="${prefix}/$1$2`);
   }
-  return <div className={`prose-db ${className}`} dangerouslySetInnerHTML={{ __html: out }} />;
+  // legacy theme HTML is not always valid; the browser repairs it, so React must not compare innerHTML on hydration
+  return <div className={`prose-db ${className}`} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: out }} />;
 }
