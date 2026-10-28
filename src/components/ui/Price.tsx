@@ -2,6 +2,8 @@ import type { Locale } from "@/lib/i18n/config";
 import { formatMoney } from "@/lib/format";
 import type { Money } from "@/lib/shopify/types";
 
+const SHOW_COMPARE = process.env.NEXT_PUBLIC_SHOW_COMPARE_PRICES !== "false";
+
 export function Price({
   price,
   compareAt,
@@ -17,7 +19,8 @@ export function Price({
   className?: string;
   size?: "sm" | "md" | "lg";
 }) {
-  const hasCompare = compareAt && parseFloat(compareAt.amount) > parseFloat(price.amount);
+  // Strike prices need the lowest price of the last 30 days as reference (PAngV § 11); hide them site-wide if that is not documented
+  const hasCompare = SHOW_COMPARE && compareAt && parseFloat(compareAt.amount) > parseFloat(price.amount);
   const sizes = { sm: "text-base", md: "text-lg", lg: "text-2xl md:text-[1.75rem]" };
   return (
     <span className={`inline-flex items-baseline gap-2 ${className}`}>

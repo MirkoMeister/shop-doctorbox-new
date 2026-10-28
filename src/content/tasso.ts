@@ -2,7 +2,7 @@ import type { Locale } from "@/lib/i18n/config";
 
 /**
  * Copy for the Tasso+ page (/pages/tasso) and the Tasso touchpoints across the shop.
- * Wording follows the CEO brief: "komplett schmerzfreie Entnahme".
+ * Wording follows the CEO brief: "nahezu schmerzfreie Entnahme".
  */
 export type TassoCopy = {
   metaTitle: string;
@@ -30,15 +30,15 @@ export type TassoCopy = {
 };
 
 const de: TassoCopy = {
-  metaTitle: "Tasso+: Blutabnahme am Oberarm, komplett schmerzfrei",
+  metaTitle: "Tasso+: Blutabnahme am Oberarm, nahezu schmerzfrei",
   metaDescription: "Mit dem Tasso+ Gerät nimmst du deine Blutprobe zu Hause am Oberarm: ein Knopfdruck, keine Nadel, kein Fingerpiks. Bei vielen DoctorBox Heimtests als Variante wählbar.",
   kicker: "Blutabnahme mit Tasso+",
-  title: "Blut abnehmen, [[komplett schmerzfrei]]",
+  title: "Blut abnehmen, [[nahezu schmerzfrei]]",
   lead: "Das Tasso+ Gerät klebt am Oberarm. Ein Knopfdruck, ein leichtes Ziehen, und nach wenigen Minuten ist die Probe im Röhrchen. Kein Fingerpiks, keine sichtbare Nadel, kein Praxistermin.",
   facts: ["Keine Nadel zu sehen", "Etwa 5 Minuten", "Weniger Fehlproben als beim Fingerpiks", "Vorausgewählt, wo verfügbar"],
   whyTitle: "Warum wir Tasso+ [[empfehlen]]",
   why: [
-    { title: "Komplett schmerzfrei", text: "Winzige Mikronadeln arbeiten unter der Haut, ein Vakuum zieht das Kapillarblut sanft heraus. Die meisten spüren nur ein leichtes Ziehen." },
+    { title: "Nahezu schmerzfrei", text: "Winzige Mikronadeln arbeiten unter der Haut, ein Vakuum zieht das Kapillarblut sanft heraus. Die meisten spüren nur ein leichtes Ziehen." },
     { title: "Für Menschen mit Nadelangst", text: "Du siehst keine Nadel und drückst selbst den Knopf. Das Gerät macht den Rest, ohne dass du hinschauen musst." },
     { title: "Zuverlässige Probenmenge", text: "Beim Fingerpiks reicht die Blutmenge oft nicht aus. Tasso+ liefert die nötige Menge für das Labor, das heißt deutlich weniger Wiederholungen." },
     { title: "Gleiche Laborqualität", text: "Die Probe wird im akkreditierten Labor wie jede Kapillarblutprobe analysiert. Dein Befund kommt wie gewohnt in die DoctorBox App." },
@@ -54,7 +54,7 @@ const de: TassoCopy = {
   compareText: "Beides sind Kapillarblutproben, die im selben Labor landen. Der Unterschied liegt in der Entnahme.",
   compareHead: ["", "Fingerpiks (Lanzette)", "Tasso+ (Oberarm)"],
   compare: [
-    ["Schmerz", "Kurzer Stich in die Fingerkuppe", "Komplett schmerzfrei, leichtes Ziehen"],
+    ["Schmerz", "Kurzer Stich in die Fingerkuppe", "Nahezu schmerzfrei, leichtes Ziehen"],
     ["Nadel", "Sichtbare Lanzette", "Keine sichtbare Nadel"],
     ["Dauer", "5 bis 10 Minuten, mehrere Tropfen", "Etwa 5 Minuten, ein Knopfdruck"],
     ["Probenmenge", "Reicht manchmal nicht aus", "Zuverlässig ausreichend"],
@@ -77,15 +77,15 @@ const de: TassoCopy = {
 };
 
 const en: TassoCopy = {
-  metaTitle: "Tasso+: upper-arm blood collection, completely painless",
+  metaTitle: "Tasso+: upper-arm blood collection, virtually painless",
   metaDescription: "With the Tasso+ device you take your blood sample at home on the upper arm: one button press, no needle, no finger prick. Available as an option on many DoctorBox home tests.",
   kicker: "Blood collection with Tasso+",
-  title: "Draw blood, [[completely painless]]",
+  title: "Draw blood, [[virtually painless]]",
   lead: "The Tasso+ device sticks to your upper arm. One button press, a slight pull, and after a few minutes the sample is in the tube. No finger prick, no visible needle, no clinic appointment.",
   facts: ["No needle in sight", "About 5 minutes", "Fewer failed samples than a finger prick", "Preselected where available"],
   whyTitle: "Why we [[recommend]] Tasso+",
   why: [
-    { title: "Completely painless", text: "Tiny microneedles work beneath the skin and a vacuum gently draws out the capillary blood. Most people feel only a slight pull." },
+    { title: "Virtually painless", text: "Tiny microneedles work beneath the skin and a vacuum gently draws out the capillary blood. Most people feel only a slight pull." },
     { title: "For people afraid of needles", text: "You never see a needle and press the button yourself. The device does the rest, no need to look." },
     { title: "Reliable sample volume", text: "With a finger prick the blood volume is often insufficient. Tasso+ delivers what the lab needs, so repeats are far rarer." },
     { title: "Same lab quality", text: "The sample is analysed in the accredited laboratory like any capillary sample. Your result arrives in the DoctorBox app as usual." },
@@ -101,7 +101,7 @@ const en: TassoCopy = {
   compareText: "Both are capillary samples analysed in the same lab. The difference is the collection.",
   compareHead: ["", "Finger prick (lancet)", "Tasso+ (upper arm)"],
   compare: [
-    ["Pain", "Short sting in the fingertip", "Completely painless, slight pull"],
+    ["Pain", "Short sting in the fingertip", "Virtually painless, slight pull"],
     ["Needle", "Visible lancet", "No visible needle"],
     ["Duration", "5 to 10 minutes, several drops", "About 5 minutes, one button press"],
     ["Sample volume", "Sometimes insufficient", "Reliably sufficient"],

@@ -36,6 +36,15 @@ Shopify betreibt UCP-Profil, MCP-Server und Katalog selbst. Der Headless-Shop re
 - [x] **Trusted Shops, Antworten nachbearbeiten (erledigt 28.10.):** Einige Antworten enthalten Platzhalter wie „[Kontaktweg einfügen]“ oder „[Ort einfügen, z. B. Meine Tests]“. Sie sind öffentlich auf den Produktseiten sichtbar. Im eTrusted Control Centre korrigieren.
 - [ ] **Bewertungszahlen klären:** Shopify-Metafeld (z. B. STI Pro 43 × 4,81) und Trusted Shops (30 × ~4,5) weichen ab. Der Shop zeigt die verifizierten Trusted-Shops-Werte; falls die Shopify-Zahlen aus einer anderen echten Quelle stammen, Quelle benennen.
 
+## 4b. Rechtliche Prüfung (Feedback vom 28.10.)
+
+Im Shop umgesetzt: „nahezu schmerzfrei“ (Herstellerformulierung) statt „komplett schmerzfrei“ auf allen Seiten und bei Mira; Tasso+ wird nur noch vorausgewählt, wenn es nicht teurer ist als die günstigste Variante (betrifft Fettstoffwechsel, Testosteron, Bio-Age); Bewertungshinweis beschreibt die Prüfung korrekt; Mira-Hinweis nennt Anthropic und das Nicht-Speichern präzise.
+
+- [ ] **Entscheidung Tasso-Wortlaut:** CEO wünschte „komplett schmerzfrei“, rechtlich riskant (Heilmittelwerbung, absolutes Versprechen). Aktuell steht „nahezu schmerzfrei“. Final mit Recht/CEO klären.
+- [ ] **Shopify-Texte bereinigen:** „10-fach geschützt“ in den Beschreibungen von `sti-pro-10`, `sti-complete-trio-fur-frauen`, `sti-complete-trio-fur-manner` ersetzen (ein Test schützt nicht, er erkennt). „schmerzfrei“ in den SEO-Beschreibungen von `sti-pro-10`, `allergietest`, `heimtest-fettstoffwechsel` und in 16 Produktbeschreibungen auf „nahezu schmerzfrei“ anpassen.
+- [ ] **Streichpreise belegen:** 9 Produkte haben einen Vergleichspreis (u. a. STI Standard 80 statt 135, HPV 85 statt 100, STI Complete Trio, Darmkrebsvorsorge, Allergietest, Vitamin-D-Winteraktion, STI 4er-Bundle). Der Vergleichspreis muss der niedrigste Preis der letzten 30 Tage sein. Entweder belegen oder in Shopify entfernen. Notfallschalter: `NEXT_PUBLIC_SHOW_COMPARE_PRICES=false` blendet alle Streichpreise aus.
+- [ ] **Datenschutzerklärung:** Mira ergänzen (Verarbeitung durch Anthropic, Zweck, keine Speicherung bei DoctorBox, Hinweis auf Gesundheitsdaten) und Auftragsverarbeitung mit Anthropic prüfen.
+
 ## 5. Vercel-Umgebungsvariablen (vollständig?)
 
 - [ ] **Trusted Shops Bewertungen:** `ETRUSTED_CLIENT_ID`, `ETRUSTED_CLIENT_SECRET`, `ETRUSTED_CHANNEL_ID=chl-2cbd51e9-0164-4b34-a260-c813d0007e3f` in Vercel setzen (lokal bereits aktiv). Ohne sie fällt der Shop auf die Shopify-Sterne zurück.

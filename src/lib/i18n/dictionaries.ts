@@ -32,7 +32,7 @@ const de = {
     title: "Welche Frage hat [[dein Körper]] gerade?",
     subtitle:
       "Tipp einen Wert, ein Symptom oder ein Thema ein. Wir zeigen dir den passenden Heimtest mit akkreditierter Laborauswertung.",
-    usps: ["Komplett schmerzfreie Blutabnahme mit Tasso+", "Akkreditiertes Labor", "Befund in der App", "Neutrale Verpackung"],
+    usps: ["Nahezu schmerzfreie Blutabnahme mit Tasso+", "Akkreditiertes Labor", "Befund in der App", "Neutrale Verpackung"],
     placeholder: "z. B. Vitamin D, Chlamydien, Testosteron",
     popular: "Häufig gesucht",
     noResults: "Kein Test gefunden. Probiere einen anderen Begriff.",
@@ -49,8 +49,8 @@ const de = {
     tasso: {
       badge: "Neu",
       kicker: "Blutabnahme am Oberarm mit Tasso+",
-      title: "Blut abnehmen, [[komplett schmerzfrei]]",
-      text: "Das Tasso+ Gerät klebt am Oberarm. Ein Knopfdruck, und innerhalb weniger Minuten fließt die Kapillarblutprobe ins Röhrchen. Komplett schmerzfreie Entnahme, ohne Fingerpiks, ohne sichtbare Nadel, ohne Praxistermin.",
+      title: "Blut abnehmen, [[nahezu schmerzfrei]]",
+      text: "Das Tasso+ Gerät klebt am Oberarm. Ein Knopfdruck, und innerhalb weniger Minuten fließt die Kapillarblutprobe ins Röhrchen. Nahezu schmerzfreie Entnahme, ohne Fingerpiks, ohne sichtbare Nadel, ohne Praxistermin.",
       cta: "Alles über Tasso+",
       steps: ["Oberarm warm reiben und Gerät aufkleben", "Roten Knopf drücken, du spürst kaum etwas", "Etwa 5 Minuten warten, Röhrchen verschließen"],
       productsTitle: "Erhältlich für die Rundum Checks",
@@ -77,7 +77,7 @@ const de = {
       },
       {
         title: "Probe nehmen",
-        text: "Kapillarblut (auf Wunsch komplett schmerzfrei mit Tasso+ am Oberarm), Abstrich, Urin oder Speichel: Die Anleitung führt dich Schritt für Schritt.",
+        text: "Kapillarblut (auf Wunsch nahezu schmerzfrei mit Tasso+ am Oberarm), Abstrich, Urin oder Speichel: Die Anleitung führt dich Schritt für Schritt.",
       },
       {
         title: "Ergebnis lesen",
@@ -119,7 +119,7 @@ const de = {
     tassoChip: "Schmerzfrei mit Tasso+",
     reviewsBlock: {
       title: "Das sagen Kundinnen und Kunden",
-      source: "Verifizierte Bewertungen über Trusted Shops, nach einem Kauf abgegeben.",
+      source: "Bewertungen über Trusted Shops. Als „Verifizierter Kauf“ gekennzeichnete Bewertungen stammen aus einer bei Trusted Shops bestätigten Bestellung.",
       count: "{n} Bewertungen",
       more: "{n} weitere Bewertungen anzeigen",
       verified: "Verifizierter Kauf",
@@ -137,7 +137,7 @@ const de = {
     unitPer100: "pro 100 {unit}",
     supplementNote: "Nahrungsergänzungsmittel sind kein Ersatz für eine ausgewogene, abwechslungsreiche Ernährung und eine gesunde Lebensweise. Die empfohlene tägliche Verzehrmenge nicht überschreiten. Außerhalb der Reichweite von Kindern aufbewahren.",
     tasso: {
-      title: "Komplett schmerzfreie Entnahme am Oberarm",
+      title: "Nahezu schmerzfreie Entnahme am Oberarm",
       text: "Tasso+ klebt am Oberarm, ein Knopfdruck, keine sichtbare Nadel. Weniger Fehlproben als beim Fingerpiks.",
       more: "Alles über Tasso+",
       play: "Video abspielen",
@@ -402,7 +402,7 @@ const de = {
     suggestions: "Zum Beispiel",
     placeholder: "Deine Frage …",
     send: "Senden",
-    disclaimer: "Mira gibt allgemeine Orientierung und ersetzt keine ärztliche Beratung. Keine Speicherung des Gesprächs.",
+    disclaimer: "Mira gibt allgemeine Orientierung und ersetzt keine ärztliche Beratung. DoctorBox speichert das Gespräch nicht, es endet mit dem Schließen der Seite. Zur Beantwortung werden deine Eingaben an den KI-Anbieter Anthropic übermittelt. Bitte keine Namen oder Befunde eingeben.",
     unavailable: "Mira ist gleich für dich da. Bis dahin hilft dir die Suche oben oder unser Team unter heimtest@doctorbox.eu.",
     unavailableShort: "Bald verfügbar",
     online: "online",
@@ -539,7 +539,7 @@ const en: Dictionary = {
     title: "What is [[your body]] asking right now?",
     subtitle:
       "Type a value, a symptom or a topic. We show you the matching home test with accredited laboratory analysis.",
-    usps: ["Completely painless blood collection with Tasso+", "Accredited laboratory", "Result in the app", "Neutral packaging"],
+    usps: ["Virtually painless blood collection with Tasso+", "Accredited laboratory", "Result in the app", "Neutral packaging"],
     placeholder: "e.g. vitamin D, chlamydia, testosterone",
     popular: "Popular searches",
     noResults: "No test found. Try another term.",
@@ -556,8 +556,8 @@ const en: Dictionary = {
     tasso: {
       badge: "New",
       kicker: "Upper-arm blood collection with Tasso+",
-      title: "Draw blood, [[completely painless]]",
-      text: "The Tasso+ device sticks to your upper arm. One press of the button and the capillary blood sample flows into the tube within a few minutes. Completely painless collection, no finger prick, no visible needle, no clinic appointment.",
+      title: "Draw blood, [[virtually painless]]",
+      text: "The Tasso+ device sticks to your upper arm. One press of the button and the capillary blood sample flows into the tube within a few minutes. Virtually painless collection, no finger prick, no visible needle, no clinic appointment.",
       cta: "All about Tasso+",
       steps: ["Warm the upper arm and attach the device", "Press the red button, you barely feel it", "Wait about 5 minutes, close the tube"],
       productsTitle: "Available for the all-round checks",
@@ -584,7 +584,7 @@ const en: Dictionary = {
       },
       {
         title: "Take the sample",
-        text: "Capillary blood (completely painless with Tasso+ on the upper arm if you like), swab, urine or saliva: the instructions guide you step by step.",
+        text: "Capillary blood (virtually painless with Tasso+ on the upper arm if you like), swab, urine or saliva: the instructions guide you step by step.",
       },
       {
         title: "Read your result",
@@ -626,7 +626,7 @@ const en: Dictionary = {
     tassoChip: "Painless with Tasso+",
     reviewsBlock: {
       title: "What customers say",
-      source: "Verified reviews via Trusted Shops, given after a purchase.",
+      source: "Reviews via Trusted Shops. Reviews marked “Verified purchase” come from an order confirmed with Trusted Shops.",
       count: "{n} reviews",
       more: "Show {n} more reviews",
       verified: "Verified purchase",
@@ -644,7 +644,7 @@ const en: Dictionary = {
     unitPer100: "per 100 {unit}",
     supplementNote: "Food supplements are no substitute for a balanced, varied diet and a healthy lifestyle. Do not exceed the recommended daily intake. Keep out of reach of children.",
     tasso: {
-      title: "Completely painless collection on the upper arm",
+      title: "Virtually painless collection on the upper arm",
       text: "Tasso+ sticks to the upper arm, one button press, no visible needle. Fewer failed samples than a finger prick.",
       more: "All about Tasso+",
       play: "Play video",
@@ -909,7 +909,7 @@ const en: Dictionary = {
     suggestions: "For example",
     placeholder: "Your question …",
     send: "Send",
-    disclaimer: "Mira offers general orientation and does not replace medical advice. The conversation is not stored.",
+    disclaimer: "Mira offers general orientation and does not replace medical advice. DoctorBox does not store the conversation; it ends when you close the page. Your messages are sent to the AI provider Anthropic to generate the answer. Please do not enter names or medical reports.",
     unavailable: "Mira will be with you shortly. Until then, use the search above or contact our team at heimtest@doctorbox.eu.",
     unavailableShort: "Coming soon",
     online: "online",

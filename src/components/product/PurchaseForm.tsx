@@ -25,10 +25,14 @@ export function PurchaseForm({
   onVariantChange?: (v: Variant) => void;
 }) {
   const { add, pending } = useCart();
-  // Default: the Tasso+ upper-arm variant when it exists (less error-prone than a finger prick), else the first available
+  // Default: the Tasso+ upper-arm variant when it exists and costs no more than the cheapest available
+  // variant (a dearer option must be chosen actively), else the cheapest available, else the first
+  const available = product.variants.filter((v) => v.availableForSale);
+  const cheapest = available.reduce<Variant | null>((m, v) => (!m || parseFloat(v.price.amount) < parseFloat(m.price.amount) ? v : m), null);
+  const tassoVariant = available.find((v) => v.selectedOptions.some((o) => isTasso(o.value)));
   const firstAvailable =
-    product.variants.find((v) => v.availableForSale && v.selectedOptions.some((o) => isTasso(o.value))) ??
-    product.variants.find((v) => v.availableForSale) ??
+    (tassoVariant && cheapest && parseFloat(tassoVariant.price.amount) <= parseFloat(cheapest.price.amount) ? tassoVariant : null) ??
+    cheapest ??
     product.variants[0];
   const [selected, setSelected] = useState<Record<string, string>>(
     Object.fromEntries(firstAvailable.selectedOptions.map((o) => [o.name, o.value])),
@@ -49,7 +53,7 @@ export function PurchaseForm({
   const subPrice: Money | null = allocation?.priceAdjustments[0]?.price ?? null;
   const subCompare: Money | null = allocation?.priceAdjustments[0]?.compareAtPrice ?? null;
   const activePrice = mode === "subscription" && subPrice ? subPrice : variant.price;
-  const activeCompare = mode === "subscription" && subPrice ? subCompare : variant.compareAtPrice;
+  const activeCompare = mode === "subscription" && subPrice ? subCompare : process.env.NEXT_PUBLIC_SHOW_COMPARE_PRICES !== "false" ? variant.compareAtPrice : null;
   const pct = plans[0]?.priceAdjustments[0]?.adjustmentValue;
   const savePct = pct && pct.__typename === "SellingPlanPercentagePriceAdjustment" ? Math.round(pct.adjustmentPercentage) : null;
   const pickup = variant.storeAvailability.find((s) => s.available);
