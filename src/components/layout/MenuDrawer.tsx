@@ -83,7 +83,7 @@ export function MenuDrawer({
           role="dialog"
           aria-modal="true"
           aria-label={dict.nav.menu}
-          className={`absolute inset-0 flex w-full flex-col overflow-y-auto bg-white transition-transform duration-500 ease-[cubic-bezier(.2,.7,.2,1)] ${
+          className={`absolute inset-0 flex w-full flex-col overflow-y-auto bg-white pt-[var(--promo-h,0px)] transition-transform duration-500 ease-[cubic-bezier(.2,.7,.2,1)] ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >

@@ -18,7 +18,7 @@ export function AnnouncementBar({ locale }: { locale: Locale }) {
     </span>
   );
   return (
-    <Link href={href} className="promo-bar relative z-[60] block h-10 overflow-hidden bg-moss-deep text-sm text-soft hover:text-white" aria-label={`${t.bar}. ${t.barCta}`}>
+    <Link href={href} className="promo-bar relative z-10 block h-10 overflow-hidden bg-moss-deep text-sm text-soft hover:text-white" aria-label={`${t.bar}. ${t.barCta}`}>
       <div className="promo-track flex h-full w-max items-center whitespace-nowrap">
         {Array.from({ length: 6 }, (_, i) => (
           <span key={i} aria-hidden={i > 0}>
