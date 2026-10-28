@@ -33,6 +33,7 @@ export function Footer({
       title: dict.footer.help,
       links: [
         { label: dict.nav.faq, href: href("/pages/faqs") },
+        { label: dict.nav.tasso, href: href("/pages/tasso") },
         { label: dict.nav.results, href: href("/pages/mein-testergebnis") },
         { label: dict.nav.registerTest, href: REGISTER_TEST_URL, external: true },
         { label: dict.footer.payment, href: href("/pages/zahlung") },

@@ -8,6 +8,7 @@ import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney } from "@/lib/format";
 import type { Money, Product, Variant } from "@/lib/shopify/types";
 import { CheckIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
+import { TassoNote } from "@/components/product/TassoNote";
 
 type Mode = "once" | "subscription";
 
@@ -129,6 +130,8 @@ export function PurchaseForm({
           </div>
         </fieldset>
       ))}
+
+      {variant.selectedOptions.some((o) => isTasso(o.value)) && <TassoNote locale={locale} dict={dict} />}
 
       {/* Purchase option */}
       {hasPlans && (

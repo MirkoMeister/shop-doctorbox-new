@@ -8,6 +8,8 @@ import { CollectionHero } from "@/components/collection/CollectionHero";
 import { collectionHero } from "@/content/collection-heroes";
 import { CompareTable } from "@/components/collection/CompareTable";
 import { StickyMiraCta } from "@/components/collection/StickyMiraCta";
+import { StiDiscreet, StiFaq, StiSituations, StiWindows } from "@/components/collection/StiLanding";
+import { STI_COLLECTION, stiCopy } from "@/content/sti-landing";
 import { miraDemo } from "@/content/mira-demo";
 import { FilterBar } from "@/components/collection/FilterBar";
 import { RichText } from "@/components/content/RichText";
@@ -78,6 +80,7 @@ export function CollectionView({
   const guideHandle = handle ? COLLECTION_GUIDES[handle] : null;
   const href = (p: string) => localeHref(locale, p);
   const hero = collectionHero(handle, locale);
+  const sti = handle === STI_COLLECTION ? stiCopy(locale) : null;
   const heroImage =
     handle &&
     existsSync(
@@ -114,6 +117,16 @@ export function CollectionView({
         className={`mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8 ${hero ? "pt-10 lg:pt-14" : "pt-5 lg:pt-8"}`}
       >
         {!hero && <Breadcrumbs items={crumbs} className="mb-5" />}
+
+        {/* Sexual health: situation picker and pathogen comparison before the grid */}
+        {sti && (
+          <>
+            <StiSituations products={products} locale={locale} dict={dict} />
+            <CompareTable products={products} locale={locale} dict={dict} id="vergleich" title={sti.compareTitle} text={sti.compareText} />
+            <StiWindows locale={locale} />
+            <div className="mt-16" />
+          </>
+        )}
 
         {hero ? (
           <header className="mb-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-end">
@@ -204,8 +217,14 @@ export function CollectionView({
         )}
 
         {/* Values × tests matrix: answers "which one measures what?" */}
-        {handle && filtered.length >= 2 && (
+        {handle && !sti && filtered.length >= 2 && (
           <CompareTable products={filtered} locale={locale} dict={dict} />
+        )}
+        {sti && (
+          <>
+            <StiDiscreet locale={locale} />
+            <StiFaq locale={locale} />
+          </>
         )}
 
         {/* Unsure? */}

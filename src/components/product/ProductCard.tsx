@@ -65,6 +65,7 @@ export function ProductCard({
         <div className="absolute left-3 top-3 flex gap-1.5">
           {bestseller && <span className="chip !bg-moss !text-soft !px-2.5 !py-1 !text-xs">{dict.collection.bestseller}</span>}
           {isNew && <span className="chip !bg-okker !text-moss !px-2.5 !py-1 !text-xs">{dict.product.new}</span>}
+          {product.tasso && <span className="chip !bg-white/90 !text-moss !px-2.5 !py-1 !text-xs">{dict.product.tassoChip}</span>}
           {!product.availableForSale && (
             <span className="chip !bg-white/90 !text-ink-muted !px-2.5 !py-1 !text-xs">{dict.product.soldOut}</span>
           )}

@@ -5,6 +5,7 @@ import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { HeroSearch } from "@/components/search/HeroSearch";
 import { Highlight } from "@/components/ui/Highlight";
+import { CheckIcon } from "@/components/ui/Icons";
 
 /**
  * Hero with the intelligent search as the central element.
@@ -72,6 +73,14 @@ export function Hero({
           <div className="rise rise-3 relative z-20 mt-9">
             <HeroSearch locale={locale} dict={dict} />
           </div>
+          <ul className="rise rise-3 mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-soft/90">
+            {dict.hero.usps.map((u, i) => (
+              <li key={u} className={`inline-flex items-center gap-1.5 ${i === 0 ? "font-semibold text-soft" : ""}`}>
+                <CheckIcon width={14} height={14} className="shrink-0 text-turquoise" />
+                {u}
+              </li>
+            ))}
+          </ul>
 
           {rating && (
             <p className="mt-8 flex items-center gap-3 text-sm text-soft/80">

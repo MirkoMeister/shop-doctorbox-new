@@ -14,7 +14,7 @@ import type { ProductCard } from "@/lib/shopify/types";
 const MAX_PRODUCTS = 6;
 const PREVIEW_ROWS = 10;
 
-const shortTitle = (t: string) => t.replace(/\s*[-|–]\s*.*$/, "").trim();
+const shortTitle = (t: string) => t.replace(/\s+[-|–]\s+.*$/, "").trim();
 
 /**
  * Values × tests matrix for a collection, laid out like a pricing table:
@@ -22,7 +22,21 @@ const shortTitle = (t: string) => t.replace(/\s*[-|–]\s*.*$/, "").trim();
  * Only tests that share at least one value with another test are compared; columns
  * form a ladder from fewest to most values.
  */
-export function CompareTable({ products, locale, dict }: { products: ProductCard[]; locale: Locale; dict: Dictionary }) {
+export function CompareTable({
+  products,
+  locale,
+  dict,
+  id = "compare",
+  title,
+  text,
+}: {
+  products: ProductCard[];
+  locale: Locale;
+  dict: Dictionary;
+  id?: string;
+  title?: string;
+  text?: string;
+}) {
   const [expanded, setExpanded] = useState(false);
   const t = dict.collection;
 
@@ -44,13 +58,13 @@ export function CompareTable({ products, locale, dict }: { products: ProductCard
   const hl = (p: ProductCard) => (p.id === star.id ? "bg-lind/30" : "");
 
   return (
-    <section className="mt-16" aria-labelledby="compare-title">
+    <section id={id} className="mt-16 scroll-mt-24" aria-labelledby="compare-title">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 id="compare-title" className="h3">
-            <Highlight text={t.compareTitle} />
+            <Highlight text={title ?? t.compareTitle} />
           </h2>
-          <p className="mt-1 text-ink-muted">{t.compareText}</p>
+          <p className="mt-1 text-ink-muted">{text ?? t.compareText}</p>
         </div>
         {comparable.length > MAX_PRODUCTS && <p className="text-sm text-ink-muted">{fill(t.compareNote, { n: MAX_PRODUCTS })}</p>}
       </div>

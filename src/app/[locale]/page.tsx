@@ -7,6 +7,7 @@ import {
   SectionHeading,
   TrustBand,
 } from "@/components/home/Sections";
+import { StiSpotlight } from "@/components/home/StiSpotlight";
 import { TassoBanner } from "@/components/home/TassoBanner";
 import { ProductGrid } from "@/components/product/ProductCard";
 import { localeHref } from "@/lib/i18n/config";
@@ -67,6 +68,11 @@ export default async function HomePage({ params }: Props) {
     <>
       <Hero locale={locale} dict={dict} rating={rating} />
       <CategoryField collections={collections} locale={locale} dict={dict} />
+      <StiSpotlight products={allProducts} locale={locale} dict={dict} />
+
+      {tassoProducts.length > 0 && (
+        <TassoBanner locale={locale} dict={dict} products={tassoProducts} />
+      )}
 
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
@@ -84,10 +90,6 @@ export default async function HomePage({ params }: Props) {
           priorityCount={4}
         />
       </section>
-
-      {tassoProducts.length > 0 && (
-        <TassoBanner locale={locale} dict={dict} products={tassoProducts} />
-      )}
 
       <HowItWorks dict={dict} />
       <TrustBand dict={dict} />

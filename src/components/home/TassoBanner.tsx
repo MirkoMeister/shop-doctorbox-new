@@ -6,6 +6,7 @@ import { formatMoney, shopifyImage } from "@/lib/format";
 import { localeHref, type Locale } from "@/lib/i18n/config";
 import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 import type { ProductCard } from "@/lib/shopify/types";
+import { TASSO_PAGE } from "@/content/tasso";
 
 const VIDEO = "/videos/banner-tasso-web.mp4";
 const POSTER = "/videos/banner-tasso-poster.jpg";
@@ -91,6 +92,9 @@ export function TassoBanner({ locale, dict, products }: { locale: Locale; dict: 
               ))}
             </ul>
             <p className="relative mt-4 text-xs leading-snug text-soft/60">{t.note}</p>
+            <Link href={localeHref(locale, TASSO_PAGE)} className="btn btn-on-dark relative mt-6 self-start">
+              {t.cta} <ArrowRight width={16} height={16} />
+            </Link>
           </div>
         </div>
       </div>
