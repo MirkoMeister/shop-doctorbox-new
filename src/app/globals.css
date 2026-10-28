@@ -188,6 +188,12 @@ body {
   vertical-align: baseline;
   transform: rotate(-1.2deg);
 }
+/* on lind panels the lind blob would vanish and leave only tilted text: use the cream */
+.bg-lind .hl,
+.bg-lind\/50 .hl {
+  background: var(--color-soft);
+}
+
 /* headlines that carry a blob get a little more leading so the box never touches the line above */
 :is(h1, h2, h3, .h-display, .h1, .h2, .h3):has(.hl) {
   line-height: 1.18;
