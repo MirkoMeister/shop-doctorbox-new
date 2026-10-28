@@ -60,3 +60,28 @@ export function metafieldToHtml(field: { type: string; value: string } | null | 
     .map((para) => `<p>${esc(para).replace(/\n/g, "<br>")}</p>`)
     .join("");
 }
+
+/** Bullet points from a metafield: text lists, line-separated text or rich-text list items */
+export function metafieldToLines(field: { type: string; value: string } | null | undefined): string[] {
+  if (!field?.value?.trim()) return [];
+  const { type, value } = field;
+  if (type.startsWith("list.")) {
+    try {
+      const arr = JSON.parse(value) as unknown;
+      if (Array.isArray(arr)) return arr.map((x) => String(x).trim()).filter(Boolean);
+    } catch {
+      /* fall through */
+    }
+  }
+  if (type === "rich_text_field") {
+    const html = metafieldToHtml(field) ?? "";
+    return html
+      .split(/<\/(?:li|p|h[2-4])>/)
+      .map((s) => s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').trim())
+      .filter(Boolean);
+  }
+  return value
+    .split(/\n|<br\s*\/?>/i)
+    .map((s) => s.replace(/<[^>]+>/g, "").replace(/^[\s•✓✔\-–*]+/, "").trim())
+    .filter(Boolean);
+}

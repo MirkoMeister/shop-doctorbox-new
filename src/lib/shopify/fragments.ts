@@ -99,6 +99,10 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
       type
       value
     }
+    benefits: metafield(namespace: "custom", key: "produktvorteile") {
+      type
+      value
+    }
     updatedAt
     seo {
       title

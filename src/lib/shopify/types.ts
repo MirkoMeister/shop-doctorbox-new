@@ -94,6 +94,8 @@ export type Product = ProductCard & {
   ingredientsHtml: string | null;
   /** "custom.einnahmeempfehlung" metafield rendered as HTML (supplements) */
   dosageHtml: string | null;
+  /** "custom.produktvorteile" as bullet points */
+  benefits: string[];
 };
 
 export type Collection = {
