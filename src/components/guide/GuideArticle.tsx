@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { ReadingCompanion } from "@/components/guide/ReadingCompanion";
 import { ArrowRight, ClockIcon, DropIcon } from "@/components/ui/Icons";
 import { Price } from "@/components/ui/Price";
 import { Rating } from "@/components/ui/Rating";
@@ -146,12 +147,13 @@ export function GuideArticle({
           </nav>
         )}
 
-        {/* Article */}
+        {/* Article (the sentinel tells the reading companion when the text begins) */}
+        <div id="article-start" aria-hidden className="h-px" />
         <div className="min-w-0">
           {body}
 
           {products.length > 0 && (
-            <section className="mt-14 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-8">
+            <section id="recommended" className="mt-14 scroll-mt-24 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-8">
               <p className="text-sm font-medium text-green">{t.recommendedKicker}</p>
               <h2 className="h3 mt-1">{products.length === 1 ? t.recommendedOne : t.recommendedMany}</h2>
               <ul className={`mt-6 grid gap-4 ${products.length > 1 ? "sm:grid-cols-2" : ""}`}>
@@ -167,6 +169,8 @@ export function GuideArticle({
           <p className="mt-10 border-t border-line pt-4 text-xs text-ink-muted">{dict.footer.medical}</p>
         </div>
       </div>
+
+      {products[0] && <ReadingCompanion product={products[0]} locale={locale} dict={dict} articleKey={title} />}
 
       {related.length > 0 && (
         <section className="mt-20">
