@@ -36,7 +36,7 @@ async function resolveArticle(
   slug: string,
   locale: Locale,
 ): Promise<Article | null> {
-  if (!/^[a-z0-9-]+$/i.test(slug)) return null;
+  if (!/^[a-z0-9_-]+$/i.test(slug)) return null; // old handles may carry underscores
   const articles = await getAllArticles(locale).catch(() => []);
   const hit = articles.find((a) => a.handle === slug);
   if (!hit) return null;

@@ -55,8 +55,15 @@ export function proxy(request: NextRequest) {
   const legacy: Record<string, string> = {
     "/collections/all": "/collections",
     "/pages/unsere-heimtests": "/collections",
+    // Italian market was not carried over: its collection and blog point to the German sexual-health content
+    "/collections/salute-sessuale": "/collections/sexuelle-gesundheit",
+    "/blogs/blog-salute-sessuale": "/blogs/blog-sexuelle-gesundheit",
+    // translated blog handle from the old English sitemap
+    "/blogs/blog-sexual-health": "/blogs/blog-sexuelle-gesundheit",
   };
   if (legacy[bare]) return redirect(`${prefix}${legacy[bare]}`);
+  const legacyBlog = bare.match(/^\/blogs\/(blog-salute-sessuale|blog-sexual-health)\/[^/]+\/?$/);
+  if (legacyBlog) return redirect(`${prefix}/blogs/blog-sexuelle-gesundheit`, false);
 
   // Short preview URLs → the canonical Shopify URLs
   if (bare === "/pages/gesundheitsblog") return redirect(`${prefix}${BLOG_BASE}`, false);
