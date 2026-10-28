@@ -24,16 +24,30 @@ function CtaLink({ href, label, className }: { href: string; label: string; clas
   );
 }
 
+/** Blocks that may use the full article width; everything else keeps the reading measure */
+const WIDE = new Set<Block["type"]>(["cards", "stats", "steps", "chart", "bars", "scale", "table", "svg", "image", "chips", "conclusion"]);
+
 /** Renders extracted article blocks in the shop's own typography. */
 export function ArticleBody({ blocks }: { blocks: Block[] }) {
   return (
     <div className="article-body">
       {blocks.map((b, i) => {
+        const el = renderBlock(b, i);
+        return WIDE.has(b.type) ? el : <div key={i} className="article-measure [&:first-child>*]:mt-0 [&:first-child>*]:border-t-0 [&:first-child>*]:pt-0">{el}</div>;
+      })}
+    </div>
+  );
+}
+
+function renderBlock(b: Block, i: number): React.ReactNode {
+  {
+    {
+      {
         switch (b.type) {
           case "heading": {
             if (b.level === 2)
               return (
-                <div key={i} className="border-t border-line pt-8 [&:not(:first-child)]:mt-14">
+                <div key={i} className="mt-14 border-t border-line pt-8">
                   {b.kicker && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-green">{b.kicker}</p>}
                   <h2 id={b.id} className="scroll-mt-28 text-[clamp(1.5rem,1.3rem+0.8vw,1.875rem)] font-semibold leading-tight tracking-[-0.02em] text-moss">
                     {b.text}
@@ -214,6 +228,37 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
                 {b.note && <p className="article-inline mt-4 text-xs leading-snug text-ink-muted" dangerouslySetInnerHTML={{ __html: b.note }} />}
               </figure>
             );
+          case "scale": {
+            const span = b.max - b.min || 1;
+            const left = ((b.from - b.min) / span) * 100;
+            const width = Math.max(2, ((b.to - b.from) / span) * 100);
+            return (
+              <figure key={i} className="mt-8 rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
+                {b.title && <figcaption className="font-semibold text-moss">{b.title}</figcaption>}
+                <div className="relative mt-10 h-3 rounded-full bg-surface" role="img" aria-label={b.band}>
+                  <span className="absolute top-0 h-full rounded-full bg-green" style={{ left: `${left}%`, width: `${width}%` }} />
+                  <span
+                    className="absolute -top-7 -translate-x-1/2 whitespace-nowrap rounded-full bg-lind px-2.5 py-0.5 text-xs font-semibold text-moss"
+                    style={{ left: `${left + width / 2}%` }}
+                  >
+                    {b.band}
+                  </span>
+                </div>
+                <div className="relative mt-2 h-5 text-xs tabular-nums text-ink-muted">
+                  {b.ticks.map((t, k) => {
+                    const n = parseFloat(t.replace(",", ".").replace(/[^\d.]/g, ""));
+                    const x = Number.isNaN(n) ? (k / Math.max(1, b.ticks.length - 1)) * 100 : ((n - b.min) / span) * 100;
+                    return (
+                      <span key={k} className="absolute whitespace-nowrap" style={{ left: `${x}%`, transform: x <= 0 ? "none" : x >= 100 ? "translateX(-100%)" : "translateX(-50%)" }}>
+                        {t}
+                      </span>
+                    );
+                  })}
+                </div>
+                {b.note && <p className="article-inline mt-4 text-xs leading-snug text-ink-muted" dangerouslySetInnerHTML={{ __html: b.note }} />}
+              </figure>
+            );
+          }
           case "table":
             return (
               <div key={i} className="mt-8 overflow-x-auto rounded-[var(--radius-card)] border border-line/70 [contain:paint]">
@@ -287,7 +332,8 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
               </section>
             );
         }
-      })}
-    </div>
-  );
+      }
+    }
+  }
+  return null;
 }

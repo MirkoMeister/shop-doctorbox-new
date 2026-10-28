@@ -27,6 +27,7 @@ export type Block =
   | { type: "conclusion"; title: string; html: Inline; cta?: Cta }
   | { type: "chart"; title: string | null; bars: { label: string; value: number; high: boolean }[]; marker?: { index: number; label: string }; legend: { high: boolean; label: string }[]; note: Inline | null }
   | { type: "bars"; items: { label: string; value: string; pct: number; tone: CardTone }[]; note: Inline | null }
+  | { type: "scale"; title: string | null; band: string; from: number; to: number; min: number; max: number; ticks: string[]; note: Inline | null }
   | { type: "table"; head: string[]; rows: Inline[][] }
   | { type: "svg"; title: string | null; svg: string; axis: { label: string; left: number }[]; legend: string[]; note: Inline | null }
   | { type: "chips"; items: { label: string; tone: CardTone }[] };
@@ -603,6 +604,23 @@ function extractTemplated(html: string): ExtractedArticle {
         if (items.length) blocks.push({ type: "bars", items, note: noteNode ? inline(noteNode) : null });
         continue;
       }
+      // highlighted range on a scale (scale-card): "ca. 2,5 bis 5 kg" on a 0–10 kg track
+      if (hasClass(c, "scale-card")) {
+        const titleNode = find(c, (x) => /^h[2-4]$/.test(x.tag));
+        const band = find(c, (x) => hasClass(x, "scale-band"));
+        const ticks = findAll(c, (x) => hasClass(x, "scale-ticks")).flatMap((t) => nodes(t).map((x) => cleanText(textOf(x)))).filter(Boolean);
+        const num = (t: string) => parseFloat(t.replace(",", ".").replace(/[^\d.]/g, ""));
+        const tickNums = ticks.map(num).filter((n) => !Number.isNaN(n));
+        const bandText = band ? cleanText(textOf(band)) : "";
+        const bandNums = (bandText.match(/\d+(?:[.,]\d+)?/g) ?? []).map(num);
+        const noteNode = find(c, (x) => hasClass(x, "chart-note"));
+        if (tickNums.length >= 2 && bandNums.length >= 1) {
+          const min = Math.min(...tickNums), max = Math.max(...tickNums);
+          const from = bandNums[0], to = bandNums[1] ?? bandNums[0];
+          blocks.push({ type: "scale", title: titleNode ? cleanText(textOf(titleNode)) : null, band: bandText, from, to, min, max, ticks, note: noteNode ? inline(noteNode) : null });
+          continue;
+        }
+      }
       if (hasClass(c, "chart-note")) {
         const h = inline(c);
         if (h) blocks.push({ type: "paragraph", html: `<em>${h}</em>` });
@@ -779,6 +797,8 @@ function extractTemplated(html: string): ExtractedArticle {
         return [...b.head, ...b.rows.flat().map(stripHtml)].join(" ");
       case "chips":
         return b.items.map((x) => x.label).join(" ");
+      case "scale":
+        return [b.title ?? "", b.band, ...b.ticks].join(" ");
       default:
         return stripHtml(b.html);
     }

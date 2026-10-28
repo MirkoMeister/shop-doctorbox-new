@@ -129,10 +129,10 @@ export function GuideArticle({
       )}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto mt-12 max-w-3xl">
+      <div className="mx-auto mt-12 max-w-5xl">
         {/* Table of contents, ahead of the text: one reading column */}
         {toc.length > 1 && (
-          <nav aria-label={t.contents} className="mb-10 rounded-[var(--radius-card)] border border-line/70 bg-surface p-5 sm:p-6">
+          <nav aria-label={t.contents} className="article-measure mb-10 rounded-[var(--radius-card)] border border-line/70 bg-surface p-5 sm:p-6">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-ink-muted">{t.contents}</p>
             <ol className="mt-3 grid gap-1 sm:grid-cols-2 sm:gap-x-8">
               {toc.map((h, i) => (
@@ -150,7 +150,7 @@ export function GuideArticle({
         {/* Article (the sentinel tells the reading companion when the text begins) */}
         <div id="article-start" aria-hidden className="h-px" />
         <div className="min-w-0">
-          {body}
+          <div className="[&>.prose-db]:article-measure">{body}</div>
 
           {products.length > 0 && (
             <section id="recommended" className="mt-14 scroll-mt-24 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-8">
@@ -166,7 +166,7 @@ export function GuideArticle({
             </section>
           )}
 
-          <p className="mt-10 border-t border-line pt-4 text-xs text-ink-muted">{dict.footer.medical}</p>
+          <p className="article-measure mt-10 border-t border-line pt-4 text-xs text-ink-muted">{dict.footer.medical}</p>
         </div>
       </div>
 

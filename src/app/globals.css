@@ -316,6 +316,13 @@ body {
 }
 
 /* Guide reading typography (on top of .prose-db) */
+/* reading measure inside the wider article column: text stays narrow, figures break out */
+.article-measure {
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .prose-guide {
   font-size: 1.125rem;
   line-height: 1.7;

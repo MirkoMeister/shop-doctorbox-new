@@ -40,7 +40,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: { default: dict.meta.defaultTitle, template: `%s | DoctorBox` },
     description: dict.meta.defaultDescription,
     applicationName: dict.meta.siteName,
-    icons: { icon: "/favicon.ico" },
   };
 }
 
