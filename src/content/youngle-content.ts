@@ -2,9 +2,10 @@ import data from "@/content/youngle-content.json";
 import type { Locale } from "@/lib/i18n/config";
 
 /**
- * Editorial content from the Youngle product pages (youngle.com), extracted on
- * 28.10.2026 with the script in docs/youngle-weiterfuehrende-inhalte.csv as the
- * readable copy. Shown on the Youngle product pages below the fold.
+ * Below-the-fold content of the Youngle product pages. Structure and doses come
+ * from youngle.com (original texts: docs/youngle-content-original.json), the
+ * wording was rewritten to authorised EU health claims and neutral facts
+ * (docs/youngle-health-claims.md). The intake timeline is the same for all.
  */
 export type YoungleBenefit = { title: string; text: string };
 export type YounglePhase = { label: string; text: string };

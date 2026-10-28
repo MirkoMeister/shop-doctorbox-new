@@ -5,22 +5,18 @@ import type { Locale } from "@/lib/i18n/config";
 
 const COPY = {
   de: {
-    how: "So [[wirkt]] es",
-    expect: "Was kannst du [[erwarten]]?",
-    expectNote: "Einordnung des Herstellers. Wie schnell und wie stark sich etwas verändert, hängt von deiner Ausgangslage ab, am besten messbar mit einem Test vorher und nachher.",
-    actives: "Wirkstoffe [[im Detail]]",
-    dose: "pro Tagesdosis",
+    how: "Gut zu [[wissen]]",
+    expect: "Einnahme im [[Zeitverlauf]]",
+    actives: "Inhaltsstoffe [[im Detail]]",
   },
   en: {
-    how: "How it [[works]]",
-    expect: "What can you [[expect]]?",
-    expectNote: "The manufacturer's guidance. How fast and how much changes depends on your starting point, best measured with a test before and after.",
-    actives: "Actives [[in detail]]",
-    dose: "per daily dose",
+    how: "Good to [[know]]",
+    expect: "Taking it [[over time]]",
+    actives: "Ingredients [[in detail]]",
   },
 };
 
-/** Below-the-fold content of a Youngle product: explained benefits, the expectation timeline, actives. */
+/** Below-the-fold content of a Youngle product: facts about the ingredients, a neutral intake timeline, ingredient list. Wording follows the EU register of health claims, see docs/youngle-health-claims.md. */
 export function SupplementDetails({ content, locale, productTitle }: { content: YoungleContent; locale: Locale; productTitle: string }) {
   const t = COPY[locale === "en" ? "en" : "de"];
   const { benefits, expect, science } = content;
@@ -75,7 +71,6 @@ export function SupplementDetails({ content, locale, productTitle }: { content: 
               <p className="mt-2 text-[0.95rem] leading-relaxed text-ink-muted">{expect.phases[0].text}</p>
             </div>
           )}
-          <p className="mt-8 text-xs text-ink-muted">{t.expectNote}</p>
         </section>
       )}
 
@@ -91,10 +86,7 @@ export function SupplementDetails({ content, locale, productTitle }: { content: 
             {science.actives.map((a) => (
               <li key={a.name} className="grid gap-1 py-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,3fr)] sm:gap-6">
                 <span className="font-semibold">{a.name}</span>
-                <span className="text-ink-muted tabular-nums">
-                  {a.dose}
-                  {a.dose && <span className="ml-1 text-xs">{t.dose}</span>}
-                </span>
+                <span className="text-ink-muted tabular-nums">{a.dose}</span>
                 <span className="text-[0.95rem] text-ink-muted">{a.claim}</span>
               </li>
             ))}

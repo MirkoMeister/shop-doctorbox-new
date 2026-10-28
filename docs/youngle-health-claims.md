@@ -56,6 +56,16 @@ Bei den Formeln lassen sich viele Aussagen retten, wenn sie einem Vitamin oder M
 
 Die Phasen-Texte (1 Woche bis 6 Monate) beschreiben Wirkungen („Kraft, Schnellenergie und Belastbarkeit können sich spürbar verbessern“, „stabilere Konzentration“) und sind damit ebenfalls gesundheitsbezogene Angaben, inklusive der Formulierung „Viele Anwender berichten“. Sie fallen mit den Produktvorteilen oder müssen auf zugelassene Angaben zurückgeführt werden. Der Hinweis „Einordnung des Herstellers“ unter dem Abschnitt ändert die Einstufung nicht.
 
+## Umgesetzt am 28.10.2026
+
+Die drei Abschnitte auf unseren Youngle-Seiten wurden umgeschrieben (`src/content/youngle-content.json`, Originaltexte in `docs/youngle-content-original.json`):
+
+- „Gut zu wissen“ statt „So wirkt es“: zugelassene Angaben im Registerwortlaut mit Nennung des Stoffs (Vitamine, Mineralstoffe, Kreatin, EPA/DHA, Cholin), sonst Sachinformation (was der Stoff ist, Herkunft, Form, Dosis, Qualität) ohne Wirkaussage. „Gesundes Altern“ ist überall gestrichen.
+- „Einnahme im Zeitverlauf“ statt „Was kannst du erwarten?“: für alle Produkte derselbe neutrale Zeitplan (Start, 4 Wochen, 8 bis 12 Wochen messen, langfristig ärztlich abstimmen), keine Wirkungsbeschreibung.
+- „Inhaltsstoffe im Detail“: Name, Dosis und je Stoff entweder die zugelassene Angabe oder eine neutrale Beschreibung.
+
+Noch offen bleiben die Texte, die aus Shopify kommen: die Beschreibung, `custom.produktvorteile` (die vier ursprünglichen Vorteile) und die SEO-Beschreibungen. Sie erscheinen weiterhin oben auf der Seite und in den Karten.
+
 ## Empfehlung
 
 1. Youngle fragen, welche Freigabe (Rechtsprüfung) hinter den Texten steht und ob sie eine Claims-Liste je Produkt haben. Shopify Collective überträgt nur die Beschreibung, die Haftung für unsere Seite liegt bei uns.
