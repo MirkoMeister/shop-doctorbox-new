@@ -56,11 +56,13 @@ export default async function HomePage({ params }: Props) {
         }
       : null;
 
-  const picks = (
-    topPicks?.products.length
-      ? topPicks.products
-      : allProducts.filter((p) => p.ratingCount > 0)
-  ).slice(0, 8);
+  // "Most ordered": the curated top picks, ordered by how many customers reviewed them (our best
+  // proxy for orders), filled up to two full rows with the most-reviewed other tests
+  const curatedIds = new Set((topPicks?.products ?? []).map((p) => p.id));
+  const picks = allProducts
+    .filter((p) => p.availableForSale && p.biomarkers.length > 0 && (curatedIds.has(p.id) || p.ratingCount > 0))
+    .sort((a, b) => b.ratingCount - a.ratingCount || Number(curatedIds.has(b.id)) - Number(curatedIds.has(a.id)))
+    .slice(0, 8);
   const tassoProducts = ["rundum-check-fur-frauen", "rundum-check-fur-manner"]
     .map((h) => allProducts.find((p) => p.handle === h))
     .filter((p): p is (typeof allProducts)[number] => Boolean(p));
