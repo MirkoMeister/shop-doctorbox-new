@@ -1,3 +1,4 @@
+import { guideHref } from "@/lib/content/guides";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import Link from "next/link";
@@ -233,7 +234,7 @@ export function CollectionView({
             <div className="flex flex-col gap-2 md:items-end">
               {guideHandle && (
                 <Link
-                  href={href(`/ratgeber/${guideHandle}`)}
+                  href={href(guideHref(guideHandle))}
                   className="btn btn-primary"
                 >
                   {guideTitle

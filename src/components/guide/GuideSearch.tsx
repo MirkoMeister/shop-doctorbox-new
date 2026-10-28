@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 import { AskMiraButton } from "@/components/assistant/AskMiraButton";
 import { ArrowRight, SearchIcon } from "@/components/ui/Icons";
-import { GUIDE_BASE } from "@/lib/content/guides";
+import { guideHref } from "@/lib/content/guides";
 import { localeHref, type Locale } from "@/lib/i18n/config";
 import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 
@@ -95,7 +95,7 @@ export function GuideSearch({
 
   const Row = ({ e }: { e: GuideEntry }) => (
     <Link
-      href={localeHref(locale, `${GUIDE_BASE}/${e.handle}`)}
+      href={localeHref(locale, guideHref(e.handle))}
       className="group flex items-start justify-between gap-3 rounded-2xl border border-line/70 bg-white px-4 py-3.5 shadow-card transition-shadow hover:shadow-float"
     >
       <span className="min-w-0">

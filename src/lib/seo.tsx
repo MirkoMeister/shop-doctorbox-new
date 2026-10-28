@@ -1,3 +1,4 @@
+import { articleHref } from "@/lib/content/guides";
 import type { Metadata } from "next";
 import type { Locale } from "@/lib/i18n/config";
 import { absoluteUrl, alternates, siteUrl } from "@/lib/i18n/config";
@@ -150,7 +151,7 @@ export function articleJsonLd(article: Article, locale: Locale) {
     image: article.image ? [article.image.url] : undefined,
     author: article.author ? { "@type": "Person", name: article.author } : { "@id": `${siteUrl}/#organization` },
     publisher: { "@id": `${siteUrl}/#organization` },
-    mainEntityOfPage: absoluteUrl(locale, `/blog/${article.handle}`),
+    mainEntityOfPage: absoluteUrl(locale, articleHref(article.blog.handle, article.handle)),
     description: truncate(stripHtml(article.excerpt || article.contentHtml), 200),
   };
 }

@@ -1,15 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { BLOG_BASE, GUIDE_BASE, isGuidePage } from "@/lib/content/guides";
+import { BLOG_BASE, GUIDE_BASE } from "@/lib/content/guides";
 
 /**
  * URL strategy (mirrors the old Shopify store so rankings carry over):
  *  - German is the default and has no prefix:      /products/x
  *  - English lives under /en:                       /en/products/x
  *  - /de-at and /en-at (old market URLs) → 301 to the plain locale
- *  - editorial content:
- *      /blogs/<blog>/<slug> → /blog/<slug>,  /blogs/<blog> → /blog?thema=<blog>
- *      /pages/<guide>       → /ratgeber/<guide>  (utility pages stay at /pages/)
- *      /pages/gesundheitsblog → /blog, /pages/ratgeber → /ratgeber
+ *  - editorial content keeps the Shopify URLs (/blogs/<blog>/<slug>, /pages/<handle>);
+ *    the short preview URLs (/ratgeber/<slug>, /blog/<slug>) 301 to them and
+ *    /pages/gesundheitsblog → /blog (overview across all blogs)
  *  - internal routing happens under /[locale], so "/" is rewritten to "/de"
  */
 export function proxy(request: NextRequest) {
@@ -59,20 +58,11 @@ export function proxy(request: NextRequest) {
   };
   if (legacy[bare]) return redirect(`${prefix}${legacy[bare]}`);
 
-  // Shopify blog URLs → /blog
-  const article = bare.match(/^\/blogs\/[^/]+\/([^/]+)\/?$/);
-  if (article) return redirect(`${prefix}${BLOG_BASE}/${article[1]}`, false);
-  const blog = bare.match(/^\/blogs\/([^/]+)\/?$/);
-  if (blog) return redirect(`${prefix}${BLOG_BASE}?thema=${blog[1]}`, false);
-
-  // Guide pages → Ratgeber (utility pages keep /pages/)
-  const page = bare.match(/^\/pages\/([^/]+)\/?$/);
-  if (page) {
-    const handle = decodeURIComponent(page[1]);
-    if (handle === "gesundheitsblog") return redirect(`${prefix}${BLOG_BASE}`, false);
-    if (handle === "ratgeber") return redirect(`${prefix}${GUIDE_BASE}`, false);
-    if (isGuidePage(handle)) return redirect(`${prefix}${GUIDE_BASE}/${handle}`, false);
-  }
+  // Short preview URLs → the canonical Shopify URLs
+  if (bare === "/pages/gesundheitsblog") return redirect(`${prefix}${BLOG_BASE}`, false);
+  if (bare === "/ratgeber" || bare === "/ratgeber/") return redirect(`${prefix}${GUIDE_BASE}`, false);
+  const guide = bare.match(/^\/ratgeber\/([^/]+)\/?$/);
+  if (guide) return redirect(`${prefix}/pages/${guide[1]}`, false);
 
   // English: already prefixed, just continue
   if (en) return NextResponse.next();

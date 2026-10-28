@@ -1,11 +1,10 @@
 /**
- * Guide ("Ratgeber") routing.
- *
- * All editorial content lives under /ratgeber/<slug>:
- *  - blog articles  (old: /blogs/<blog>/<slug>)
- *  - guide pages    (old: /pages/<slug>, everything that is not a utility page)
- * The proxy 301-redirects the old URLs. Keep this file free of server-only
- * imports: it is used by the proxy (edge) as well.
+ * Editorial routing. URLs are identical to the old Shopify store so rankings
+ * carry over:
+ *  - blog articles  /blogs/<blog>/<slug>, blog index /blogs/<blog>
+ *  - guide pages    /pages/<handle>  (everything that is not a utility page)
+ *  - guide overview /pages/ratgeber, blog overview /blog (new, links to the blogs)
+ * Keep this file free of server-only imports: the proxy (edge) uses it too.
  */
 
 /** Pages that stay at /pages/<handle> because they are not articles. */
@@ -34,16 +33,21 @@ export const UTILITY_PAGES = new Set([
   "widerruf-formular",
 ]);
 
-/** Old index pages that now point to the guide overview. */
+/** Overview pages that are rendered by their own routes, not as guide content. */
 export const GUIDE_INDEX_PAGES = new Set(["ratgeber", "gesundheitsblog"]);
 
 export function isGuidePage(handle: string): boolean {
   return !UTILITY_PAGES.has(handle) && !GUIDE_INDEX_PAGES.has(handle);
 }
 
-export const GUIDE_BASE = "/ratgeber";
-/** Shopify blog articles live here; guides (SEO pages) stay under GUIDE_BASE */
+/** Guide overview with search (old Shopify page URL) */
+export const GUIDE_BASE = "/pages/ratgeber";
+/** Blog overview across all Shopify blogs (new; the blogs themselves keep /blogs/<blog>) */
 export const BLOG_BASE = "/blog";
+
+export const guideHref = (handle: string) => `/pages/${handle}`;
+export const blogHref = (blog: string) => `/blogs/${blog}`;
+export const articleHref = (blog: string, slug: string) => `/blogs/${blog}/${slug}`;
 
 /** Blog handles → topic labels for the overview filter (Italian blog excluded). */
 export const BLOG_TOPICS: Record<string, { de: string; en: string }> = {

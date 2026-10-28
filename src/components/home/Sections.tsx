@@ -1,3 +1,4 @@
+import { articleHref } from "@/lib/content/guides";
 import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n/config";
@@ -170,7 +171,7 @@ function summaryOf(article: Article): string | null {
 }
 
 export function ArticleCard({ article, locale, dict }: { article: Article; locale: Locale; dict: Dictionary }) {
-  const href = localeHref(locale, `/blog/${article.handle}`);
+  const href = localeHref(locale, articleHref(article.blog.handle, article.handle));
   // excerpt from Shopify → SEO description → start of the article text
   const excerpt = article.excerpt?.trim() ? stripHtml(article.excerpt) : article.seo.description?.trim() || summaryOf(article);
   return (

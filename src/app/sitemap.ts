@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { listMigratedPages } from "@/lib/content/pages";
-import { isGuidePage } from "@/lib/content/guides";
+import { BLOG_BASE, BLOG_TOPICS, GUIDE_BASE, articleHref, blogHref, guideHref, isGuidePage } from "@/lib/content/guides";
 import { absoluteUrl, locales } from "@/lib/i18n/config";
 import { getAllArticles, getAllPageHandles, getAllProducts, getCollections } from "@/lib/shopify/queries";
 
@@ -39,11 +39,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...entry("/collections", undefined, 0.9, "daily"),
     ...products.flatMap((p) => entry(`/products/${p.handle}`, undefined, 0.8, "weekly")),
     ...collections.flatMap((c) => entry(`/collections/${c.handle}`, c.updatedAt, 0.7)),
-    ...entry("/ratgeber", undefined, 0.7, "weekly"),
-    ...entry("/blog", undefined, 0.7, "weekly"),
-    ...Array.from(pageHandles.entries()).flatMap(([h, u]) =>
-      entry(isGuidePage(h) ? `/ratgeber/${h}` : `/pages/${h}`, u, isGuidePage(h) ? 0.6 : 0.4, "monthly"),
-    ),
-    ...articles.flatMap((a) => entry(`/blog/${a.handle}`, a.publishedAt, 0.6, "monthly")),
+    ...entry(GUIDE_BASE, undefined, 0.7, "weekly"),
+    ...entry(BLOG_BASE, undefined, 0.7, "weekly"),
+    ...Object.keys(BLOG_TOPICS)
+      .filter((b) => articles.some((a) => a.blog.handle === b))
+      .flatMap((b) => entry(blogHref(b), undefined, 0.6, "weekly")),
+    ...Array.from(pageHandles.entries())
+      .filter(([h]) => h !== "ratgeber" && h !== "gesundheitsblog")
+      .flatMap(([h, u]) => entry(guideHref(h), u, isGuidePage(h) ? 0.6 : 0.4, "monthly")),
+    ...articles.flatMap((a) => entry(articleHref(a.blog.handle, a.handle), a.publishedAt, 0.6, "monthly")),
   ];
 }

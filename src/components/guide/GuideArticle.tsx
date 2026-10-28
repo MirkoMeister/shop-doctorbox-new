@@ -5,13 +5,13 @@ import { ArrowRight, ClockIcon, DropIcon } from "@/components/ui/Icons";
 import { Price } from "@/components/ui/Price";
 import { Rating } from "@/components/ui/Rating";
 import { formatDate, shopifyImage } from "@/lib/format";
-import { GUIDE_BASE } from "@/lib/content/guides";
+import { BLOG_BASE, GUIDE_BASE } from "@/lib/content/guides";
 import { localeHref, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
 import type { ProductCard } from "@/lib/shopify/types";
 
-export type RelatedGuide = { handle: string; title: string };
+export type RelatedGuide = { href: string; title: string };
 
 /**
  * Reading layout shared by guide pages and blog articles: calm header, optional
@@ -35,7 +35,8 @@ export function GuideArticle({
   products,
   related,
   relatedTitle,
-  relatedBase = GUIDE_BASE,
+  kind = "guide",
+  allHref,
 }: {
   locale: Locale;
   dict: Dictionary;
@@ -53,14 +54,16 @@ export function GuideArticle({
   products: ProductCard[];
   related: RelatedGuide[];
   relatedTitle?: string;
-  /** Route the related list and "all" link point to */
-  relatedBase?: string;
+  /** guide page (/pages/<handle>) or blog article (/blogs/<blog>/<slug>): drives breadcrumb and "all" labels */
+  kind?: "guide" | "blog";
+  /** Overview the "all" link and breadcrumb root point to (defaults to the guide/blog overview) */
+  allHref?: string;
 }) {
-  const base = localeHref(locale, relatedBase);
+  const base = allHref ?? localeHref(locale, kind === "guide" ? GUIDE_BASE : BLOG_BASE);
   const primary = products[0];
   const t = dict.guide;
 
-  const rootLabel = relatedBase === GUIDE_BASE ? t.title : dict.blog.title;
+  const rootLabel = kind === "guide" ? t.title : dict.blog.title;
   const crumbs = [{ label: dict.common.home, href: localeHref(locale, "/") }, { label: rootLabel, href: base }, ...(topicHref ? [{ label: topicLabel, href: topicHref }] : []), { label: title }];
   const meta = (
     <div className={`mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm ${heroImage ? "text-soft/80" : "text-ink-muted"}`}>
@@ -197,14 +200,14 @@ export function GuideArticle({
           <div className="flex items-end justify-between gap-4">
             <h2 className="h2">{relatedTitle ?? t.related}</h2>
             <Link href={base} className="btn btn-tertiary -mr-3">
-              {relatedBase === GUIDE_BASE ? t.allGuides : dict.blog.allArticles} <ArrowRight width={16} height={16} />
+              {kind === "guide" ? t.allGuides : dict.blog.allArticles} <ArrowRight width={16} height={16} />
             </Link>
           </div>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((g) => (
-              <li key={g.handle}>
+              <li key={g.href}>
                 <Link
-                  href={localeHref(locale, `${relatedBase}/${g.handle}`)}
+                  href={localeHref(locale, g.href)}
                   className="flex items-center justify-between gap-3 rounded-2xl border border-line/70 bg-white px-4 py-3.5 shadow-card transition-shadow hover:shadow-float"
                 >
                   <span className="font-medium leading-snug">{g.title}</span>

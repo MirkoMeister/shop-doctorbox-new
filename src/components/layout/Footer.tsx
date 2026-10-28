@@ -1,3 +1,4 @@
+import { GUIDE_BASE } from "@/lib/content/guides";
 import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n/config";
@@ -45,7 +46,7 @@ export function Footer({
       links: [
         { label: dict.nav.about, href: href("/pages/uber-uns") },
         { label: dict.nav.blog, href: href("/blog") },
-        { label: dict.nav.guide, href: href("/ratgeber") },
+        { label: dict.nav.guide, href: href(GUIDE_BASE) },
         { label: dict.footer.b2b, href: href("/pages/b2b") },
         { label: "Trusted Shops", href: href("/pages/das-sagen-unsere-kunden") },
       ],

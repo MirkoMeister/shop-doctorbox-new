@@ -8,6 +8,7 @@ import { stripHtml } from "@/lib/format";
 import {
   GUIDE_BASE,
   PAGE_TOPICS,
+  guideHref,
   isGuidePage,
   pageTopic,
 } from "@/lib/content/guides";
@@ -36,8 +37,8 @@ const cleanTitle = (t: string) =>
     .trim();
 
 /**
- * Guide landing: the SEO guide pages (migrated from Shopify) with an instant search.
- * Linked from the footer only; the health blog is the editorial entry point on the site.
+ * Guide landing at the old Shopify URL (/pages/ratgeber): the SEO guide pages with an
+ * instant search. Linked from the footer only; the health blog is the editorial entry point.
  */
 export default async function GuideIndex({ params }: Props) {
   const { locale, dict } = await resolveLocale(params);
@@ -103,7 +104,7 @@ export default async function GuideIndex({ params }: Props) {
           hasPart: entries.slice(0, 50).map((e) => ({
             "@type": "Article",
             headline: e.title,
-            url: `${GUIDE_BASE}/${e.handle}`,
+            url: guideHref(e.handle),
           })),
         }}
       />

@@ -77,10 +77,7 @@ function isContentImage(src: string, alt: string): boolean {
 }
 
 function rewriteHref(href: string): string {
-  let h = href.replace(/https?:\/\/shop\.doctorbox\.de/, "");
-  const art = h.match(/^(\/en)?\/blogs\/[^/]+\/([^/?#]+)/);
-  if (art) h = `${art[1] ?? ""}/blog/${art[2]}`;
-  return h;
+  return href.replace(/https?:\/\/shop\.doctorbox\.de/, "");
 }
 
 /** Minimal tokenizer: emits tags and text in order. */
