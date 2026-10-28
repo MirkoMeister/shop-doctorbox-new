@@ -33,7 +33,7 @@ Shopify betreibt UCP-Profil, MCP-Server und Katalog selbst. Der Headless-Shop re
 - [ ] **Tasso-Wortlaut** „komplett schmerzfrei“ medizinisch/rechtlich freigeben (Hersteller sagt „nahezu schmerzfrei“).
 - [ ] **Mira-Texte** zu STI-Zeitfenstern und Supplements medizinisch gegenlesen.
 - [ ] Blogartikel ohne Auszug/SEO-Beschreibung in Shopify nachpflegen (Liste aus der Sitzung vom 20.10.).
-- [ ] **Trusted Shops, Antworten nachbearbeiten:** Einige Antworten enthalten Platzhalter wie „[Kontaktweg einfügen]“ oder „[Ort einfügen, z. B. Meine Tests]“. Sie sind öffentlich auf den Produktseiten sichtbar. Im eTrusted Control Centre korrigieren.
+- [x] **Trusted Shops, Antworten nachbearbeiten (erledigt 28.10.):** Einige Antworten enthalten Platzhalter wie „[Kontaktweg einfügen]“ oder „[Ort einfügen, z. B. Meine Tests]“. Sie sind öffentlich auf den Produktseiten sichtbar. Im eTrusted Control Centre korrigieren.
 - [ ] **Bewertungszahlen klären:** Shopify-Metafeld (z. B. STI Pro 43 × 4,81) und Trusted Shops (30 × ~4,5) weichen ab. Der Shop zeigt die verifizierten Trusted-Shops-Werte; falls die Shopify-Zahlen aus einer anderen echten Quelle stammen, Quelle benennen.
 
 ## 5. Vercel-Umgebungsvariablen (vollständig?)
