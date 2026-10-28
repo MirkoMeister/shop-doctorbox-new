@@ -90,7 +90,7 @@ export type Product = ProductCard & {
   sellingPlanGroups: SellingPlanGroup[];
   collections: { handle: string; title: string }[];
   updatedAt: string;
-  /** "Inhaltsstoffe Tab" metafield rendered as HTML (supplements) */
+  /** "custom.inhaltsstoffe" metafield rendered as HTML (supplements) */
   ingredientsHtml: string | null;
   /** "custom.einnahmeempfehlung" metafield rendered as HTML (supplements) */
   dosageHtml: string | null;
