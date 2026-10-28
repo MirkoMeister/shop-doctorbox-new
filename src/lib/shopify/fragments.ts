@@ -91,6 +91,10 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
     ...ProductCardFields
     description
     descriptionHtml
+    ingredients: metafield(namespace: "custom", key: "inhaltsstoffe_tab") {
+      type
+      value
+    }
     updatedAt
     seo {
       title

@@ -1,3 +1,4 @@
+import { metafieldToHtml } from "./metafield-html";
 import type { Product, ProductCard, Variant } from "./types";
 
 /* Raw shapes coming back from GraphQL (only what we touch) */
@@ -25,7 +26,8 @@ type RawVariant = Omit<Variant, "sellingPlanAllocations" | "storeAvailability"> 
 };
 
 export type RawProduct = RawProductCard &
-  Omit<Product, keyof ProductCard | "images" | "variants" | "sellingPlanGroups" | "collections"> & {
+  Omit<Product, keyof ProductCard | "images" | "variants" | "sellingPlanGroups" | "collections" | "ingredientsHtml"> & {
+    ingredients: { type: string; value: string } | null;
     images: Edges<Product["images"][number]>;
     variants: Edges<RawVariant>;
     collections: Edges<{ handle: string; title: string }>;
@@ -124,6 +126,7 @@ export function reshapeProduct(raw: RawProduct): Product {
     options: raw.options.filter((o) => !(o.name === "Title" && o.values.length === 1 && o.values[0] === "Default Title")),
     images: edgesToArray(raw.images),
     updatedAt: raw.updatedAt,
+    ingredientsHtml: metafieldToHtml(raw.ingredients),
     collections: edgesToArray(raw.collections),
     sellingPlanGroups: edgesToArray(raw.sellingPlanGroups).map((g) => ({
       name: g.name,
