@@ -46,15 +46,15 @@ function InlineProduct({ p, locale, onNavigate, tone }: { p: ProductTeaser; loca
     <Link
       href={localeHref(locale, `/products/${p.handle}`)}
       onClick={onNavigate}
-      className={`mx-0.5 rounded-full px-2 py-0.5 font-semibold text-moss transition-colors [-webkit-box-decoration-break:clone] [box-decoration-break:clone] hover:bg-green hover:text-white ${
+      className={`mx-0.5 inline-flex max-w-full items-center whitespace-nowrap rounded-full px-2 py-0.5 align-baseline font-semibold text-moss transition-colors hover:bg-green hover:text-white ${
         tone === "light" ? "bg-lind/70" : "border border-line bg-white hover:border-green"
       }`}
     >
       {p.image && (
-        <Image src={shopifyImage(p.image, 96)} alt="" width={20} height={20} className="mr-1 inline-block h-5 w-5 rounded-full bg-white object-cover align-[-0.3em]" />
+        <Image src={shopifyImage(p.image, 96)} alt="" width={20} height={20} className="mr-1 h-5 w-5 shrink-0 rounded-full bg-white object-cover" />
       )}
-      {shortName(p.title)}
-      <span className="ml-1.5 whitespace-nowrap text-xs font-medium opacity-80">{formatMoney({ amount: p.price, currencyCode: p.currency }, locale)}</span>
+      <span className="truncate">{shortName(p.title)}</span>
+      <span className="ml-1.5 text-xs font-medium opacity-80">{formatMoney({ amount: p.price, currencyCode: p.currency }, locale)}</span>
     </Link>
   );
 }

@@ -20,6 +20,8 @@ import { resolveLocale } from "@/lib/locale-params";
 import { breadcrumbJsonLd, faqJsonLd, JsonLd, pageMetadata, productJsonLd } from "@/lib/seo";
 import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import { isYoungle, SupplementTrust } from "@/components/supplements/SupplementTrust";
+import { SupplementDetails } from "@/components/supplements/SupplementDetails";
+import { youngleContent } from "@/content/youngle-content";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
 import { ProductReviews } from "@/components/reviews/ProductReviews";
 import { getProductReviews, summarize } from "@/lib/reviews/etrusted";
@@ -115,6 +117,7 @@ export default async function ProductPage({ params }: Props) {
   ];
   // supplements relate to supplements, tests to tests
   const relatedShown = related.filter((p) => isSupplement(p) === supplement);
+  const youngle = supplement && isYoungle(product.vendor) ? youngleContent(product.handle, locale) : null;
 
   return (
     <>
@@ -192,6 +195,8 @@ export default async function ProductPage({ params }: Props) {
           <p className="mt-4 text-xs text-ink-muted">{supplement ? dict.product.supplementNote : dict.product.medicalNote}</p>
         </div>
       </div>
+
+      {youngle && <SupplementDetails content={youngle} locale={locale} productTitle={product.title} />}
 
       <ProductReviews reviews={reviews} locale={locale} dict={dict} />
 
