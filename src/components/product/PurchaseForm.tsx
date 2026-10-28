@@ -9,6 +9,7 @@ import { formatMoney } from "@/lib/format";
 import type { Money, Product, Variant } from "@/lib/shopify/types";
 import { CheckIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
 import { TassoNote } from "@/components/product/TassoNote";
+import { unitPriceOf, type UnitPrice } from "@/lib/unit-price";
 
 type Mode = "once" | "subscription";
 
@@ -52,6 +53,9 @@ export function PurchaseForm({
   const pct = plans[0]?.priceAdjustments[0]?.adjustmentValue;
   const savePct = pct && pct.__typename === "SellingPlanPercentagePriceAdjustment" ? Math.round(pct.adjustmentPercentage) : null;
   const pickup = variant.storeAvailability.find((s) => s.available);
+  const unit = unitPriceOf(variant.title, activePrice);
+  const unitLabel = (u: UnitPrice) =>
+    u.unit === "per100" ? fill(dict.product.unitPer100, { unit: u.measure ?? "g" }) : dict.product[u.unit === "capsule" ? "unitCapsule" : u.unit === "tablet" ? "unitTablet" : "unitPiece"];
   const total = { amount: String(parseFloat(activePrice.amount) * qty), currencyCode: activePrice.currencyCode };
 
   function choose(name: string, value: string) {
@@ -83,7 +87,15 @@ export function PurchaseForm({
           <s className="text-base tabular-nums text-ink-muted">{formatMoney(activeCompare, locale)}</s>
         )}
         {mode === "subscription" && <span className="text-sm text-ink-muted">{dict.product.perDelivery}</span>}
-        <span className="basis-full text-xs text-ink-muted">inkl. MwSt.</span>
+        <span className="basis-full text-xs text-ink-muted">
+          inkl. MwSt.
+          {unit && (
+            <>
+              {" · "}
+              <span className="tabular-nums">{formatMoney(unit.price, locale)}</span> {unitLabel(unit)}
+            </>
+          )}
+        </span>
       </div>
 
       {/* Variants */}
@@ -119,6 +131,15 @@ export function PurchaseForm({
                     className="sr-only"
                   />
                   {val}
+                  {(() => {
+                    const v = product.variants.find((x) => x.selectedOptions.some((o) => o.name === opt.name && o.value === val));
+                    const u = v ? unitPriceOf(v.title, v.price) : null;
+                    return u ? (
+                      <span className={`ml-1.5 text-xs tabular-nums ${isSel ? "text-white/80" : "text-ink-muted"}`}>
+                        {formatMoney(u.price, locale)} {unitLabel(u)}
+                      </span>
+                    ) : null;
+                  })()}
                   {isTasso(val) && (
                     <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.1em] ${isSel ? "bg-white/20 text-white" : "bg-lind text-moss"}`}>
                       {dict.product.recommended}

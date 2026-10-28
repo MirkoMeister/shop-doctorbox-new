@@ -112,6 +112,10 @@ const de = {
     recommended: "Empfohlen",
     tassoChip: "Schmerzfrei mit Tasso+",
     by: "von {vendor}",
+    unitCapsule: "pro Kapsel",
+    unitTablet: "pro Tablette",
+    unitPiece: "pro Stück",
+    unitPer100: "pro 100 {unit}",
     supplementNote: "Nahrungsergänzungsmittel sind kein Ersatz für eine ausgewogene, abwechslungsreiche Ernährung und eine gesunde Lebensweise. Die empfohlene tägliche Verzehrmenge nicht überschreiten. Außerhalb der Reichweite von Kindern aufbewahren.",
     tasso: {
       title: "Komplett schmerzfreie Entnahme am Oberarm",
@@ -590,6 +594,10 @@ const en: Dictionary = {
     recommended: "Recommended",
     tassoChip: "Painless with Tasso+",
     by: "by {vendor}",
+    unitCapsule: "per capsule",
+    unitTablet: "per tablet",
+    unitPiece: "per piece",
+    unitPer100: "per 100 {unit}",
     supplementNote: "Food supplements are no substitute for a balanced, varied diet and a healthy lifestyle. Do not exceed the recommended daily intake. Keep out of reach of children.",
     tasso: {
       title: "Completely painless collection on the upper arm",
