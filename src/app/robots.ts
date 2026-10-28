@@ -24,7 +24,7 @@ export default function robots(): MetadataRoute.Robots {
     "/*?*oseid=*",
   ];
   return {
-    rules: [{ userAgent: "*", allow: "/", disallow }],
+    rules: [{ userAgent: "*", allow: ["/", "/api/ucp/", "/.well-known/"], disallow }],
     sitemap: `${siteUrl}/sitemap.xml`,
     host: siteUrl,
   };

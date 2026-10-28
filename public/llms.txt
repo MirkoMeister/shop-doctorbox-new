@@ -1,0 +1,33 @@
+# DoctorBox Heimtests
+
+> Laboratory home tests from Berlin: blood, urine, swab and saliva samples taken at home, analysed in accredited German laboratories, results with explanations in the DoctorBox app. Sexual health (STI) tests, nutrient and vitamin checks, hormone tests, heart and metabolism checks, prevention, fertility, DNA and allergy tests, plus selected supplements. German store with an English version under /en.
+
+## Shop
+
+- [All home tests](https://shop.doctorbox.de/collections): every test with analysed values, sample material and price
+- [Sexual health](https://shop.doctorbox.de/collections/sexuelle-gesundheit): STI tests from 3 to 10 pathogens, HPV, vaginal yeast
+- [Nutrients & vitamins](https://shop.doctorbox.de/collections/nahrstoffe-vitamine)
+- [Hormones](https://shop.doctorbox.de/collections/hormone)
+- [Heart & circulation](https://shop.doctorbox.de/collections/herz-kreislauf)
+- [Women's health](https://shop.doctorbox.de/collections/frauengesundheit), [Men's health](https://shop.doctorbox.de/collections/mannergesundheit)
+- [Supplements](https://shop.doctorbox.de/collections/nahrungserganzungsmittel)
+- [Tasso+ painless blood collection](https://shop.doctorbox.de/pages/tasso)
+- [Build your own test](https://shop.doctorbox.de/pages/eigener-test)
+
+## Guides and articles
+
+- [Guide overview with search](https://shop.doctorbox.de/pages/ratgeber): 170+ pages on symptoms, lab values and prevention
+- [Health blog](https://shop.doctorbox.de/blog)
+
+## Service
+
+- [How it works](https://shop.doctorbox.de/pages/faqs)
+- [Pickup and pharmacies](https://shop.doctorbox.de/pages/apotheken)
+- [Contact](https://shop.doctorbox.de/pages/kontakt)
+- [Shipping](https://shop.doctorbox.de/policies/shipping-policy), [Refunds](https://shop.doctorbox.de/policies/refund-policy)
+
+## For shopping agents
+
+- [Agent instructions](https://shop.doctorbox.de/agents.md): Shop skill and UCP integration
+- UCP profile: https://shop.doctorbox.de/.well-known/ucp
+- Sitemap: https://shop.doctorbox.de/sitemap.xml
