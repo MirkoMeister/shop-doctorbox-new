@@ -26,8 +26,9 @@ type RawVariant = Omit<Variant, "sellingPlanAllocations" | "storeAvailability"> 
 };
 
 export type RawProduct = RawProductCard &
-  Omit<Product, keyof ProductCard | "images" | "variants" | "sellingPlanGroups" | "collections" | "ingredientsHtml"> & {
+  Omit<Product, keyof ProductCard | "images" | "variants" | "sellingPlanGroups" | "collections" | "ingredientsHtml" | "dosageHtml"> & {
     ingredients: { type: string; value: string } | null;
+    dosage: { type: string; value: string } | null;
     images: Edges<Product["images"][number]>;
     variants: Edges<RawVariant>;
     collections: Edges<{ handle: string; title: string }>;
@@ -127,6 +128,7 @@ export function reshapeProduct(raw: RawProduct): Product {
     images: edgesToArray(raw.images),
     updatedAt: raw.updatedAt,
     ingredientsHtml: metafieldToHtml(raw.ingredients),
+    dosageHtml: metafieldToHtml(raw.dosage),
     collections: edgesToArray(raw.collections),
     sellingPlanGroups: edgesToArray(raw.sellingPlanGroups).map((g) => ({
       name: g.name,

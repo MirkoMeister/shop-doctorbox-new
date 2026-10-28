@@ -99,6 +99,9 @@ export default async function ProductPage({ params }: Props) {
     ...(product.ingredientsHtml
       ? [{ title: dict.product.ingredients, content: <RichText html={product.ingredientsHtml} locale={locale} className="!text-[0.98rem]" /> }]
       : []),
+    ...(product.dosageHtml
+      ? [{ title: dict.product.dosage, content: <RichText html={product.dosageHtml} locale={locale} className="!text-[0.98rem]" /> }]
+      : []),
     ...(product.hasSubscription
       ? [{ title: dict.product.subscriptionBenefits, content: <p>{dict.product.subscriptionBenefitsText}</p> }]
       : []),

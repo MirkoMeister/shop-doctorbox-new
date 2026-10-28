@@ -92,6 +92,8 @@ export type Product = ProductCard & {
   updatedAt: string;
   /** "Inhaltsstoffe Tab" metafield rendered as HTML (supplements) */
   ingredientsHtml: string | null;
+  /** "custom.einnahmeempfehlung" metafield rendered as HTML (supplements) */
+  dosageHtml: string | null;
 };
 
 export type Collection = {

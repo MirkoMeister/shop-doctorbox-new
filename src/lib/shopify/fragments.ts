@@ -95,6 +95,10 @@ export const PRODUCT_FRAGMENT = /* GraphQL */ `
       type
       value
     }
+    dosage: metafield(namespace: "custom", key: "einnahmeempfehlung") {
+      type
+      value
+    }
     updatedAt
     seo {
       title
