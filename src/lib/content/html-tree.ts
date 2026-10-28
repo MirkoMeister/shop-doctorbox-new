@@ -89,3 +89,42 @@ export function findAll(n: HNode, pred: (x: HNode) => boolean, out: HNode[] = []
   }
   return out;
 }
+
+const escText = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const escAttr = (s: string) => escText(s).replace(/"/g, "&quot;");
+
+/** Re-serialise a parsed tree: every element closed, so the browser's parser cannot restructure it */
+export function serialize(n: HChild): string {
+  if (!isNode(n)) return escText(n);
+  if (n.tag === "#root") return n.children.map(serialize).join("");
+  const attrs = Object.entries(n.attrs)
+    .map(([k, v]) => (v === "" ? ` ${k}` : ` ${k}="${escAttr(v)}"`))
+    .join("");
+  if (VOID.has(n.tag)) return `<${n.tag}${attrs}>`;
+  return `<${n.tag}${attrs}>${n.children.map(serialize).join("")}</${n.tag}>`;
+}
+
+/** Closes unbalanced tags and lifts block elements out of <p> (the browser would do both and break hydration) */
+export function normalizeHtml(html: string): string {
+  const root = parseHtml(html);
+  const BLOCK = new Set(["div", "ul", "ol", "table", "section", "article", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "figure", "pre", "hr"]);
+  const fix = (node: HNode): HChild[] => {
+    const out: HChild[] = [];
+    for (const c of node.children) {
+      if (!isNode(c)) { out.push(c); continue; }
+      c.children = fix(c);
+      if (c.tag === "p" && c.children.some((k) => isNode(k) && BLOCK.has(k.tag))) {
+        // split the paragraph around its block children
+        let inline: HChild[] = [];
+        const flush = () => { if (inline.some((k) => isNode(k) || k.trim())) out.push({ tag: "p", attrs: c.attrs, children: inline }); inline = []; };
+        for (const k of c.children) {
+          if (isNode(k) && BLOCK.has(k.tag)) { flush(); out.push(k); } else inline.push(k);
+        }
+        flush();
+      } else out.push(c);
+    }
+    return out;
+  };
+  root.children = fix(root);
+  return serialize(root);
+}

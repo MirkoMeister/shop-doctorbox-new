@@ -1,5 +1,6 @@
 import type { Locale } from "@/lib/i18n/config";
 import { localePrefix } from "@/lib/i18n/config";
+import { normalizeHtml } from "@/lib/content/html-tree";
 
 /**
  * Renders Shopify-authored HTML (descriptions, pages, articles, policies).
@@ -22,6 +23,6 @@ export function RichText({ html, locale, className = "" }: { html: string; local
     // keep internal links in the current language
     out = out.replace(/href="\/(products|collections|pages|policies|blogs|blog)(\/|")/g, `href="${prefix}/$1$2`);
   }
-  // legacy theme HTML is not always valid; the browser repairs it, so React must not compare innerHTML on hydration
-  return <div className={`prose-db ${className}`} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: out }} />;
+  // legacy theme HTML is not always valid: close tags and lift blocks out of <p> so the browser keeps the structure
+  return <div className={`prose-db ${className}`} dangerouslySetInnerHTML={{ __html: normalizeHtml(out) }} />;
 }
