@@ -53,7 +53,7 @@ export function PurchaseForm({
   const subPrice: Money | null = allocation?.priceAdjustments[0]?.price ?? null;
   const subCompare: Money | null = allocation?.priceAdjustments[0]?.compareAtPrice ?? null;
   const activePrice = mode === "subscription" && subPrice ? subPrice : variant.price;
-  const activeCompare = mode === "subscription" && subPrice ? subCompare : process.env.NEXT_PUBLIC_SHOW_COMPARE_PRICES !== "false" ? variant.compareAtPrice : null;
+  const activeCompare = mode === "subscription" && subPrice ? subCompare : process.env.NEXT_PUBLIC_SHOW_COMPARE_PRICES === "true" ? variant.compareAtPrice : null;
   const pct = plans[0]?.priceAdjustments[0]?.adjustmentValue;
   const savePct = pct && pct.__typename === "SellingPlanPercentagePriceAdjustment" ? Math.round(pct.adjustmentPercentage) : null;
   const pickup = variant.storeAvailability.find((s) => s.available);

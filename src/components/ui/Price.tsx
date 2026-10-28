@@ -2,7 +2,8 @@ import type { Locale } from "@/lib/i18n/config";
 import { formatMoney } from "@/lib/format";
 import type { Money } from "@/lib/shopify/types";
 
-const SHOW_COMPARE = process.env.NEXT_PUBLIC_SHOW_COMPARE_PRICES !== "false";
+// off by default: Shopify compare-at prices are shown only once the 30-day lowest price is documented (PAngV)
+const SHOW_COMPARE = process.env.NEXT_PUBLIC_SHOW_COMPARE_PRICES === "true";
 
 export function Price({
   price,
