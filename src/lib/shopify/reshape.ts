@@ -96,6 +96,8 @@ export function reshapeProductCard(raw: RawProductCard): ProductCard {
     title: decodeEntities(raw.title),
     availableForSale: raw.availableForSale,
     productType: raw.productType,
+    vendor: raw.vendor,
+    excerpt: raw.excerpt?.trim() || null,
     tags: raw.tags,
     createdAt: raw.createdAt,
     featuredImage: raw.featuredImage,
@@ -139,6 +141,12 @@ export function reshapeProduct(raw: RawProduct): Product {
 /** Italian catalogue is out of scope for this storefront */
 export const EXCLUDED_TAGS = ["IT"];
 export const EXCLUDED_COLLECTIONS = ["salute-sessuale"];
+
+/** Supplements (biomo, Youngle via Shopify Collective) are sold next to the tests but are no lab kits */
+export const SUPPLEMENT_TYPE = "Nahrungsergänzungsmittel";
+export function isSupplement(p: { productType: string }): boolean {
+  return p.productType === SUPPLEMENT_TYPE;
+}
 
 export function isVisibleProduct(p: { tags: string[] }): boolean {
   return !p.tags.some((t) => EXCLUDED_TAGS.includes(t));

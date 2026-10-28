@@ -60,6 +60,9 @@ export type ProductCard = {
   title: string;
   availableForSale: boolean;
   productType: string;
+  vendor: string;
+  /** First sentences of the description (cards of products without analysed values) */
+  excerpt: string | null;
   tags: string[];
   createdAt: string;
   featuredImage: Image | null;

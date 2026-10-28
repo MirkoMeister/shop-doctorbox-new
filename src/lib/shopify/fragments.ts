@@ -22,6 +22,8 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     title
     availableForSale
     productType
+    vendor
+    excerpt: description(truncateAt: 160)
     tags
     createdAt
     featuredImage {

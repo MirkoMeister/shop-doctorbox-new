@@ -465,33 +465,33 @@ export const COLLECTION_HEROES: Record<string, Record<Locale, CollectionHero>> =
   nahrungserganzungsmittel: {
     de: {
       kicker: "Nahrungsergänzungsmittel",
-      headline: "Vitamin D, [[passend zu deinem Wert]]",
-      lead: "Vitamin D3 von biomo als Kapseln, Tabletten oder Tropfen. Am sinnvollsten nach einem Test: So weißt du, ob und wie viel du wirklich brauchst.",
-      facts: ["Apothekenqualität von biomo", "Vegan erhältlich", "Tropfen mit anpassbarer Dosierung", "Passend zum Vitamin D Test"],
+      headline: "Ergänzen, [[was wirklich fehlt]]",
+      lead: "Vitamin D3 von biomo in Apothekenqualität und die Longevity-Formeln von Youngle: Omega-3, Kreatin, Spermidin, Q10 und mehr. Am sinnvollsten nach einem Test, damit du gezielt ergänzt statt auf Verdacht.",
+      facts: ["Entwickelt von Ärzten, laborgeprüft in Deutschland", "Vegan, ohne unnötige Zusätze", "Passend zu deinen Blutwerten", "Versand in neutraler Verpackung"],
       chat: {
-        title: "Mira, deine Vitamin-D-Beratung",
+        title: "Mira, deine Nährstoff-Beratung",
         greeting:
-          "Hi, ich bin Mira. Kennst du deinen Vitamin-D-Wert schon? Dann helfe ich dir bei der Wahl zwischen Kapseln, Tabletten und Tropfen. Falls nicht, zeige ich dir, wie du ihn mit einem Test erfährst.",
-        chips: ["Kapseln, Tabletten oder Tropfen?", "Ich kenne meinen Wert noch nicht", "Gibt es eine vegane Variante?", "Vitamin D im Winter"],
+          "Hi, ich bin Mira. Kennst du deine Werte schon? Dann helfe ich dir, das passende Präparat zu finden. Falls nicht, zeige ich dir zuerst den Test, der dir sagt, was dir wirklich fehlt.",
+        chips: ["Was bringt Omega-3?", "Ich kenne meine Werte noch nicht", "Welches Präparat für besseren Schlaf?", "Kreatin auch ohne Sport?"],
         placeholder: "Was möchtest du wissen?",
         topic:
-          "Kategorie Nahrungsergänzungsmittel: Vitamin D3 von biomo (Kapseln vegan, Tabletten 60/120, Tropfen). Erkläre Darreichungsformen und den Sinn einer Messung vor der Einnahme (Vitamin D Test). Gib keine konkreten Dosierungsempfehlungen und keine Diagnosen; Dosierung bei Mangel ärztlich abstimmen. Bei Fragen zu anderen Nährstoffen auf die passenden Tests verweisen. " +
+          "Kategorie Nahrungsergänzungsmittel: Vitamin D3 von biomo (Kapseln vegan, Tabletten 60/120, Tropfen) und das Youngle-Sortiment (Omega-3, Glycin & NAC, Essentials+, Sleep+, Focus+, Recovery+, Mobility+, Metabolism+, Immunity+, Men+, Fem+, Trimethylglycin, Taurin, Apigenin, Hyaluron, Sulforaphan, Kreatin, Ubiquinol Q10, Berberin, Spermidin, AKG). Erkläre, wofür ein Präparat gedacht ist, und empfiehl vor der Einnahme die Messung der passenden Werte (z. B. Omega-3-Index, Vitamin D, Ferritin). Gib keine konkreten Dosierungsempfehlungen und keine Diagnosen; bei Medikamenten, Schwangerschaft oder Vorerkrankungen ärztlich abstimmen. " +
           GUARD.de,
       },
     },
     en: {
       kicker: "Supplements",
-      headline: "Vitamin D, [[matched to your value]]",
-      lead: "Vitamin D3 by biomo as capsules, tablets or drops. Best after a test, so you know whether and how much you really need.",
-      facts: ["Pharmacy quality by biomo", "Vegan option available", "Drops with adjustable dosing", "Pairs with the vitamin D test"],
+      headline: "Supplement [[what is really missing]]",
+      lead: "Vitamin D3 by biomo in pharmacy quality and the longevity formulas by Youngle: omega-3, creatine, spermidine, Q10 and more. Best after a test, so you supplement on purpose instead of on suspicion.",
+      facts: ["Developed by physicians, lab-tested in Germany", "Vegan, no unnecessary additives", "Matched to your blood values", "Shipped in neutral packaging"],
       chat: {
-        title: "Mira, your vitamin D advisor",
+        title: "Mira, your nutrient advisor",
         greeting:
-          "Hi, I'm Mira. Do you already know your vitamin D level? Then I'll help you choose between capsules, tablets and drops. If not, I'll show you how to find out with a test.",
-        chips: ["Capsules, tablets or drops?", "I don't know my level yet", "Is there a vegan option?", "Vitamin D in winter"],
+          "Hi, I'm Mira. Do you already know your values? Then I'll help you find the right supplement. If not, I'll first show you the test that tells you what you are really missing.",
+        chips: ["What does omega-3 do?", "I don't know my values yet", "Which supplement for better sleep?", "Creatine without sport?"],
         placeholder: "What would you like to know?",
         topic:
-          "Category supplements: vitamin D3 by biomo (vegan capsules, tablets 60/120, drops). Explain the forms and why measuring before supplementing makes sense (vitamin D test). Give no specific dosage recommendations and no diagnoses; dosing for a deficiency should be agreed with a doctor. For other nutrients point to the matching tests. " +
+          "Category supplements: vitamin D3 by biomo (vegan capsules, tablets 60/120, drops) and the Youngle range (omega-3, glycine & NAC, Essentials+, Sleep+, Focus+, Recovery+, Mobility+, Metabolism+, Immunity+, Men+, Fem+, trimethylglycine, taurine, apigenin, hyaluron, sulforaphane, creatine, ubiquinol Q10, berberine, spermidine, AKG). Explain what a supplement is meant for and recommend measuring the matching values before taking it (e.g. omega-3 index, vitamin D, ferritin). Give no specific dosage recommendations and no diagnoses; with medication, pregnancy or conditions consult a doctor. " +
           GUARD.en,
       },
     },

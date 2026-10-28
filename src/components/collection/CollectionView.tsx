@@ -10,6 +10,7 @@ import { CompareTable } from "@/components/collection/CompareTable";
 import { StickyMiraCta } from "@/components/collection/StickyMiraCta";
 import { StiDiscreet, StiFaq, StiSituations, StiWindows } from "@/components/collection/StiLanding";
 import { STI_COLLECTION, stiCopy } from "@/content/sti-landing";
+import { isSupplement } from "@/lib/shopify/reshape";
 import { miraDemo } from "@/content/mira-demo";
 import { FilterBar } from "@/components/collection/FilterBar";
 import { RichText } from "@/components/content/RichText";
@@ -81,6 +82,7 @@ export function CollectionView({
   const href = (p: string) => localeHref(locale, p);
   const hero = collectionHero(handle, locale);
   const sti = handle === STI_COLLECTION ? stiCopy(locale) : null;
+  const supplements = products.length > 0 && products.every(isSupplement);
   const heroImage =
     handle &&
     existsSync(
@@ -130,7 +132,7 @@ export function CollectionView({
 
         {hero ? (
           <header className="mb-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-end">
-            <h2 className="h2">{dict.collection.allIn}</h2>
+            <h2 className="h2">{supplements ? dict.collection.allProductsIn : dict.collection.allIn}</h2>
             <div>
               <p className="mb-2 text-sm font-medium text-ink">
                 {dict.collection.searchHint}
@@ -227,7 +229,22 @@ export function CollectionView({
           </>
         )}
 
-        {/* Unsure? */}
+        {/* Unsure? Supplements: measure first, then supplement */}
+        {supplements ? (
+          <section className="mt-16 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-10">
+            <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+              <div>
+                <h2 className="h3">
+                  <Highlight text={dict.collection.supplementsTitle} />
+                </h2>
+                <p className="mt-2 max-w-xl text-moss/80">{dict.collection.supplementsText}</p>
+              </div>
+              <Link href={href("/collections/nahrstoffe-vitamine")} className="btn btn-primary">
+                {dict.collection.supplementsCta} <ArrowRight width={16} height={16} />
+              </Link>
+            </div>
+          </section>
+        ) : (
         <section className="mt-16 rounded-[var(--radius-panel)] bg-lind p-6 text-moss sm:p-10">
           <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
             <div>
@@ -268,6 +285,7 @@ export function CollectionView({
             </div>
           </div>
         </section>
+        )}
 
         {/* Explanation (SEO text from Shopify) + FAQ, after the products */}
         <div className="mt-16 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -286,7 +304,7 @@ export function CollectionView({
               <Highlight text={dict.product.faqTitle} />
             </h2>
             <Accordion
-              items={dict.collection.faq.map((f) => ({
+              items={(supplements ? dict.collection.supplementsFaq : dict.collection.faq).map((f) => ({
                 title: f.q,
                 content: <p>{f.a}</p>,
               }))}

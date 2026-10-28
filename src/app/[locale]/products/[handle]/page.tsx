@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HowItWorks } from "@/components/home/Sections";
 import { BiomarkerInfo } from "@/components/product/BiomarkerInfo";
@@ -14,10 +15,11 @@ import { CheckIcon, DropIcon } from "@/components/ui/Icons";
 import { Rating } from "@/components/ui/Rating";
 import { Highlight } from "@/components/ui/Highlight";
 import { absoluteUrl, localeHref } from "@/lib/i18n/config";
+import { fill } from "@/lib/i18n/dictionaries";
 import { resolveLocale } from "@/lib/locale-params";
 import { breadcrumbJsonLd, faqJsonLd, JsonLd, pageMetadata, productJsonLd } from "@/lib/seo";
-import { sampleMaterials } from "@/lib/shopify/reshape";
-import { getAllProducts, getProduct, getProductRecommendations } from "@/lib/shopify/queries";
+import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
+import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
 import { stripHtml, truncate } from "@/lib/format";
 
 export const revalidate = 300;
@@ -52,9 +54,16 @@ export default async function ProductPage({ params }: Props) {
   const handle = decodeURIComponent(p.handle);
   const product = await getProduct(handle, locale);
   if (!product) notFound();
-  const related = await getProductRecommendations(product.id, locale);
+  const supplement = isSupplement(product);
+  // Shopify's recommendations are tests; supplements relate to the other supplements
+  const supplementsCollection = supplement ? await getCollection(SUPPLEMENTS_COLLECTION, locale).catch(() => null) : null;
+  const related = supplement
+    ? (supplementsCollection?.products ?? []).filter((p) => p.id !== product.id && p.availableForSale).slice(0, 4)
+    : await getProductRecommendations(product.id, locale);
 
-  const primaryCollection = product.collections.find((c) => !["produkte", "home-page", "kapillarblut", "unsere-top-picks", "vorsorge-kampagne"].includes(c.handle));
+  const primaryCollection =
+    product.collections.find((c) => !["produkte", "home-page", "kapillarblut", "unsere-top-picks", "vorsorge-kampagne"].includes(c.handle)) ??
+    (supplementsCollection ? { handle: supplementsCollection.handle, title: supplementsCollection.title } : undefined);
   // "STI Basic Heimtest - Geschlechtskrankheiten-Test" → main title + quiet subtitle (same h1 text for SEO)
   const titleParts = (() => {
     const mm = product.title.match(/^(.*?)\s+[-–|]\s+(.+)$/);
@@ -86,8 +95,10 @@ export default async function ProductPage({ params }: Props) {
     ...(product.hasSubscription
       ? [{ title: dict.product.subscriptionBenefits, content: <p>{dict.product.subscriptionBenefitsText}</p> }]
       : []),
-    { title: dict.product.inTheBox, content: <p>{dict.product.inTheBoxText}</p> },
+    ...(supplement ? [] : [{ title: dict.product.inTheBox, content: <p>{dict.product.inTheBoxText}</p> }]),
   ];
+  // supplements relate to supplements, tests to tests
+  const relatedShown = related.filter((p) => isSupplement(p) === supplement);
 
   return (
     <>
@@ -108,6 +119,9 @@ export default async function ProductPage({ params }: Props) {
             {titleParts.main}
             {titleParts.sub && <span className="mt-1.5 block text-base font-medium tracking-normal text-ink-muted">{titleParts.sub}</span>}
           </h1>
+          {supplement && product.vendor && (
+            <p className="mt-2 text-sm font-medium text-green">{fill(dict.product.by, { vendor: product.vendor.replace(/\s+GmbH$/i, "") })}</p>
+          )}
           <div className="mt-3">
             <Rating value={product.rating} count={product.ratingCount} dict={dict} />
           </div>
@@ -149,36 +163,54 @@ export default async function ProductPage({ params }: Props) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mt-12 max-w-4xl [&_.prose-db]:max-w-none">
           <Accordion items={accordion} />
-          <p className="mt-4 text-xs text-ink-muted">{dict.product.medicalNote}</p>
+          <p className="mt-4 text-xs text-ink-muted">{supplement ? dict.product.supplementNote : dict.product.medicalNote}</p>
         </div>
       </div>
 
       {infoItems.length > 0 && <BiomarkerInfo items={infoItems} topic={topic} />}
 
-      <section className="mt-20 bg-surface py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="h2 mb-8">
-            <Highlight text={dict.home.howTitle} />
-          </h2>
-        </div>
-        <HowItWorks dict={dict} compact />
-      </section>
+      {supplement ? (
+        <section className="mt-20 bg-lind py-14 text-moss">
+          <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center lg:px-8">
+            <div>
+              <h2 className="h2">
+                <Highlight text={dict.collection.supplementsTitle} />
+              </h2>
+              <p className="mt-2 max-w-xl text-moss/80">{dict.collection.supplementsText}</p>
+            </div>
+            <Link href={localeHref(locale, "/collections/nahrstoffe-vitamine")} className="btn btn-primary">
+              {dict.collection.supplementsCta}
+            </Link>
+          </div>
+        </section>
+      ) : (
+        <section className="mt-20 bg-surface py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="h2 mb-8">
+              <Highlight text={dict.home.howTitle} />
+            </h2>
+          </div>
+          <HowItWorks dict={dict} compact />
+        </section>
+      )}
 
-      {related.length > 0 && (
+      {relatedShown.length > 0 && (
         <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="h2 mb-8">
             <Highlight text={dict.product.related} />
           </h2>
-          <ProductGrid products={related} locale={locale} dict={dict} />
+          <ProductGrid products={relatedShown} locale={locale} dict={dict} />
         </section>
       )}
 
-      <section className="mx-auto mt-20 max-w-3xl px-4 sm:px-6 lg:px-8">
-        <h2 className="h2 mb-6">
-          <Highlight text={dict.product.faqTitle} />
-        </h2>
-        <Accordion items={dict.product.faq.map((f) => ({ title: f.q, content: <p>{f.a}</p> }))} />
-      </section>
+      {!supplement && (
+        <section className="mx-auto mt-20 max-w-3xl px-4 sm:px-6 lg:px-8">
+          <h2 className="h2 mb-6">
+            <Highlight text={dict.product.faqTitle} />
+          </h2>
+          <Accordion items={dict.product.faq.map((f) => ({ title: f.q, content: <p>{f.a}</p> }))} />
+        </section>
+      )}
     </>
   );
 }

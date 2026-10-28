@@ -10,6 +10,7 @@ import {
   parseBiomarkers,
   reshapeProduct,
   reshapeProductCard,
+  SUPPLEMENT_TYPE,
   type RawProduct,
   type RawProductCard,
 } from "./reshape";
@@ -194,8 +195,18 @@ export async function getCollection(
   });
   if (!data.collection) return null;
   const { products, ...rest } = data.collection;
-  return { ...rest, title: cleanTitle(rest.title), products: nodes(products).filter(isVisibleProduct).map(reshapeProductCard) };
+  let cards = nodes(products).filter(isVisibleProduct).map(reshapeProductCard);
+  // Supplements arrive via Shopify Collective and are not always assigned to the collection:
+  // every product of that type belongs here.
+  if (handle === SUPPLEMENTS_COLLECTION) {
+    const all = await getAllProducts(locale, { sort, query: `product_type:"${SUPPLEMENT_TYPE}"` });
+    const seen = new Set(cards.map((p) => p.id));
+    cards = [...cards, ...all.filter((p) => !seen.has(p.id))];
+  }
+  return { ...rest, title: cleanTitle(rest.title), products: cards };
 }
+
+export const SUPPLEMENTS_COLLECTION = "nahrungserganzungsmittel";
 
 const COLLECTIONS_QUERY = /* GraphQL */ `
   query Collections(${CTX_VARS}) ${CTX} {

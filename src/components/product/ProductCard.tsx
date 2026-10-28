@@ -5,7 +5,7 @@ import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney, shopifyImage } from "@/lib/format";
-import { sampleMaterials } from "@/lib/shopify/reshape";
+import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import type { ProductCard as ProductCardType } from "@/lib/shopify/types";
 import { Price } from "@/components/ui/Price";
 import { Rating } from "@/components/ui/Rating";
@@ -88,7 +88,14 @@ export function ProductCard({
         </h3>
         <Rating value={product.rating} count={product.ratingCount} dict={dict} compact />
 
-        {product.targetGroup && <p className="mt-1 line-clamp-2 text-sm leading-snug text-ink-muted">{product.targetGroup}</p>}
+        {isSupplement(product) ? (
+          <>
+            {product.vendor && <p className="text-xs font-medium uppercase tracking-[0.12em] text-green">{product.vendor.replace(/\s+GmbH$/i, "")}</p>}
+            {product.excerpt && <p className="mt-1 line-clamp-3 text-sm leading-snug text-ink-muted">{product.excerpt}</p>}
+          </>
+        ) : (
+          product.targetGroup && <p className="mt-1 line-clamp-2 text-sm leading-snug text-ink-muted">{product.targetGroup}</p>
+        )}
         {product.biomarkers.length > 0 && <BiomarkerChips values={product.biomarkers} max={3} size="sm" className="relative z-10 mt-2.5" />}
 
         <div className="mt-auto flex items-end justify-between gap-3 pt-3">
