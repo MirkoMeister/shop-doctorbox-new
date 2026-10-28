@@ -9,6 +9,8 @@ import { formatMoney } from "@/lib/format";
 import type { Money, Product, Variant } from "@/lib/shopify/types";
 import { CheckIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
 import { TassoNote } from "@/components/product/TassoNote";
+import { isYoungle } from "@/components/supplements/SupplementTrust";
+import { youngleShipping } from "@/content/youngle-shipping";
 import { unitPriceOf, type UnitPrice } from "@/lib/unit-price";
 
 type Mode = "once" | "subscription";
@@ -57,6 +59,7 @@ export function PurchaseForm({
   const pct = plans[0]?.priceAdjustments[0]?.adjustmentValue;
   const savePct = pct && pct.__typename === "SellingPlanPercentagePriceAdjustment" ? Math.round(pct.adjustmentPercentage) : null;
   const pickup = variant.storeAvailability.find((s) => s.available);
+  const youngle = isYoungle(product.vendor);
   const unit = unitPriceOf(variant.title, activePrice);
   const unitLabel = (u: UnitPrice) =>
     u.unit === "per100" ? fill(dict.product.unitPer100, { unit: u.measure ?? "g" }) : dict.product[u.unit === "capsule" ? "unitCapsule" : u.unit === "tablet" ? "unitTablet" : "unitPiece"];
@@ -261,13 +264,13 @@ export function PurchaseForm({
         </button>
       </div>
 
-      {/* Delivery & pickup */}
+      {/* Delivery & pickup (Youngle ships its products itself, no pickup) */}
       <ul className="space-y-2 text-sm text-ink-muted">
         <li className="flex items-start gap-2.5">
           <TruckIcon width={18} height={18} className="mt-0.5 shrink-0 text-green" />
-          <span>{dict.product.shippingHint}</span>
+          <span>{youngle ? youngleShipping(locale).short : dict.product.shippingHint}</span>
         </li>
-        {pickup && (
+        {pickup && !youngle && (
           <li className="flex items-start gap-2.5">
             <PinIcon width={18} height={18} className="mt-0.5 shrink-0 text-green" />
             <span>

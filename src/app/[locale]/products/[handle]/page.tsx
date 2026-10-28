@@ -22,6 +22,7 @@ import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import { isYoungle, SupplementTrust } from "@/components/supplements/SupplementTrust";
 import { SupplementDetails } from "@/components/supplements/SupplementDetails";
 import { youngleContent } from "@/content/youngle-content";
+import { youngleShipping } from "@/content/youngle-shipping";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
 import { ProductReviews } from "@/components/reviews/ProductReviews";
 import { getProductReviews, summarize } from "@/lib/reviews/etrusted";
@@ -114,6 +115,20 @@ export default async function ProductPage({ params }: Props) {
       ? [{ title: dict.product.subscriptionBenefits, content: <p>{dict.product.subscriptionBenefitsText}</p> }]
       : []),
     ...(supplement ? [] : [{ title: dict.product.inTheBox, content: <p>{dict.product.inTheBoxText}</p> }]),
+    ...(supplement && isYoungle(product.vendor)
+      ? [
+          {
+            title: youngleShipping(locale).title,
+            content: (
+              <ul className="list-disc space-y-1.5 pl-5">
+                {youngleShipping(locale).points.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
   ];
   // supplements relate to supplements, tests to tests
   const relatedShown = related.filter((p) => isSupplement(p) === supplement);

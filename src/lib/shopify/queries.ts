@@ -757,6 +757,21 @@ const CART_LINES_UPDATE = /* GraphQL */ `
   ${CART_FRAGMENT}
 `;
 
+const CART_DISCOUNT_CODES_UPDATE = /* GraphQL */ `
+  mutation CartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!], ${CTX_VARS}) ${CTX} {
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+      cart {
+        ...CartFields
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+  ${CART_FRAGMENT}
+`;
+
 const CART_LINES_REMOVE = /* GraphQL */ `
   mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!]!, ${CTX_VARS}) ${CTX} {
     cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
@@ -810,6 +825,16 @@ export async function updateCartLines(
     cache: "no-store",
   });
   return unwrap(data.cartLinesUpdate);
+}
+
+/** Replaces the discount codes on the cart (empty array removes them). */
+export async function updateCartDiscountCodes(cartId: string, discountCodes: string[], locale: Locale): Promise<Cart> {
+  const data = await shopifyFetch<{ cartDiscountCodesUpdate: CartMutation }>(CART_DISCOUNT_CODES_UPDATE, {
+    variables: { cartId, discountCodes },
+    locale,
+    cache: "no-store",
+  });
+  return unwrap(data.cartDiscountCodesUpdate);
 }
 
 export async function removeCartLines(cartId: string, lineIds: string[], locale: Locale): Promise<Cart> {

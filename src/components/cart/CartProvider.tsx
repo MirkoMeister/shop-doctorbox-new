@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useTransition } from "react";
 import type { Locale } from "@/lib/i18n/config";
-import { addToCart, getCart, removeLine, updateLine } from "@/lib/cart/actions";
+import { addToCart, getCart, removeLine, setDiscountCode, updateLine } from "@/lib/cart/actions";
 import type { Cart } from "@/lib/shopify/types";
 import type { CartLineInput } from "@/lib/shopify/queries";
 
@@ -15,6 +15,8 @@ type CartContextValue = {
   add: (line: CartLineInput) => Promise<boolean>;
   update: (lineId: string, quantity: number) => Promise<void>;
   remove: (lineId: string) => Promise<void>;
+  /** resolves to true when Shopify accepted the code; null removes the code */
+  applyDiscount: (code: string | null) => Promise<boolean>;
   error: string | null;
 };
 
@@ -82,9 +84,26 @@ export function CartProvider({ locale, children }: { locale: Locale; children: R
     [locale],
   );
 
+  const applyDiscount = useCallback(
+    (code: string | null) =>
+      new Promise<boolean>((resolve) => {
+        startTransition(async () => {
+          const res = await setDiscountCode(code, locale);
+          if (res.cart) {
+            setCart(res.cart);
+            resolve(!code || res.cart.discountCodes.some((d) => d.applicable && d.code.toUpperCase() === code.trim().toUpperCase()));
+          } else {
+            if (res.error) setError(res.error);
+            resolve(false);
+          }
+        });
+      }),
+    [locale],
+  );
+
   const value = useMemo(
-    () => ({ cart, loading, pending, open, setOpen, add, update, remove, error }),
-    [cart, loading, pending, open, add, update, remove, error],
+    () => ({ cart, loading, pending, open, setOpen, add, update, remove, applyDiscount, error }),
+    [cart, loading, pending, open, add, update, remove, applyDiscount, error],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

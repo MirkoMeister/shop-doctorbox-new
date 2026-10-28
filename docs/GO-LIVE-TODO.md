@@ -31,6 +31,8 @@ Shopify betreibt UCP-Profil, MCP-Server und Katalog selbst. Der Headless-Shop re
 - [ ] **Youngle:** Metafelder für die 20 restlichen Produkte aus `docs/youngle-produktangaben.xlsx` füllen (AKG ist befüllt).
 - [ ] **Youngle-Texte prüfen (Health Claims):** Die Produktseiten zeigen seit 28.10. die Herstellertexte von youngle.com (Produktvorteile erklärt, „Was kannst du erwarten?“, Wirkstoffe im Detail; Quelle `src/content/youngle-content.json`, lesbar in `docs/youngle-weiterfuehrende-inhalte.csv` und im Tabellenblatt „Weiterführende Inhalte“). Aussagen wie „unterstützt Herzgesundheit“ sind gesundheitsbezogene Angaben nach Health-Claims-Verordnung; mit Youngle klären, welche zugelassen sind, sonst Einträge in der JSON kürzen. Detailliste je Produkt: `docs/youngle-health-claims.md`.
 - [ ] **Apotheken:** Liste vom CEO in `src/content/pharmacies.json` eintragen.
+- [ ] **Youngle-Versandtext bestätigen:** Produktseiten und Warenkorb sagen seit 28.10.: Versand direkt von Youngle in eigenem Paket, 1 bis 2 Werktage, keine Abholung in Berlin, Rückgabe 14 Tage ungeöffnet (`src/content/youngle-shipping.ts`). Mit Ops/Youngle abgleichen (Versandkosten für Collective-Artikel, Rücksendeadresse, Freigrenze).
+- [ ] **Rabattcodes im Warenkorb:** Der Warenkorb kann Codes direkt anwenden (Shopify `cartDiscountCodesUpdate`). Solange `HALLOWEEN26` in Shopify nicht angelegt ist, meldet die Seite „Code nicht gültig“.
 - [ ] **Tasso-Wortlaut** „komplett schmerzfrei“ medizinisch/rechtlich freigeben (Hersteller sagt „nahezu schmerzfrei“).
 - [ ] **Mira-Texte** zu STI-Zeitfenstern und Supplements medizinisch gegenlesen.
 - [ ] Blogartikel ohne Auszug/SEO-Beschreibung in Shopify nachpflegen (Liste aus der Sitzung vom 20.10.).

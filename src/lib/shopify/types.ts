@@ -159,7 +159,7 @@ export type CartLine = {
     requiresShipping: boolean;
     selectedOptions: { name: string; value: string }[];
     image: Image | null;
-    product: { handle: string; title: string; featuredImage: Image | null; biomarkers: string[]; sampleMaterial: string | null };
+    product: { handle: string; title: string; vendor: string; productType: string; featuredImage: Image | null; biomarkers: string[]; sampleMaterial: string | null };
   };
 };
 
@@ -167,6 +167,8 @@ export type Cart = {
   id: string;
   checkoutUrl: string;
   totalQuantity: number;
+  /** codes on the cart; `applicable` false means Shopify rejected it */
+  discountCodes: { code: string; applicable: boolean }[];
   cost: {
     subtotalAmount: Money;
     totalAmount: Money;

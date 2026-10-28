@@ -242,6 +242,10 @@ export const CART_FRAGMENT = /* GraphQL */ `
     id
     checkoutUrl
     totalQuantity
+    discountCodes {
+      code
+      applicable
+    }
     cost {
       subtotalAmount {
         ...MoneyFields
@@ -284,6 +288,8 @@ export const CART_FRAGMENT = /* GraphQL */ `
               product {
                 handle
                 title
+                vendor
+                productType
                 featuredImage {
                   ...ImageFields
                 }

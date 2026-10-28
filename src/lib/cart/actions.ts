@@ -7,6 +7,7 @@ import {
   createCart,
   fetchCart,
   removeCartLines,
+  updateCartDiscountCodes,
   updateCartLines,
   type CartLineInput,
 } from "@/lib/shopify/queries";
@@ -79,4 +80,16 @@ export async function updateLine(lineId: string, quantity: number, locale: Local
 
 export async function removeLine(lineId: string, locale: Locale): Promise<CartActionResult> {
   return updateLine(lineId, 0, locale);
+}
+
+/** Applies one discount code (or none) to the cart. */
+export async function setDiscountCode(code: string | null, locale: Locale): Promise<CartActionResult> {
+  const id = await readCartId();
+  if (!id) return { cart: null };
+  try {
+    const cart = await updateCartDiscountCodes(id, code ? [code.trim().toUpperCase()] : [], locale);
+    return { cart };
+  } catch (e) {
+    return { cart: null, error: e instanceof Error ? e.message : "Unknown error" };
+  }
 }
