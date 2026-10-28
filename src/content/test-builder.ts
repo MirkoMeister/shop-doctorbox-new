@@ -78,7 +78,7 @@ const de: BuilderCopy = {
   mailIntro: "Gewünschte Werte",
   steps: [
     { title: "Werte wählen", text: "Tippe die Werte an, die du messen möchtest. Suche hilft bei konkreten Namen." },
-    { title: "Abdeckung prüfen", text: "Rechts siehst du sofort, welcher bestehende Test deine Auswahl heute abdeckt." },
+    { title: "Abdeckung prüfen", text: "Du siehst sofort, welcher bestehende Test deine Auswahl heute abdeckt." },
     { title: "Set anfragen", text: "Fehlt etwas, fragst du dein individuelles Panel an. Wir melden uns mit Preis und Material." },
   ],
 };
@@ -121,7 +121,7 @@ const en: BuilderCopy = {
   mailIntro: "Requested values",
   steps: [
     { title: "Pick values", text: "Tap the values you want measured. Search helps with specific names." },
-    { title: "Check coverage", text: "On the right you see instantly which existing test covers your selection today." },
+    { title: "Check coverage", text: "You see instantly which existing test covers your selection today." },
     { title: "Request a kit", text: "If something is missing, request your individual panel. We get back to you with price and material." },
   ],
 };
