@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useChat, type Turn } from "./useChat";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -21,9 +21,13 @@ type Ctx = {
   reset: () => void;
   topic: string | null;
   setTopic: (value: string | null) => void;
-  /** Open the panel and send a question (optionally with a page context) */
+  /** Open the panel and send a question (optionally with a page context); waits for consent first */
   ask: (q: string, topic?: string) => void;
+  /** null until the stored choice is read, then whether the visitor agreed to the AI processing */
+  consent: boolean | null;
+  giveConsent: () => void;
 };
+const CONSENT_KEY = "mira-consent";
 const AssistantContext = createContext<Ctx | null>(null);
 
 export function AssistantProvider({ locale, dict, children }: { locale: Locale; dict: Dictionary; children: React.ReactNode }) {
@@ -31,14 +35,44 @@ export function AssistantProvider({ locale, dict, children }: { locale: Locale; 
   const [pageContext, setPageContext] = useState<PageContext | null>(null);
   const chat = useChat({ locale, dict });
   const { send } = chat;
+  const [consent, setConsent] = useState<boolean | null>(null);
+  // a question asked before consent, sent right after the visitor agrees
+  const pending = useRef<{ q: string; topic?: string } | null>(null);
+
+  useEffect(() => {
+    // deferred: read the stored choice once the client is up, not during hydration
+    const id = requestAnimationFrame(() => {
+      try {
+        setConsent(localStorage.getItem(CONSENT_KEY) === "1");
+      } catch {
+        setConsent(false);
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const giveConsent = useCallback(() => {
+    setConsent(true);
+    try {
+      localStorage.setItem(CONSENT_KEY, "1");
+      localStorage.setItem(`${CONSENT_KEY}-at`, new Date().toISOString());
+    } catch {
+      /* private mode: consent holds for this page view */
+    }
+    const p = pending.current;
+    pending.current = null;
+    if (p) void send(p.q, p.topic);
+  }, [send]);
+
   const ask = useCallback(
     (q: string, topic?: string) => {
       setOpen(true);
-      void send(q, topic);
+      if (consent) void send(q, topic);
+      else pending.current = { q, topic };
     },
-    [send],
+    [consent, send],
   );
-  const value = useMemo(() => ({ open, setOpen, pageContext, setPageContext, ...chat, ask }), [open, pageContext, chat, ask]);
+  const value = useMemo(() => ({ open, setOpen, pageContext, setPageContext, ...chat, ask, consent, giveConsent }), [open, pageContext, chat, ask, consent, giveConsent]);
   return <AssistantContext.Provider value={value}>{children}</AssistantContext.Provider>;
 }
 

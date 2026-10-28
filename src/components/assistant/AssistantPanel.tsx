@@ -3,16 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useAssistant } from "./AssistantProvider";
 import { Thread } from "./Thread";
-import type { Locale } from "@/lib/i18n/config";
+import { localeHref, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import { CloseIcon } from "@/components/ui/Icons";
+import { CheckIcon, CloseIcon } from "@/components/ui/Icons";
 import { MiraAvatar } from "./MiraAvatar";
 
 /**
  * Side panel for Mira. Streams from /api/assistant via useChat; state lives in the tab only.
  */
 export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; dict: Dictionary; suggestions: string[] }) {
-  const { open, setOpen, turns, busy, unavailable, send, pageContext } = useAssistant();
+  const { open, setOpen, turns, busy, unavailable, send, pageContext, consent, giveConsent } = useAssistant();
   const welcome = pageContext?.greeting ?? dict.assistant.welcome;
   const starters = pageContext?.suggestions ?? suggestions;
   const asked = new Set(turns.filter((x) => x.role === "user").map((x) => x.text));
@@ -81,7 +81,10 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
         </header>
 
         <div ref={listRef} className="flex-1 overflow-y-auto px-5 py-5">
-          {turns.length === 0 && (
+          {consent === false && (
+            <ConsentCard locale={locale} dict={dict} onAccept={giveConsent} onDecline={() => setOpen(false)} />
+          )}
+          {consent && turns.length === 0 && (
             <div className="mb-4">
               <p className="rounded-2xl rounded-tl-md bg-surface px-4 py-3 text-[0.95rem] leading-relaxed">{welcome}</p>
               <p className="mt-5 text-xs font-medium uppercase tracking-[0.18em] text-ink-muted">{t.suggestions}</p>
@@ -96,8 +99,8 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
               </ul>
             </div>
           )}
-          <Thread turns={turns} locale={locale} dict={dict} onNavigate={() => setOpen(false)} />
-          {turns.length > 0 && !busy && remaining.length > 0 && (
+          {consent && <Thread turns={turns} locale={locale} dict={dict} onNavigate={() => setOpen(false)} />}
+          {consent && turns.length > 0 && !busy && remaining.length > 0 && (
             <ul className="mt-4 flex flex-wrap justify-end gap-2">
               {remaining.map((s) => (
                 <li key={s}>
@@ -110,6 +113,7 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
           )}
         </div>
 
+        {consent && (
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -140,7 +144,41 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
           </div>
           <p className="mt-2 text-[0.7rem] leading-snug text-ink-muted">{t.disclaimer}</p>
         </form>
+        )}
       </div>
+    </div>
+  );
+}
+
+/** One-time, informed opt-in before the first message: what Mira does, where the text goes, what is not stored */
+function ConsentCard({ locale, dict, onAccept, onDecline }: { locale: Locale; dict: Dictionary; onAccept: () => void; onDecline: () => void }) {
+  const c = dict.assistant.consent;
+  return (
+    <div className="rounded-[var(--radius-card)] bg-soft p-5">
+      <p className="font-semibold text-moss">{c.title}</p>
+      <ul className="mt-3 grid gap-2 text-[0.95rem] leading-relaxed text-ink/85">
+        {c.points.map((p) => (
+          <li key={p} className="flex gap-2.5">
+            <CheckIcon width={16} height={16} className="mt-1 shrink-0 text-green" />
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-xs leading-snug text-ink-muted">
+        {c.privacyText}{" "}
+        <a href={localeHref(locale, "/policies/privacy-policy")} className="underline underline-offset-2 hover:text-green" target="_blank" rel="noopener">
+          {c.privacyLink}
+        </a>
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button type="button" onClick={onAccept} className="btn btn-primary">
+          {c.accept}
+        </button>
+        <button type="button" onClick={onDecline} className="btn btn-tertiary">
+          {c.decline}
+        </button>
+      </div>
+      <p className="mt-3 text-xs leading-snug text-ink-muted">{c.alternative}</p>
     </div>
   );
 }
