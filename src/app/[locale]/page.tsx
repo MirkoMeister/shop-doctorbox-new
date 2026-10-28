@@ -58,11 +58,26 @@ export default async function HomePage({ params }: Props) {
 
   // "Most ordered": the curated top picks, ordered by how many customers reviewed them (our best
   // proxy for orders), filled up to two full rows with the most-reviewed other tests
+  // The two all-round checks always belong in; STI tests are capped at two so the row shows the breadth of the range
   const curatedIds = new Set((topPicks?.products ?? []).map((p) => p.id));
-  const picks = allProducts
-    .filter((p) => p.availableForSale && p.biomarkers.length > 0 && (curatedIds.has(p.id) || p.ratingCount > 0))
-    .sort((a, b) => b.ratingCount - a.ratingCount || Number(curatedIds.has(b.id)) - Number(curatedIds.has(a.id)))
-    .slice(0, 8);
+  const PINNED = ["rundum-check-fur-frauen", "rundum-check-fur-manner"];
+  const EXCLUDED = ["darmkrebsvorsorge"]; // editorial choice (CEO)
+  const isSti = (p: (typeof allProducts)[number]) => /^STI\b/i.test(p.title);
+  const ranked = allProducts
+    .filter((p) => p.availableForSale && p.biomarkers.length > 0 && (curatedIds.has(p.id) || p.ratingCount > 0) && !PINNED.includes(p.handle) && !EXCLUDED.includes(p.handle))
+    .sort((a, b) => b.ratingCount - a.ratingCount || Number(curatedIds.has(b.id)) - Number(curatedIds.has(a.id)));
+  const pinned = PINNED.map((h) => allProducts.find((p) => p.handle === h)).filter((p): p is (typeof allProducts)[number] => Boolean(p));
+  const picks: typeof allProducts = [];
+  let sti = 0;
+  for (const p of ranked) {
+    if (picks.length >= 8 - pinned.length) break;
+    if (isSti(p)) {
+      if (sti >= 2) continue;
+      sti++;
+    }
+    picks.push(p);
+  }
+  picks.splice(2, 0, ...pinned); // all-round checks right after the two strongest sellers
   const tassoProducts = ["rundum-check-fur-frauen", "rundum-check-fur-manner"]
     .map((h) => allProducts.find((p) => p.handle === h))
     .filter((p): p is (typeof allProducts)[number] => Boolean(p));
