@@ -464,7 +464,7 @@ export const COLLECTION_HEROES: Record<string, Record<Locale, CollectionHero>> =
 
   nahrungserganzungsmittel: {
     de: {
-      kicker: "Nahrungsergänzungsmittel",
+      kicker: "Supplements",
       headline: "Ergänzen, [[was wirklich fehlt]]",
       lead: "Vitamin D3 von biomo in Apothekenqualität und die Longevity-Formeln von Youngle: Omega-3, Kreatin, Spermidin, Q10 und mehr. Am sinnvollsten nach einem Test, damit du gezielt ergänzt statt auf Verdacht.",
       facts: ["Entwickelt von Ärzten, laborgeprüft in Deutschland", "Vegan, ohne unnötige Zusätze", "Passend zu deinen Blutwerten", "Versand in neutraler Verpackung"],

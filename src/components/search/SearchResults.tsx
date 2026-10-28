@@ -74,8 +74,8 @@ export function SearchResults({
                     )}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="truncate font-medium leading-snug">{p.title}</span>
+                    <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      <span className="min-w-0 font-medium leading-snug sm:truncate">{p.title}</span>
                       {supplement && <span className="shrink-0 rounded-full bg-lind px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-moss">{dict.search.supplementBadge}</span>}
                     </span>
                     <span className="mt-0.5 block truncate text-sm text-ink-muted">

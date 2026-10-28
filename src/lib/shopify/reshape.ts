@@ -60,6 +60,13 @@ export function cleanTitle(text: string): string {
   return decodeEntities(text).replace(/\s*\|\s*DoctorBox.*$/i, "").trim();
 }
 
+/** Shop-side display names that differ from the Shopify title (both locales). */
+const COLLECTION_DISPLAY_TITLES: Record<string, string> = { nahrungserganzungsmittel: "Supplements" };
+
+export function collectionTitle(handle: string, title: string): string {
+  return COLLECTION_DISPLAY_TITLES[handle] ?? cleanTitle(title);
+}
+
 /** "Chlamydien, Gonorrhö (Tripper), HIV" or newline separated → string[] */
 export function parseBiomarkers(value: string | null | undefined): string[] {
   if (!value) return [];

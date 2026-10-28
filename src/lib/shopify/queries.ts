@@ -4,7 +4,7 @@ import { nodes, shopifyFetch, soft } from "./client";
 import { applyReviewSummaries } from "@/lib/reviews/etrusted";
 import { CART_FRAGMENT, IMAGE_FRAGMENT, PRODUCT_CARD_FRAGMENT, PRODUCT_FRAGMENT } from "./fragments";
 import {
-  cleanTitle,
+  collectionTitle,
   decodeEntities,
   EXCLUDED_COLLECTIONS,
   isVisibleProduct,
@@ -204,7 +204,7 @@ export async function getCollection(
     const seen = new Set(cards.map((p) => p.id));
     cards = [...cards, ...all.filter((p) => !seen.has(p.id))];
   }
-  return { ...rest, title: cleanTitle(rest.title), products: await applyReviewSummaries(cards) };
+  return { ...rest, title: collectionTitle(rest.handle, rest.title), products: await applyReviewSummaries(cards) };
 }
 
 export const SUPPLEMENTS_COLLECTION = "nahrungserganzungsmittel";
@@ -238,7 +238,7 @@ export async function getCollections(locale: Locale): Promise<Collection[]> {
     .map((c) => {
       const { products: _products, ...rest } = c;
       void _products;
-      return { ...rest, title: cleanTitle(rest.title) };
+      return { ...rest, title: collectionTitle(rest.handle, rest.title) };
     });
 }
 

@@ -302,7 +302,7 @@ const de = {
     clearRecent: "Löschen",
     askMira: "Lieber Mira fragen",
     supplementBadge: "Supplement",
-    supplementSub: "Nahrungsergänzung",
+    supplementSub: "Supplement",
   },
   cart: {
     title: "Dein Warenkorb",
@@ -836,7 +836,7 @@ const en: Dictionary = {
     clearRecent: "Clear",
     askMira: "Ask Mira instead",
     supplementBadge: "Supplement",
-    supplementSub: "Food supplement",
+    supplementSub: "Supplement",
   },
   cart: {
     title: "Your cart",
