@@ -69,7 +69,7 @@ const ITEMS = [
 /** Brand promises of the Youngle range, shown on their product pages instead of the test marquee. */
 export function SupplementTrust({ locale }: { locale: Locale }) {
   return (
-    <section className="mt-10 bg-surface py-10" aria-label={locale === "en" ? "Brand promises" : "Markenversprechen"}>
+    <section className="mt-12 py-6" aria-label={locale === "en" ? "Brand promises" : "Markenversprechen"}>
       <ul className="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 gap-y-8 px-4 text-center sm:grid-cols-3 sm:px-6 lg:grid-cols-6 lg:px-8">
         {ITEMS.map(({ Icon, de, en }) => (
           <li key={de} className="flex flex-col items-center gap-3">
