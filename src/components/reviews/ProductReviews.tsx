@@ -5,16 +5,17 @@ import type { Locale } from "@/lib/i18n/config";
 import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 import type { ProductReview } from "@/lib/reviews/etrusted";
 
-const SHOWN = 6;
+const SHOWN = 3;
 
-/** Verified Trusted Shops product reviews: summary with distribution, then the newest reviews. */
+/** Verified Trusted Shops product reviews: summary with distribution, then the best-rated reviews first (newest within a rating); the rest behind "more". */
 export function ProductReviews({ reviews, locale, dict }: { reviews: ProductReview[]; locale: Locale; dict: Dictionary }) {
   if (!reviews.length) return null;
   const t = dict.product.reviewsBlock;
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
   const dist = [5, 4, 3, 2, 1].map((star) => ({ star, n: reviews.filter((r) => Math.round(r.rating) === star).length }));
-  const shown = reviews.slice(0, SHOWN);
-  const rest = reviews.slice(SHOWN);
+  const sorted = [...reviews].sort((a, b) => b.rating - a.rating || b.submittedAt.localeCompare(a.submittedAt));
+  const shown = sorted.slice(0, SHOWN);
+  const rest = sorted.slice(SHOWN);
 
   return (
     <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8" aria-labelledby="reviews-title">
@@ -43,6 +44,7 @@ export function ProductReviews({ reviews, locale, dict }: { reviews: ProductRevi
         </div>
 
         <div>
+          <p className="mb-2 text-xs text-ink-muted">{t.sortNote}</p>
           <ul className="divide-y divide-line/70">
             {shown.map((r) => (
               <li key={r.id} className="py-6 first:pt-0">
