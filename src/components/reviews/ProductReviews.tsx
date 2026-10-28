@@ -25,7 +25,7 @@ export function ProductReviews({ reviews, locale, dict }: { reviews: ProductRevi
           <div className="mt-6 flex items-end gap-4">
             <span className="text-5xl font-semibold tabular-nums leading-none text-moss">{avg.toLocaleString(locale === "en" ? "en-GB" : "de-DE", { maximumFractionDigits: 1 })}</span>
             <div className="pb-1">
-              <Rating value={avg} count={reviews.length} dict={dict} />
+              <Rating value={avg} count={reviews.length} dict={dict} compact />
               <p className="mt-1 text-sm text-ink-muted">{reviews.length === 1 ? dict.product.review : fill(t.count, { n: reviews.length })}</p>
             </div>
           </div>

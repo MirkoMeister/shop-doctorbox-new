@@ -36,6 +36,8 @@ Shopify betreibt UCP-Profil, MCP-Server und Katalog selbst. Der Headless-Shop re
 
 ## 5. Vercel-Umgebungsvariablen (vollständig?)
 
+- [ ] **Trusted Shops Bewertungen:** `ETRUSTED_CLIENT_ID`, `ETRUSTED_CLIENT_SECRET`, `ETRUSTED_CHANNEL_ID=chl-2cbd51e9-0164-4b34-a260-c813d0007e3f` in Vercel setzen (lokal bereits aktiv). Ohne sie fällt der Shop auf die Shopify-Sterne zurück.
+
 - [ ] Alle Werte aus `.env.example` gesetzt, insbesondere `ANTHROPIC_API_KEY` (Workspace-Key), `RESEND_API_KEY`, `CONTACT_TO`, `NEXT_PUBLIC_SITE_URL=https://shop.doctorbox.de`.
 - [ ] Noch leer: Trusted-Shops-Widget-ID, Meta-Pixel-ID, Klaviyo-Listen-ID.
 

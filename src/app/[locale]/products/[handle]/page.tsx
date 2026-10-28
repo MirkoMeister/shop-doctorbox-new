@@ -23,6 +23,7 @@ import { isYoungle, SupplementTrust } from "@/components/supplements/SupplementT
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
 import { ProductReviews } from "@/components/reviews/ProductReviews";
 import { getProductReviews, summarize } from "@/lib/reviews/etrusted";
+import { reviewSkusFor } from "@/content/review-skus";
 import { stripHtml, truncate } from "@/lib/format";
 
 export const revalidate = 300;
@@ -59,7 +60,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
   const supplement = isSupplement(product);
   // Trusted Shops product reviews are matched by variant SKU (empty without API credentials)
-  const reviews = await getProductReviews(product.variants.map((v) => v.sku ?? ""));
+  const reviews = await getProductReviews(reviewSkusFor(product.handle, product.variants.map((v) => v.sku)));
   const reviewSummary = summarize(reviews);
   // Shopify's recommendations are tests; supplements relate to the other supplements
   const supplementsCollection = supplement ? await getCollection(SUPPLEMENTS_COLLECTION, locale).catch(() => null) : null;
