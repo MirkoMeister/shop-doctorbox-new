@@ -6,11 +6,14 @@ import type { Locale } from "@/lib/i18n/config";
 import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { CloseIcon, SearchIcon } from "@/components/ui/Icons";
+import { rememberSearch } from "@/content/search-suggestions";
+import type { Collection } from "@/lib/shopify/types";
 import { SearchResults } from "./SearchResults";
+import { SearchStart } from "./SearchStart";
 import { useSearch } from "./useSearch";
 
 /** Compact header search: opens a full-width overlay with the same live results. */
-export function HeaderSearch({ locale, dict, children }: { locale: Locale; dict: Dictionary; children: React.ReactNode }) {
+export function HeaderSearch({ locale, dict, collections = [], children }: { locale: Locale; dict: Dictionary; collections?: Collection[]; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(-1);
@@ -35,6 +38,7 @@ export function HeaderSearch({ locale, dict, children }: { locale: Locale; dict:
     e.preventDefault();
     const q = query.trim();
     if (!q) return;
+    rememberSearch(q);
     if (active >= 0 && active < result.products.length) {
       router.push(localeHref(locale, `/products/${result.products[active].handle}`));
     } else if (active >= result.products.length && active < total) {
@@ -51,8 +55,8 @@ export function HeaderSearch({ locale, dict, children }: { locale: Locale; dict:
         {children}
       </button>
       {open && (
-        <div className="fixed inset-0 z-[90] bg-moss/95 backdrop-blur-sm">
-          <div className="mx-auto max-w-3xl px-4 pt-6 sm:pt-16">
+        <div className="fixed inset-0 z-[90] overflow-y-auto bg-moss/95 backdrop-blur-sm">
+          <div className="mx-auto max-w-3xl px-4 pb-10 pt-6 sm:pt-16">
             <div className="flex items-center justify-between text-soft">
               <p className="text-sm text-soft/70">{dict.nav.search}</p>
               <button
@@ -95,16 +99,33 @@ export function HeaderSearch({ locale, dict, children }: { locale: Locale; dict:
               </div>
             </form>
             <div className="mt-3">
-              <SearchResults
-                query={query}
-                result={result}
-                loading={loading}
-                locale={locale}
-                dict={dict}
-                activeIndex={active}
-                onPick={() => setOpen(false)}
-                onDark
-              />
+              {query.trim().length < 2 ? (
+                <SearchStart
+                  locale={locale}
+                  dict={dict}
+                  collections={collections}
+                  onPickTerm={(t) => {
+                    setQuery(t);
+                    setActive(-1);
+                    inputRef.current?.focus();
+                  }}
+                  onClose={() => setOpen(false)}
+                />
+              ) : (
+                <SearchResults
+                  query={query}
+                  result={result}
+                  loading={loading}
+                  locale={locale}
+                  dict={dict}
+                  activeIndex={active}
+                  onPick={() => {
+                    rememberSearch(query);
+                    setOpen(false);
+                  }}
+                  onDark
+                />
+              )}
             </div>
           </div>
         </div>

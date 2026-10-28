@@ -6,6 +6,7 @@ import type { Locale } from "@/lib/i18n/config";
 import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { formatMoney, shopifyImage } from "@/lib/format";
+import { isSupplement } from "@/lib/shopify/reshape";
 import type { SearchResult } from "@/lib/shopify/types";
 import { ArrowRight, SearchIcon } from "@/components/ui/Icons";
 
@@ -51,6 +52,7 @@ export function SearchResults({
         <ul className="divide-y divide-line/70">
           {result.products.map((p, i) => {
             const active = i === activeIndex;
+            const supplement = isSupplement(p);
             return (
               <li key={p.id}>
                 <Link
@@ -72,11 +74,16 @@ export function SearchResults({
                     )}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium leading-snug">{p.title}</span>
+                    <span className="flex items-center gap-2">
+                      <span className="truncate font-medium leading-snug">{p.title}</span>
+                      {supplement && <span className="shrink-0 rounded-full bg-lind px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-moss">{dict.search.supplementBadge}</span>}
+                    </span>
                     <span className="mt-0.5 block truncate text-sm text-ink-muted">
-                      {p.biomarkers.length > 0
-                        ? p.biomarkers.slice(0, 4).join(", ") + (p.biomarkers.length > 4 ? " …" : "")
-                        : p.sampleMaterial}
+                      {supplement
+                        ? [p.vendor.replace(/\s+GmbH$/i, ""), dict.search.supplementSub].filter(Boolean).join(" · ")
+                        : p.biomarkers.length > 0
+                          ? p.biomarkers.slice(0, 4).join(", ") + (p.biomarkers.length > 4 ? " …" : "")
+                          : p.sampleMaterial}
                     </span>
                   </span>
                   <span className="shrink-0 text-sm font-semibold tabular-nums text-green">

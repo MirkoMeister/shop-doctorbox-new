@@ -298,6 +298,11 @@ const de = {
     tryAgain: "Versuche es mit einem anderen Begriff oder stöbere in den Themen.",
     label: "Wonach suchst du?",
     submit: "Suchen",
+    recent: "Zuletzt gesucht",
+    clearRecent: "Löschen",
+    askMira: "Lieber Mira fragen",
+    supplementBadge: "Supplement",
+    supplementSub: "Nahrungsergänzung",
   },
   cart: {
     title: "Dein Warenkorb",
@@ -827,6 +832,11 @@ const en: Dictionary = {
     tryAgain: "Try another term or browse the topics.",
     label: "What are you looking for?",
     submit: "Search",
+    recent: "Recent searches",
+    clearRecent: "Clear",
+    askMira: "Ask Mira instead",
+    supplementBadge: "Supplement",
+    supplementSub: "Food supplement",
   },
   cart: {
     title: "Your cart",

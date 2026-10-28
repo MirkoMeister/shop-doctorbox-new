@@ -9,12 +9,9 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { SearchIcon } from "@/components/ui/Icons";
 import { AssistantHeroButton } from "@/components/assistant/AssistantButtons";
 import { SearchResults } from "./SearchResults";
+import { POPULAR_SEARCHES } from "@/content/search-suggestions";
 import { useSearch } from "./useSearch";
 
-const POPULAR: Record<Locale, string[]> = {
-  de: ["Vitamin D", "STI", "Testosteron", "Schilddrüse", "Cortisol", "Darmkrebs", "Hormone Frauen"],
-  en: ["Vitamin D", "STI", "Testosterone", "Thyroid", "Cortisol", "Bowel cancer", "Women's hormones"],
-};
 
 /** The hero's intelligent search: big pill input with live product suggestions. */
 export function HeroSearch({ locale, dict }: { locale: Locale; dict: Dictionary }) {
@@ -128,7 +125,7 @@ export function HeroSearch({ locale, dict }: { locale: Locale; dict: Dictionary 
       <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
         <AssistantHeroButton label={dict.assistant.heroCta} />
         <span className="ml-2 mr-1 text-soft/70">{dict.hero.popular}</span>
-        {POPULAR[locale].map((p) => (
+        {POPULAR_SEARCHES[locale].slice(0, 7).map((p) => (
           <Link
             key={p}
             href={`${localeHref(locale, "/search")}?q=${encodeURIComponent(p)}`}

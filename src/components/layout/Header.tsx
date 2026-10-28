@@ -54,7 +54,7 @@ export function Header({
         </Link>
 
         <div className="flex items-center justify-end gap-1 sm:gap-2">
-          <HeaderSearch locale={locale} dict={dict}>
+          <HeaderSearch locale={locale} dict={dict} collections={collections}>
             <span className={headerIconClass}>
               <SearchIcon width={22} height={22} />
             </span>
