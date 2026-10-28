@@ -1229,7 +1229,7 @@ export const VALUES: Record<string, ValueEntry> = {
   /* ------------------------------------------------------------------ Genetische Risikotests */
   "Genetisches Risiko Brustkrebs": {
     topic: "dna",
-    aliases: ["2.803 häufigen genetischen Varianten", "2.803 genetische Varianten für Brustkrebs", "AnteBC"],
+    aliases: ["2.803 häufigen genetischen Varianten", "2.803 häufige genetische Varianten", "2.803 genetische Varianten für Brustkrebs", "AnteBC"],
     de: {
       what: "Der Test berechnet aus 2.803 häufigen Genvarianten einen polygenen Risikoscore für Brustkrebs. Er erfasst nicht die seltenen Hochrisikogene BRCA1 und BRCA2.",
       why: "Für Frauen, die ihr persönliches Brustkrebsrisiko kennen und Vorsorgeintervalle individuell planen möchten.",
@@ -1265,7 +1265,7 @@ export const VALUES: Record<string, ValueEntry> = {
   },
   "Genetisches Risiko Prostatakrebs": {
     topic: "dna",
-    aliases: ["121 häufigen genetischen Varianten", "121 Varianten für Prostatakrebs", "AntePC"],
+    aliases: ["121 häufigen genetischen Varianten", "121 häufige genetische Varianten", "121 Varianten für Prostatakrebs", "AntePC"],
     de: {
       what: "Der Test berechnet aus 121 häufigen Genvarianten einen polygenen Risikoscore für Prostatakrebs.",
       why: "Für Männer, die den Zeitpunkt und die Häufigkeit ihrer PSA-Vorsorge individuell festlegen möchten.",

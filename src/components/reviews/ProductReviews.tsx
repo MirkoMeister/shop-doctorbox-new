@@ -1,4 +1,3 @@
-import { Rating } from "@/components/ui/Rating";
 import { CheckIcon } from "@/components/ui/Icons";
 import { formatDate } from "@/lib/format";
 import type { Locale } from "@/lib/i18n/config";
@@ -26,7 +25,7 @@ export function ProductReviews({ reviews, locale, dict }: { reviews: ProductRevi
           <div className="mt-6 flex items-end gap-4">
             <span className="text-5xl font-semibold tabular-nums leading-none text-moss">{avg.toLocaleString(locale === "en" ? "en-GB" : "de-DE", { maximumFractionDigits: 1 })}</span>
             <div className="pb-1">
-              <Rating value={avg} count={reviews.length} dict={dict} compact />
+              <span className="stars" style={{ ["--pct" as string]: `${(avg / 5) * 100}%` }} role="img" aria-label={`${avg.toFixed(1)} / 5`} />
               <p className="mt-1 text-sm text-ink-muted">{reviews.length === 1 ? dict.product.review : fill(t.count, { n: reviews.length })}</p>
             </div>
           </div>
@@ -70,6 +69,13 @@ export function ProductReviews({ reviews, locale, dict }: { reviews: ProductRevi
   );
 }
 
+/** letters only, lower case; "r" dropped because older imported titles lost every R */
+const key = (s: string) => s.toLowerCase().replace(/[^a-zäöüß]/g, "").replace(/r/g, "");
+/** Older reviews carry an auto-generated title (truncated, upper-cased copy of the comment): show the comment only */
+const duplicateTitle = (r: ProductReview) => Boolean(r.title && r.comment && key(r.comment).startsWith(key(r.title.replace(/…$/, ""))));
+/** Reviewers are shown anonymously, so replies drop the first name in the salutation */
+const neutralReply = (s: string) => s.replace(/^(hallo|hi|liebe|lieber|guten tag|moin|servus)\s+[A-ZÄÖÜ][\wäöüß-]+(?=[,!.\s])/i, "$1");
+
 function ReviewItem({ r, locale, dict }: { r: ProductReview; locale: Locale; dict: Dictionary }) {
   const t = dict.product.reviewsBlock;
   return (
@@ -86,12 +92,12 @@ function ReviewItem({ r, locale, dict }: { r: ProductReview; locale: Locale; dic
           {formatDate(r.submittedAt, locale)}
         </time>
       </div>
-      {r.title && <p className="mt-2 font-semibold leading-snug">{r.title}</p>}
+      {r.title && !duplicateTitle(r) && <p className="mt-2 font-semibold leading-snug">{r.title}</p>}
       {r.comment && <p className="mt-1.5 text-[0.98rem] leading-relaxed text-ink/85">{r.comment}</p>}
       {r.reply && (
         <p className="mt-3 rounded-2xl bg-soft px-4 py-3 text-sm leading-relaxed text-ink/80">
           <span className="font-semibold text-moss">{t.reply} </span>
-          {r.reply}
+          {neutralReply(r.reply)}
         </p>
       )}
     </article>

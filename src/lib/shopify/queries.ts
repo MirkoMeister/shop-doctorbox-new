@@ -1,6 +1,7 @@
 import "server-only";
 import type { Locale } from "@/lib/i18n/config";
 import { nodes, shopifyFetch, soft } from "./client";
+import { applyReviewSummaries } from "@/lib/reviews/etrusted";
 import { CART_FRAGMENT, IMAGE_FRAGMENT, PRODUCT_CARD_FRAGMENT, PRODUCT_FRAGMENT } from "./fragments";
 import {
   cleanTitle,
@@ -104,7 +105,7 @@ export async function getAllProducts(
     out.push(...nodes(data.products).filter(isVisibleProduct).map(reshapeProductCard));
     after = data.products.pageInfo.hasNextPage ? data.products.pageInfo.endCursor : null;
   } while (after);
-  return out;
+  return applyReviewSummaries(out);
 }
 
 const PRODUCT_RECOMMENDATIONS_QUERY = /* GraphQL */ `
@@ -122,7 +123,7 @@ export async function getProductRecommendations(productId: string, locale: Local
       PRODUCT_RECOMMENDATIONS_QUERY,
       { variables: { productId }, locale, tags: ["products"] },
     );
-    return (data.productRecommendations ?? []).filter(isVisibleProduct).map(reshapeProductCard).slice(0, 4);
+    return applyReviewSummaries((data.productRecommendations ?? []).filter(isVisibleProduct).map(reshapeProductCard).slice(0, 4));
   } catch {
     return [];
   }
@@ -203,7 +204,7 @@ export async function getCollection(
     const seen = new Set(cards.map((p) => p.id));
     cards = [...cards, ...all.filter((p) => !seen.has(p.id))];
   }
-  return { ...rest, title: cleanTitle(rest.title), products: cards };
+  return { ...rest, title: cleanTitle(rest.title), products: await applyReviewSummaries(cards) };
 }
 
 export const SUPPLEMENTS_COLLECTION = "nahrungserganzungsmittel";
@@ -329,10 +330,12 @@ export async function searchProducts(query: string, locale: Locale): Promise<Pro
     SEARCH_QUERY.replace(', productFilters: [{ tag: "IT" }]', ""),
     { variables: { query }, locale, revalidate: 60 },
   );
-  return nodes(data.search)
+  return applyReviewSummaries(
+    nodes(data.search)
     .filter((n) => n && "handle" in n)
     .filter(isVisibleProduct)
-    .map(reshapeProductCard);
+    .map(reshapeProductCard),
+  );
 }
 
 /* ------------------------------------------------------------------ */

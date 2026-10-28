@@ -116,3 +116,54 @@ export function summarize(reviews: ProductReview[]): { rating: number; count: nu
   const sum = reviews.reduce((s, r) => s + r.rating, 0);
   return { rating: Math.round((sum / reviews.length) * 100) / 100, count: reviews.length };
 }
+
+/**
+ * Average and count per product handle across every approved product review.
+ * The handle comes from the product URL Trusted Shops stores with the review,
+ * so renamed SKUs still land on the right product. Cached for an hour.
+ */
+export async function getReviewSummaries(): Promise<Map<string, { rating: number; count: number }>> {
+  const out = new Map<string, { rating: number; count: number }>();
+  if (!etrustedConfigured()) return out;
+  try {
+    const bearer = await accessToken();
+    const sums = new Map<string, { sum: number; n: number }>();
+    let after: string | null = null;
+    do {
+      const params = new URLSearchParams({ type: "PRODUCT_REVIEW", status: "APPROVED", count: "100", orderBy: "submittedAt" });
+      if (process.env.ETRUSTED_CHANNEL_ID) params.set("channels", process.env.ETRUSTED_CHANNEL_ID);
+      if (after) params.set("after", after);
+      const res = await fetch(`${API}/reviews?${params}`, {
+        headers: { Authorization: `Bearer ${bearer}`, Accept: "application/json" },
+        next: { revalidate: 3600, tags: ["reviews"] },
+      });
+      if (!res.ok) throw new Error(`eTrusted reviews ${res.status}`);
+      const json = (await res.json()) as { items: (RawReview & { product?: { url?: string | null } | null })[]; paging?: { cursor?: { after?: string | null } } };
+      for (const r of json.items) {
+        if (r.feedbackType === "STATEMENT" || r.state === "REJECTED") continue;
+        const handle = r.product?.url?.match(/\/products\/([^/?#]+)/)?.[1];
+        if (!handle) continue;
+        const s = sums.get(handle) ?? { sum: 0, n: 0 };
+        s.sum += Number(r.rating);
+        s.n += 1;
+        sums.set(handle, s);
+      }
+      after = json.items.length === 100 ? (json.paging?.cursor?.after ?? null) : null;
+    } while (after);
+    for (const [h, s] of sums) out.set(h, { rating: Math.round((s.sum / s.n) * 100) / 100, count: s.n });
+  } catch (err) {
+    console.warn("[etrusted] summaries", err instanceof Error ? err.message : err);
+  }
+  return out;
+}
+
+/** Cards carry the Trusted Shops rating and count where reviews exist; the Shopify metafield stays the fallback */
+export async function applyReviewSummaries<T extends { handle: string; rating: number | null; ratingCount: number }>(cards: T[]): Promise<T[]> {
+  if (!etrustedConfigured() || !cards.length) return cards;
+  const summaries = await getReviewSummaries();
+  if (!summaries.size) return cards;
+  return cards.map((c) => {
+    const s = summaries.get(c.handle);
+    return s ? { ...c, rating: s.rating, ratingCount: s.count } : c;
+  });
+}
