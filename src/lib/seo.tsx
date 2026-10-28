@@ -1,3 +1,4 @@
+import type { ProductReview } from "@/lib/reviews/etrusted";
 import { articleHref } from "@/lib/content/guides";
 import type { Metadata } from "next";
 import type { Locale } from "@/lib/i18n/config";
@@ -72,7 +73,7 @@ export function websiteJsonLd(locale: Locale) {
   };
 }
 
-export function productJsonLd(product: Product, locale: Locale) {
+export function productJsonLd(product: Product, locale: Locale, reviews: ProductReview[] = []) {
   const url = absoluteUrl(locale, `/products/${product.handle}`);
   const prices = product.variants.map((v) => parseFloat(v.price.amount));
   const offers =
@@ -107,17 +108,35 @@ export function productJsonLd(product: Product, locale: Locale) {
     brand: { "@type": "Brand", name: "DoctorBox" },
     url,
     offers,
-    ...(product.rating && product.ratingCount > 0
+    ...(reviews.length > 0
       ? {
           aggregateRating: {
             "@type": "AggregateRating",
-            ratingValue: product.rating.toFixed(1),
-            reviewCount: product.ratingCount,
+            ratingValue: (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1),
+            reviewCount: reviews.length,
             bestRating: 5,
             worstRating: 1,
           },
+          review: reviews.slice(0, 10).map((r) => ({
+            "@type": "Review",
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+            author: { "@type": "Person", name: r.author ?? "Kunde" },
+            datePublished: r.submittedAt.slice(0, 10),
+            ...(r.title ? { name: r.title } : {}),
+            ...(r.comment ? { reviewBody: r.comment } : {}),
+          })),
         }
-      : {}),
+      : product.rating && product.ratingCount > 0
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: product.rating.toFixed(1),
+              reviewCount: product.ratingCount,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          }
+        : {}),
     additionalProperty: [
       ...(product.sampleMaterial
         ? [{ "@type": "PropertyValue", name: locale === "en" ? "Sample material" : "Probenmaterial", value: product.sampleMaterial }]

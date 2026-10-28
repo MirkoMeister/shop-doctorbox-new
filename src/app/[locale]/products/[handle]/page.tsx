@@ -21,6 +21,8 @@ import { breadcrumbJsonLd, faqJsonLd, JsonLd, pageMetadata, productJsonLd } from
 import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import { isYoungle, SupplementTrust } from "@/components/supplements/SupplementTrust";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
+import { ProductReviews } from "@/components/reviews/ProductReviews";
+import { getProductReviews, summarize } from "@/lib/reviews/etrusted";
 import { stripHtml, truncate } from "@/lib/format";
 
 export const revalidate = 300;
@@ -56,6 +58,9 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProduct(handle, locale);
   if (!product) notFound();
   const supplement = isSupplement(product);
+  // Trusted Shops product reviews are matched by variant SKU (empty without API credentials)
+  const reviews = await getProductReviews(product.variants.map((v) => v.sku ?? ""));
+  const reviewSummary = summarize(reviews);
   // Shopify's recommendations are tests; supplements relate to the other supplements
   const supplementsCollection = supplement ? await getCollection(SUPPLEMENTS_COLLECTION, locale).catch(() => null) : null;
   const related = supplement
@@ -114,7 +119,7 @@ export default async function ProductPage({ params }: Props) {
     <>
       <JsonLd
         data={[
-          productJsonLd(product, locale),
+          productJsonLd(product, locale, reviews),
           breadcrumbJsonLd(
             crumbs.map((c) => ({ name: c.label, url: c.href ? absoluteUrl(locale, c.href.replace(/^\/en/, "")) : absoluteUrl(locale, `/products/${product.handle}`) })),
           ),
@@ -143,7 +148,7 @@ export default async function ProductPage({ params }: Props) {
             </ul>
           )}
           <div className="mt-3">
-            <Rating value={product.rating} count={product.ratingCount} dict={dict} />
+            <Rating value={reviewSummary?.rating ?? product.rating} count={reviewSummary?.count ?? product.ratingCount} dict={dict} />
           </div>
 
           {product.biomarkers.length > 0 && (
@@ -186,6 +191,8 @@ export default async function ProductPage({ params }: Props) {
           <p className="mt-4 text-xs text-ink-muted">{supplement ? dict.product.supplementNote : dict.product.medicalNote}</p>
         </div>
       </div>
+
+      <ProductReviews reviews={reviews} locale={locale} dict={dict} />
 
       {infoItems.length > 0 && <BiomarkerInfo items={infoItems} topic={topic} />}
 
