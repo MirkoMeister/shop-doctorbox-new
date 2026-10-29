@@ -9,3 +9,18 @@ export const SOCIAL_LINKS: { label: string; href: string }[] = [
   { label: "LinkedIn", href: "https://www.linkedin.com/company/doctorbox/" },
   { label: "Facebook", href: "https://www.facebook.com/doctorbox.de" },
 ];
+
+/**
+ * Internal links in Shopify content carry campaign parameters (utm_source=ratgeber …).
+ * GA4 would start a new session with that source on every click and drop the real one,
+ * so they are removed from relative links. Works on raw and HTML-escaped (&amp;) hrefs.
+ */
+export function stripCampaignParams(href: string): string {
+  if (!href.startsWith("/") || !/[?&;]utm_/i.test(href)) return href;
+  const hashAt = href.indexOf("#");
+  const hash = hashAt >= 0 ? href.slice(hashAt) : "";
+  const [path, query = ""] = (hashAt >= 0 ? href.slice(0, hashAt) : href).split("?");
+  const sep = query.includes("&amp;") ? "&amp;" : "&";
+  const kept = query.split(/&amp;|&/).filter((p) => p && !/^utm_/i.test(p));
+  return `${path}${kept.length ? `?${kept.join(sep)}` : ""}${hash}`;
+}

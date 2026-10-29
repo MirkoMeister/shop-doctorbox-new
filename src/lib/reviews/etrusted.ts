@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 
 /**
  * Product reviews from Trusted Shops (eTrusted API). Server only: the client
@@ -79,36 +80,48 @@ function normalize(r: RawReview): ProductReview {
  * API; results are cached for an hour per SKU set.
  */
 export async function getProductReviews(skus: string[], limit = 200): Promise<ProductReview[]> {
-  const clean = Array.from(new Set(skus.map((s) => s.trim()).filter(Boolean)));
+  const clean = Array.from(new Set(skus.map((s) => s.trim()).filter(Boolean))).sort();
   if (!etrustedConfigured() || !clean.length) return [];
   try {
-    const bearer = await accessToken();
-    const out: ProductReview[] = [];
-    let after: string | null = null;
-    do {
-      const params = new URLSearchParams({
-        type: "PRODUCT_REVIEW",
-        status: "APPROVED",
-        sku: clean.join(","),
-        count: "100",
-        orderBy: "submittedAt",
-      });
-      if (process.env.ETRUSTED_CHANNEL_ID) params.set("channels", process.env.ETRUSTED_CHANNEL_ID);
-      if (after) params.set("after", after);
-      const res = await fetch(`${API}/reviews?${params}`, {
-        headers: { Authorization: `Bearer ${bearer}`, Accept: "application/json" },
-        next: { revalidate: 3600, tags: ["reviews"] },
-      });
-      if (!res.ok) throw new Error(`eTrusted reviews ${res.status}`);
-      const json = (await res.json()) as { items: RawReview[]; paging?: { cursor?: { after?: string | null } } };
-      out.push(...json.items.filter((r) => r.feedbackType !== "STATEMENT" && r.state !== "REJECTED").map(normalize));
-      after = json.items.length === 100 && out.length < limit ? (json.paging?.cursor?.after ?? null) : null;
-    } while (after);
-    return out.slice(0, limit);
+    return await cachedProductReviews(clean, limit);
   } catch (err) {
     console.warn("[etrusted]", err instanceof Error ? err.message : err);
     return [];
   }
+}
+
+// The token request is a POST that must not be cached. Caching the whole lookup keeps pages
+// with reviews static (ISR) instead of rendering them per request; errors stay outside the cache.
+const cachedProductReviews = unstable_cache(
+  (skus: string[], limit: number) => fetchProductReviews(skus, limit),
+  ["etrusted-product-reviews"],
+  { revalidate: 3600, tags: ["reviews"] },
+);
+
+async function fetchProductReviews(clean: string[], limit: number): Promise<ProductReview[]> {
+  const bearer = await accessToken();
+  const out: ProductReview[] = [];
+  let after: string | null = null;
+  do {
+    const params = new URLSearchParams({
+      type: "PRODUCT_REVIEW",
+      status: "APPROVED",
+      sku: clean.join(","),
+      count: "100",
+      orderBy: "submittedAt",
+    });
+    if (process.env.ETRUSTED_CHANNEL_ID) params.set("channels", process.env.ETRUSTED_CHANNEL_ID);
+    if (after) params.set("after", after);
+    const res = await fetch(`${API}/reviews?${params}`, {
+      headers: { Authorization: `Bearer ${bearer}`, Accept: "application/json" },
+      next: { revalidate: 3600, tags: ["reviews"] },
+    });
+    if (!res.ok) throw new Error(`eTrusted reviews ${res.status}`);
+    const json = (await res.json()) as { items: RawReview[]; paging?: { cursor?: { after?: string | null } } };
+    out.push(...json.items.filter((r) => r.feedbackType !== "STATEMENT" && r.state !== "REJECTED").map(normalize));
+    after = json.items.length === 100 && out.length < limit ? (json.paging?.cursor?.after ?? null) : null;
+  } while (after);
+  return out.slice(0, limit);
 }
 
 export function summarize(reviews: ProductReview[]): { rating: number; count: number } | null {
@@ -123,37 +136,49 @@ export function summarize(reviews: ProductReview[]): { rating: number; count: nu
  * so renamed SKUs still land on the right product. Cached for an hour.
  */
 export async function getReviewSummaries(): Promise<Map<string, { rating: number; count: number }>> {
-  const out = new Map<string, { rating: number; count: number }>();
-  if (!etrustedConfigured()) return out;
+  if (!etrustedConfigured()) return new Map();
   try {
-    const bearer = await accessToken();
-    const sums = new Map<string, { sum: number; n: number }>();
-    let after: string | null = null;
-    do {
-      const params = new URLSearchParams({ type: "PRODUCT_REVIEW", status: "APPROVED", count: "100", orderBy: "submittedAt" });
-      if (process.env.ETRUSTED_CHANNEL_ID) params.set("channels", process.env.ETRUSTED_CHANNEL_ID);
-      if (after) params.set("after", after);
-      const res = await fetch(`${API}/reviews?${params}`, {
-        headers: { Authorization: `Bearer ${bearer}`, Accept: "application/json" },
-        next: { revalidate: 3600, tags: ["reviews"] },
-      });
-      if (!res.ok) throw new Error(`eTrusted reviews ${res.status}`);
-      const json = (await res.json()) as { items: (RawReview & { product?: { url?: string | null } | null })[]; paging?: { cursor?: { after?: string | null } } };
-      for (const r of json.items) {
-        if (r.feedbackType === "STATEMENT" || r.state === "REJECTED") continue;
-        const handle = r.product?.url?.match(/\/products\/([^/?#]+)/)?.[1];
-        if (!handle) continue;
-        const s = sums.get(handle) ?? { sum: 0, n: 0 };
-        s.sum += Number(r.rating);
-        s.n += 1;
-        sums.set(handle, s);
-      }
-      after = json.items.length === 100 ? (json.paging?.cursor?.after ?? null) : null;
-    } while (after);
-    for (const [h, s] of sums) out.set(h, { rating: Math.round((s.sum / s.n) * 100) / 100, count: s.n });
+    return new Map(await cachedReviewSummaries());
   } catch (err) {
     console.warn("[etrusted] summaries", err instanceof Error ? err.message : err);
+    return new Map();
   }
+}
+
+// Cached as entries: the cache stores JSON, a Map would come back empty
+const cachedReviewSummaries = unstable_cache(
+  async () => Array.from((await fetchReviewSummaries()).entries()),
+  ["etrusted-review-summaries"],
+  { revalidate: 3600, tags: ["reviews"] },
+);
+
+async function fetchReviewSummaries(): Promise<Map<string, { rating: number; count: number }>> {
+  const out = new Map<string, { rating: number; count: number }>();
+  const bearer = await accessToken();
+  const sums = new Map<string, { sum: number; n: number }>();
+  let after: string | null = null;
+  do {
+    const params = new URLSearchParams({ type: "PRODUCT_REVIEW", status: "APPROVED", count: "100", orderBy: "submittedAt" });
+    if (process.env.ETRUSTED_CHANNEL_ID) params.set("channels", process.env.ETRUSTED_CHANNEL_ID);
+    if (after) params.set("after", after);
+    const res = await fetch(`${API}/reviews?${params}`, {
+      headers: { Authorization: `Bearer ${bearer}`, Accept: "application/json" },
+      next: { revalidate: 3600, tags: ["reviews"] },
+    });
+    if (!res.ok) throw new Error(`eTrusted reviews ${res.status}`);
+    const json = (await res.json()) as { items: (RawReview & { product?: { url?: string | null } | null })[]; paging?: { cursor?: { after?: string | null } } };
+    for (const r of json.items) {
+      if (r.feedbackType === "STATEMENT" || r.state === "REJECTED") continue;
+      const handle = r.product?.url?.match(/\/products\/([^/?#]+)/)?.[1];
+      if (!handle) continue;
+      const s = sums.get(handle) ?? { sum: 0, n: 0 };
+      s.sum += Number(r.rating);
+      s.n += 1;
+      sums.set(handle, s);
+    }
+    after = json.items.length === 100 ? (json.paging?.cursor?.after ?? null) : null;
+  } while (after);
+  for (const [h, s] of sums) out.set(h, { rating: Math.round((s.sum / s.n) * 100) / 100, count: s.n });
   return out;
 }
 

@@ -7,6 +7,8 @@ import type { NextConfig } from "next";
  * paths (checkout, account, orders, apps) are sent to the Shopify domain.
  */
 const shopifyDomain = process.env.SHOPIFY_ONLINE_STORE_DOMAIN ?? "doctorbox-heimtests.myshopify.com";
+// Only the live domain may be indexed; the vercel.app copy and previews send noindex
+const siteHost = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://shop.doctorbox.de").host;
 
 const nextConfig: NextConfig = {
   // Dev only: lets phones/laptops in the local network load the dev server via LAN IP or Bonjour name
@@ -29,6 +31,11 @@ const nextConfig: NextConfig = {
           // UCP discovery for AI shopping agents (same header Shopify storefronts send)
           { key: "Link", value: '</.well-known/ucp>; rel="ucp"' },
         ],
+      },
+      {
+        source: "/(.*)",
+        missing: [{ type: "host", value: siteHost }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
       },
     ];
   },

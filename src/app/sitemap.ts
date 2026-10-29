@@ -8,7 +8,12 @@ export const revalidate = 3600;
 
 type Entry = MetadataRoute.Sitemap[number];
 
-function entry(path: string, lastModified?: string | Date, priority = 0.6, changeFrequency: Entry["changeFrequency"] = "weekly"): Entry[] {
+// Pages built in this app (not Shopify pages), so the Shopify page list does not include them
+const APP_PAGES = ["tasso", "apotheken", "eigener-test"];
+
+function entry(rawPath: string, lastModified?: string | Date, priority = 0.6, changeFrequency: Entry["changeFrequency"] = "weekly"): Entry[] {
+  // Same spelling as canonicals and links: handles like "coloalert®" are percent-encoded there
+  const path = /%[0-9a-f]{2}/i.test(rawPath) ? rawPath : encodeURI(rawPath);
   // One entry per locale, each carrying hreflang alternates
   const languages = Object.fromEntries(locales.map((l) => [l, absoluteUrl(l, path)]));
   languages["x-default"] = absoluteUrl("de", path);
@@ -33,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pageHandles = new Map<string, string>();
   for (const p of apiPages) pageHandles.set(p.handle, p.updatedAt);
   for (const p of migrated) if (!pageHandles.has(p.handle)) pageHandles.set(p.handle, p.updatedAt);
+  for (const h of APP_PAGES) if (!pageHandles.has(h)) pageHandles.set(h, "");
 
   return [
     ...entry("/", undefined, 1, "daily"),
