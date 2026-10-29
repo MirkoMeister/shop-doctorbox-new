@@ -31,6 +31,13 @@ const PATH_RENAMES: Record<string, string> = {
   "/blogs/blog-sexuelle-gesundheit/festivalsaison-symptome-nach-festival":
     "/blogs/blog-sexuelle-gesundheit/festival-saison-diese-symptome-nach-einem-festival-solltest-du-nicht-ignorieren",
   "/policies/contact-information": "/pages/kontakt",
+  // ProAktiv subscription is discontinued: the launch article goes to its blog, the offer pages to the subscription page
+  "/blogs/vorsorge-fruherkennung/proaktiv_blog_vorsorge": "/blogs/vorsorge-fruherkennung",
+  "/blogs/gesundheitswissen/proaktiv_blog_vorsorge": "/blogs/vorsorge-fruherkennung",
+  ...Object.fromEntries(
+    ["/pages/proaktiv", "/pages/proaktiv-deine-heimtests-im-abo", "/pages/proaktiv-hpv", "/pages/proaktiv-psa", "/pages/proaktiv-darmkrebsvorsorge",
+     "/products/proaktiv", "/products/proaktiv-frauen", "/products/proaktiv-manner", "/products/proaktiv-darmcheck"].map((p) => [p, "/pages/doctorbox-abo"]),
+  ),
 };
 
 const decode = (p: string) => {

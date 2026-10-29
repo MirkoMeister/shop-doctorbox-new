@@ -470,6 +470,9 @@ const BLOGS_QUERY = /* GraphQL */ `
 `;
 
 export const EXCLUDED_BLOGS = ["blog-salute-sessuale"];
+// Articles for discontinued offers (ProAktiv subscription); their URLs redirect in the proxy
+export const EXCLUDED_ARTICLES = ["proaktiv_blog_vorsorge"];
+const visibleArticle = (a: { handle: string; blog: { handle: string } }) => !EXCLUDED_BLOGS.includes(a.blog.handle) && !EXCLUDED_ARTICLES.includes(a.handle);
 
 async function _getBlogs(locale: Locale): Promise<Blog[]> {
   const data = await shopifyFetch<{ blogs: { edges: { node: Blog }[] } }>(BLOGS_QUERY, {
@@ -513,7 +516,7 @@ async function _getBlog(handle: string, locale: Locale): Promise<(Blog & { artic
   }>(BLOG_QUERY, { variables: { handle }, locale, tags: ["blogs", `blog:${handle}`] });
   if (!data.blog) return null;
   const { articles, ...rest } = data.blog;
-  return { ...rest, title: decodeEntities(rest.title), articles: nodes(articles).map(reshapeArticle) };
+  return { ...rest, title: decodeEntities(rest.title), articles: nodes(articles).filter((a) => !EXCLUDED_ARTICLES.includes(a.handle)).map(reshapeArticle) };
 }
 
 export function getBlog(handle: string, locale: Locale): Promise<(Blog & { articles: Article[] }) | null> {
@@ -533,7 +536,7 @@ const ARTICLE_QUERY = /* GraphQL */ `
 `;
 
 async function _getArticle(blog: string, handle: string, locale: Locale): Promise<Article | null> {
-  if (EXCLUDED_BLOGS.includes(blog)) return null;
+  if (EXCLUDED_BLOGS.includes(blog) || EXCLUDED_ARTICLES.includes(handle)) return null;
   const data = await shopifyFetch<{ blog: { articleByHandle: RawArticle | null } | null }>(ARTICLE_QUERY, {
     variables: { blog, handle },
     locale,
@@ -571,7 +574,7 @@ async function _getLatestArticles(locale: Locale, limit = 3): Promise<Article[]>
     tags: ["blogs"],
   });
   return nodes(data.articles)
-    .filter((a) => !EXCLUDED_BLOGS.includes(a.blog.handle))
+    .filter(visibleArticle)
     .slice(0, limit)
     .map(reshapeArticle);
 }
@@ -590,7 +593,7 @@ async function _getAllArticles(locale: Locale): Promise<Article[]> {
     out.push(...nodes(data.articles).map(reshapeArticle));
     after = data.articles.pageInfo.hasNextPage ? data.articles.pageInfo.endCursor : null;
   } while (after);
-  return out.filter((a) => !EXCLUDED_BLOGS.includes(a.blog.handle));
+  return out.filter(visibleArticle);
 }
 export function getAllArticles(locale: Locale): Promise<Article[]> {
   return soft(_getAllArticles(locale), [], "getAllArticles");
