@@ -3,7 +3,7 @@ import { TestBuilder, type BuilderProduct } from "@/components/builder/TestBuild
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Highlight } from "@/components/ui/Highlight";
 import { BUILDER_PAGE, builderCopy } from "@/content/test-builder";
-import { markerGroups } from "@/lib/catalog/markers";
+import { KIT_MARKERS, kitGroups, kitIsPlaceholder } from "@/lib/kits/catalog";
 import { localeHref } from "@/lib/i18n/config";
 import { resolveLocale } from "@/lib/locale-params";
 import { pageMetadata } from "@/lib/seo";
@@ -19,11 +19,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return pageMetadata(locale, BUILDER_PAGE, { title: t.metaTitle, description: t.metaDescription });
 }
 
-/** "Create your own test" MVP: pick biomarkers, see today's best coverage, request a custom kit. */
+/** Individual kits: pick lab values, see price, tubes and Tasso devices, request the kit. */
 export default async function BuilderPage({ params }: Props) {
   const { locale, dict } = await resolveLocale(params);
   const t = builderCopy(locale);
-  const groups = markerGroups(locale);
+  const groups = kitGroups(locale);
   const products: BuilderProduct[] = (await getAllProducts(locale).catch(() => []))
     .filter((p) => p.biomarkers.length > 0 && p.availableForSale)
     .map((p) => ({ handle: p.handle, title: p.title, price: p.priceRange.minVariantPrice, image: p.featuredImage?.url ?? null, biomarkers: p.biomarkers }));
@@ -56,7 +56,7 @@ export default async function BuilderPage({ params }: Props) {
       </ol>
 
       <div className="mt-10">
-        <TestBuilder groups={groups} products={products} locale={locale} t={t} />
+        <TestBuilder markers={KIT_MARKERS} groups={groups} products={products} placeholder={kitIsPlaceholder} locale={locale} t={t} />
       </div>
     </div>
   );

@@ -6,7 +6,9 @@ import { useMemo, useState } from "react";
 import { CheckIcon, CloseIcon, SearchIcon } from "@/components/ui/Icons";
 import { Highlight } from "@/components/ui/Highlight";
 import type { BuilderCopy } from "@/content/test-builder";
-import type { MarkerGroup } from "@/lib/catalog/markers";
+import { KIT_RULES } from "@/content/kit/rules";
+import type { KitGroup } from "@/lib/kits/catalog";
+import { planKit, type KitMarker, type KitPlan } from "@/lib/kits/plan";
 import { formatMoney, shopifyImage } from "@/lib/format";
 import { localeHref, type Locale } from "@/lib/i18n/config";
 import { fill } from "@/lib/i18n/dictionaries";
@@ -35,11 +37,29 @@ const matches = (marker: string, biomarker: string) => {
   return short.length >= 4 && long.includes(short);
 };
 
+const euro = (n: number, locale: Locale) => formatMoney({ amount: String(n), currencyCode: "EUR" }, locale);
+
 /**
- * Biomarker picker with live coverage: which existing test covers the selection,
- * and a request form for a custom panel (MVP until custom kits can be fulfilled).
+ * Individual kit configurator: pick up to KIT_RULES.maxMarkers lab values, see price, tubes and
+ * Tasso devices live (planKit), compare with ready-made tests, then request the kit.
  */
-export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGroup[]; products: BuilderProduct[]; locale: Locale; t: BuilderCopy }) {
+export function TestBuilder({
+  markers,
+  groups,
+  products,
+  placeholder,
+  locale,
+  t,
+}: {
+  markers: KitMarker[];
+  groups: KitGroup[];
+  products: BuilderProduct[];
+  placeholder: boolean;
+  locale: Locale;
+  t: BuilderCopy;
+}) {
+  const byId = useMemo(() => new Map(markers.map((m) => [m.id, m])), [markers]);
+  const nameOf = (id: string) => byId.get(id)?.name[locale] ?? id;
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState<Set<string>>(() => new Set(groups.slice(0, 2).map((g) => g.key)));
@@ -50,24 +70,30 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
   const visible = useMemo(
     () =>
       groups
-        .map((g) => ({ ...g, markers: q ? g.markers.filter((m) => norm(m).includes(q)) : g.markers }))
-        .filter((g) => g.markers.length > 0),
-    [groups, q],
+        .map((g) => ({ ...g, ids: q ? g.ids.filter((id) => norm(byId.get(id)?.name[locale] ?? id).includes(q)) : g.ids }))
+        .filter((g) => g.ids.length > 0),
+    [groups, q, byId, locale],
   );
+  const chosen = useMemo(() => selected.map((id) => byId.get(id)).filter((m): m is KitMarker => Boolean(m)), [selected, byId]);
+  const plan = useMemo(() => planKit(chosen), [chosen]);
+  const full = selected.length >= KIT_RULES.maxMarkers;
 
   const coverage = useMemo(() => {
     if (!selected.length) return [];
     return products
       .map((p) => {
-        const covered = selected.filter((m) => p.biomarkers.some((b) => matches(m, b)));
-        return { product: p, covered, missing: selected.filter((m) => !covered.includes(m)) };
+        const covered = selected.map(nameOf).filter((m) => p.biomarkers.some((b) => matches(m, b)));
+        return { product: p, covered, missing: selected.map(nameOf).filter((m) => !covered.includes(m)) };
       })
       .filter((c) => c.covered.length > 0)
       .sort((a, b) => b.covered.length - a.covered.length || a.product.biomarkers.length - b.product.biomarkers.length || parseFloat(a.product.price.amount) - parseFloat(b.product.price.amount))
       .slice(0, 3);
-  }, [products, selected]);
+    // nameOf only reads byId and locale
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products, selected, byId, locale]);
 
-  const toggle = (m: string) => setSelected((s) => (s.includes(m) ? s.filter((x) => x !== m) : [...s, m]));
+  const toggle = (id: string) =>
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length >= KIT_RULES.maxMarkers ? s : [...s, id]));
   const toggleGroup = (k: string) =>
     setOpen((s) => {
       const n = new Set(s);
@@ -85,7 +111,7 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
     setState("busy");
     setError(null);
     const data = new FormData(e.currentTarget);
-    const message = [`${t.mailIntro} (${selected.length}):`, ...selected.map((m) => `- ${m}`), "", String(data.get("note") ?? "").trim()].join("\n");
+    const message = [kitSummary(chosen, plan, locale, t), "", String(data.get("note") ?? "").trim()].join("\n");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -126,15 +152,15 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
         <ul className="mt-3 divide-y divide-line/70 rounded-[var(--radius-card)] border border-line/70 bg-white shadow-card">
           {visible.map((g) => {
             const isOpen = Boolean(q) || open.has(g.key);
-            const chosen = g.markers.filter((m) => selected.includes(m)).length;
+            const picked = g.ids.filter((id) => selected.includes(id)).length;
             return (
               <li key={g.key}>
                 <button type="button" onClick={() => toggleGroup(g.key)} className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left" aria-expanded={isOpen}>
                   <span className="font-semibold">
                     {g.label}
                     <span className="ml-2 text-sm font-normal text-ink-muted">
-                      {chosen > 0 ? `${chosen} / ` : ""}
-                      {g.markers.length}
+                      {picked > 0 ? `${picked} / ` : ""}
+                      {g.ids.length}
                     </span>
                   </span>
                   <span className={`text-ink-muted transition-transform ${isOpen ? "rotate-45" : ""}`} aria-hidden>
@@ -143,20 +169,23 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
                 </button>
                 {isOpen && (
                   <ul className="flex flex-wrap gap-2 px-5 pb-5">
-                    {g.markers.map((m) => {
-                      const on = selected.includes(m);
+                    {g.ids.map((id) => {
+                      const on = selected.includes(id);
+                      const m = byId.get(id)!;
                       return (
-                        <li key={m}>
+                        <li key={id}>
                           <button
                             type="button"
-                            onClick={() => toggle(m)}
+                            onClick={() => toggle(id)}
                             aria-pressed={on}
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors ${
+                            disabled={!on && full}
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                               on ? "border-green bg-green text-white" : "border-line bg-white hover:border-ink"
                             }`}
                           >
                             {on && <CheckIcon width={14} height={14} />}
-                            {m}
+                            {m.name[locale]}
+                            <span className={`font-normal ${on ? "text-white/80" : "text-ink-muted"}`}>{euro(m.price, locale)}</span>
                           </button>
                         </li>
                       );
@@ -174,7 +203,9 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
       {selected.length > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 py-3 shadow-float backdrop-blur lg:hidden">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-            <span className="text-sm font-medium">{fill(t.selectedCount, { n: selected.length })}</span>
+            <span className="text-sm font-medium">
+              {fill(t.selectedCount, { n: selected.length, max: KIT_RULES.maxMarkers })} · {euro(plan.total, locale)}
+            </span>
             <a href="#builder-summary" className="btn btn-sm btn-primary">
               {t.showCoverage}
             </a>
@@ -188,7 +219,7 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="h4">{t.selectedTitle}</h2>
-              <p className="mt-1 text-sm text-ink-muted">{selected.length ? fill(t.selectedCount, { n: selected.length }) : t.selectedEmpty}</p>
+              <p className="mt-1 text-sm text-ink-muted">{selected.length ? fill(t.selectedCount, { n: selected.length, max: KIT_RULES.maxMarkers }) : t.selectedEmpty}</p>
             </div>
             {selected.length > 0 && (
               <button type="button" onClick={() => setSelected([])} className="shrink-0 text-sm font-medium text-green hover:underline">
@@ -196,19 +227,25 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
               </button>
             )}
           </div>
-          {selected.length > 0 && (
-            <ul className="mt-4 flex flex-wrap gap-2">
-              {selected.map((m) => (
-                <li key={m}>
-                  <button type="button" onClick={() => toggle(m)} className="chip chip-soft inline-flex items-center gap-1.5 !py-1.5 text-sm">
-                    {m}
-                    <CloseIcon width={12} height={12} />
-                  </button>
+          {chosen.length > 0 && (
+            <ul className="mt-4 divide-y divide-line/70 text-sm">
+              {chosen.map((m) => (
+                <li key={m.id} className="flex items-center justify-between gap-3 py-2">
+                  <span className="min-w-0">{m.name[locale]}</span>
+                  <span className="flex shrink-0 items-center gap-3">
+                    <span className="tabular-nums">{euro(m.price, locale)}</span>
+                    <button type="button" onClick={() => toggle(m.id)} aria-label={`${m.name[locale]}: ${t.remove}`} className="text-ink-muted hover:text-ink">
+                      <CloseIcon width={12} height={12} />
+                    </button>
+                  </span>
                 </li>
               ))}
             </ul>
           )}
+          {full && <p className="mt-3 rounded-xl bg-okker/50 px-3 py-2 text-sm leading-snug text-moss">{fill(t.limitReached, { max: KIT_RULES.maxMarkers })}</p>}
         </section>
+
+        {chosen.length > 0 && <KitCard plan={plan} placeholder={placeholder} locale={locale} t={t} />}
 
         {coverage.length > 0 && (
           <section className="rounded-[var(--radius-card)] bg-lind p-5 text-moss sm:p-6">
@@ -221,13 +258,14 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
                 <li key={p.handle} className={`rounded-2xl bg-white/80 p-3.5 ${i === 0 ? "ring-2 ring-green/50" : ""}`}>
                   <div className="flex items-center gap-3">
                     <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white">
-                      {p.image && <Image src={shopifyImage(p.image, 120)} alt="" fill sizes="48px" className="object-cover" />}
+                      {p.image && <Image src={shopifyImage(p.image, 120)} alt="" fill sizes="48px" className="object-contain p-0.5" />}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block font-semibold leading-snug">{p.title}</span>
                       <span className="block text-sm text-moss/80">
                         {missing.length === 0 ? t.allCovered : fill(t.covers, { m: covered.length, n: selected.length })} · {formatMoney(p.price, locale)}
                       </span>
+                      {missing.length === 0 && parseFloat(p.price.amount) < plan.total && <span className="mt-1 block text-xs font-semibold text-green">{t.cheaper}</span>}
                     </span>
                     <Link href={localeHref(locale, `/products/${p.handle}`)} className="btn btn-sm btn-primary shrink-0">
                       {t.toProduct}
@@ -292,4 +330,73 @@ export function TestBuilder({ groups, products, locale, t }: { groups: MarkerGro
       </aside>
     </div>
   );
+}
+
+/** Tubes, Tasso devices, blood volume and price of the current selection */
+function KitCard({ plan, placeholder, locale, t }: { plan: KitPlan; placeholder: boolean; locale: Locale; t: BuilderCopy }) {
+  const tubeTypes = KIT_RULES.tubes as Record<string, { label: { de: string; en: string } }>;
+  const tubeCounts = Object.entries(
+    plan.tubes.reduce<Record<string, number>>((acc, tube) => ({ ...acc, [tube.material]: (acc[tube.material] ?? 0) + 1 }), {}),
+  );
+  const row = "flex items-baseline justify-between gap-3 py-1.5";
+  return (
+    <section className="rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
+      <h2 className="h4">{t.kitTitle}</h2>
+      <dl className="mt-3 text-sm">
+        {tubeCounts.map(([material, n]) => (
+          <div key={material} className={row}>
+            <dt className="text-ink-muted">{tubeTypes[material]?.label[locale] ?? material}</dt>
+            <dd className="tabular-nums">{n} ×</dd>
+          </div>
+        ))}
+        <div className={row}>
+          <dt className="text-ink-muted">{t.tassoLabel}</dt>
+          <dd className="tabular-nums">{plan.tasso} ×</dd>
+        </div>
+        <div className={row}>
+          <dt className="text-ink-muted">{t.bloodLabel}</dt>
+          <dd className="tabular-nums">{plan.bloodUl} µl</dd>
+        </div>
+      </dl>
+      <dl className="mt-3 border-t border-line/70 pt-3 text-sm">
+        <div className={row}>
+          <dt className="text-ink-muted">{t.valuesPrice}</dt>
+          <dd className="tabular-nums">{euro(plan.markersPrice, locale)}</dd>
+        </div>
+        <div className={row}>
+          <dt className="text-ink-muted">{t.basePriceLabel}</dt>
+          <dd className="tabular-nums">{euro(plan.basePrice, locale)}</dd>
+        </div>
+        {plan.extraTassoPrice > 0 && (
+          <div className={row}>
+            <dt className="text-ink-muted">{fill(t.extraTassoLabel, { n: plan.tasso - KIT_RULES.includedTasso })}</dt>
+            <dd className="tabular-nums">{euro(plan.extraTassoPrice, locale)}</dd>
+          </div>
+        )}
+        <div className={`${row} mt-1 border-t border-line/70 pt-3 text-base font-semibold`}>
+          <dt>{t.totalLabel}</dt>
+          <dd className="tabular-nums">{euro(plan.total, locale)}</dd>
+        </div>
+      </dl>
+      {plan.problems.includes("tooManyTasso") && (
+        <p className="mt-3 rounded-xl bg-[#fde8e6] px-3 py-2 text-sm leading-snug text-[#8a1c12]" role="alert">
+          {fill(t.tooManyTasso, { n: plan.tasso, max: KIT_RULES.maxTasso })}
+        </p>
+      )}
+      {placeholder && <p className="mt-3 text-xs leading-snug text-ink-muted">{t.placeholderNote}</p>}
+    </section>
+  );
+}
+
+/** Plain-text kit for the request mail: what to pack and what it costs */
+function kitSummary(markers: KitMarker[], plan: KitPlan, locale: Locale, t: BuilderCopy): string {
+  const tubeTypes = KIT_RULES.tubes as Record<string, { label: { de: string; en: string } }>;
+  return [
+    `${t.mailIntro} (${markers.length}):`,
+    ...markers.map((m) => `- ${m.name[locale]} [${m.id}${m.labCode ? ` / ${m.labCode}` : ""}] · ${m.material} ${m.volumeUl} µl · ${euro(m.price, locale)}`),
+    "",
+    ...plan.tubes.map((tube, i) => `${tubeTypes[tube.material]?.label[locale] ?? tube.material} ${i + 1}: ${tube.markers.join(", ")} (${tube.volumeUl} µl)`),
+    `${t.tassoLabel}: ${plan.tasso} · ${t.bloodLabel}: ${plan.bloodUl} µl`,
+    `${t.totalLabel}: ${euro(plan.total, locale)}${plan.problems.length ? ` · ${plan.problems.join(", ")}` : ""}`,
+  ].join("\n");
 }

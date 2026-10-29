@@ -1,0 +1,4 @@
+kuerzel;name_de;name_en;thema;thema_en;material;blutmenge_ul;preis_eur;laborcode;hinweis
+HBA1C;HbA1c;HbA1c;Blutzucker;Blood glucose;EDTA;100;12,90;;
+TSH;TSH;TSH;Schilddrüse;Thyroid;Serum;150;9,90;;
+FERR;Ferritin;Ferritin;Mineralstoffe & Spurenelemente;Minerals & trace elements;Serum;150;11,90;;morgens nüchtern

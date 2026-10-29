@@ -1,0 +1,735 @@
+{
+ "source": "biomarker-platzhalter.csv",
+ "placeholder": true,
+ "importedAt": "2026-10-29",
+ "items": [
+  {
+   "id": "LDLCHOLEST",
+   "name": {
+    "de": "LDL-Cholesterin",
+    "en": "LDL"
+   },
+   "topic": {
+    "de": "Herz-Kreislauf & Blutfette",
+    "en": "Cardiovascular & lipids"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "HDLCHOLEST",
+   "name": {
+    "de": "HDL-Cholesterin",
+    "en": "HDL"
+   },
+   "topic": {
+    "de": "Herz-Kreislauf & Blutfette",
+    "en": "Cardiovascular & lipids"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "GESAMTCHOL",
+   "name": {
+    "de": "Gesamtcholesterin",
+    "en": "Cholesterin"
+   },
+   "topic": {
+    "de": "Herz-Kreislauf & Blutfette",
+    "en": "Cardiovascular & lipids"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "TRIGLYCERI",
+   "name": {
+    "de": "Triglyceride",
+    "en": "Triglycerides"
+   },
+   "topic": {
+    "de": "Herz-Kreislauf & Blutfette",
+    "en": "Cardiovascular & lipids"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "LIPOPROTEI",
+   "name": {
+    "de": "Lipoprotein(a)",
+    "en": "Lp(a)"
+   },
+   "topic": {
+    "de": "Herz-Kreislauf & Blutfette",
+    "en": "Cardiovascular & lipids"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "APOLIPOPRO",
+   "name": {
+    "de": "Apolipoprotein B (ApoB)",
+    "en": "ApoB"
+   },
+   "topic": {
+    "de": "Herz-Kreislauf & Blutfette",
+    "en": "Cardiovascular & lipids"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "NTPROBNP",
+   "name": {
+    "de": "NT-proBNP",
+    "en": "NT-proBNP"
+   },
+   "topic": {
+    "de": "Herz-Kreislauf & Blutfette",
+    "en": "Cardiovascular & lipids"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "HBA1C",
+   "name": {
+    "de": "HbA1c",
+    "en": "HbA1C"
+   },
+   "topic": {
+    "de": "Blutzucker",
+    "en": "Blood glucose"
+   },
+   "material": "EDTA",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "GLUKOSENUC",
+   "name": {
+    "de": "Glukose (nüchtern)",
+    "en": "Nüchtern-Glukose"
+   },
+   "topic": {
+    "de": "Blutzucker",
+    "en": "Blood glucose"
+   },
+   "material": "EDTA",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "GPT",
+   "name": {
+    "de": "GPT",
+    "en": "ALT"
+   },
+   "topic": {
+    "de": "Leber",
+    "en": "Liver"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "GAMMAGT",
+   "name": {
+    "de": "Gamma-GT",
+    "en": "GGT"
+   },
+   "topic": {
+    "de": "Leber",
+    "en": "Liver"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "BILIRUBIN",
+   "name": {
+    "de": "Bilirubin",
+    "en": "Gesamtbilirubin"
+   },
+   "topic": {
+    "de": "Leber",
+    "en": "Liver"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "ALBUMIN",
+   "name": {
+    "de": "Albumin",
+    "en": "Albumin"
+   },
+   "topic": {
+    "de": "Leber",
+    "en": "Liver"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "ALKALISCHE",
+   "name": {
+    "de": "Alkalische Phosphatase (AP)",
+    "en": "Alkalische Phosphatase"
+   },
+   "topic": {
+    "de": "Leber",
+    "en": "Liver"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "KREATININ",
+   "name": {
+    "de": "Kreatinin",
+    "en": "Kreatinin"
+   },
+   "topic": {
+    "de": "Niere & Elektrolyte",
+    "en": "Kidney & electrolytes"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "HARNSTOFF",
+   "name": {
+    "de": "Harnstoff",
+    "en": "Urea"
+   },
+   "topic": {
+    "de": "Niere & Elektrolyte",
+    "en": "Kidney & electrolytes"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "HARNSAURE",
+   "name": {
+    "de": "Harnsäure",
+    "en": "Harnsäure"
+   },
+   "topic": {
+    "de": "Niere & Elektrolyte",
+    "en": "Kidney & electrolytes"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "URINALBUMI",
+   "name": {
+    "de": "Urin-Albumin-Kreatinin-Quotient",
+    "en": "Urin-Albumin-Kreatinin-Quotienten"
+   },
+   "topic": {
+    "de": "Niere & Elektrolyte",
+    "en": "Kidney & electrolytes"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "NATRIUM",
+   "name": {
+    "de": "Natrium",
+    "en": "Sodium"
+   },
+   "topic": {
+    "de": "Niere & Elektrolyte",
+    "en": "Kidney & electrolytes"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "TSH",
+   "name": {
+    "de": "TSH",
+    "en": "TSH (sensitiv)"
+   },
+   "topic": {
+    "de": "Schilddrüse",
+    "en": "Thyroid"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "FT4",
+   "name": {
+    "de": "FT4",
+    "en": "FT4"
+   },
+   "topic": {
+    "de": "Schilddrüse",
+    "en": "Thyroid"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "FT3",
+   "name": {
+    "de": "FT3",
+    "en": "FT3"
+   },
+   "topic": {
+    "de": "Schilddrüse",
+    "en": "Thyroid"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "TPOANTIKOR",
+   "name": {
+    "de": "TPO-Antikörper (MAK)",
+    "en": "TPO-Antikörper"
+   },
+   "topic": {
+    "de": "Schilddrüse",
+    "en": "Thyroid"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "TESTOSTERO",
+   "name": {
+    "de": "Testosteron",
+    "en": "Testosterone"
+   },
+   "topic": {
+    "de": "Hormone",
+    "en": "Hormones"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "SHBG",
+   "name": {
+    "de": "SHBG",
+    "en": "SHBG"
+   },
+   "topic": {
+    "de": "Hormone",
+    "en": "Hormones"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "CORTISOL",
+   "name": {
+    "de": "Cortisol",
+    "en": "Cortisol"
+   },
+   "topic": {
+    "de": "Hormone",
+    "en": "Hormones"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "PROLAKTIN",
+   "name": {
+    "de": "Prolaktin",
+    "en": "Prolaktin"
+   },
+   "topic": {
+    "de": "Hormone",
+    "en": "Hormones"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "ANTIMULLER",
+   "name": {
+    "de": "Anti-Müller-Hormon",
+    "en": "AMH"
+   },
+   "topic": {
+    "de": "Fruchtbarkeit & Zyklus",
+    "en": "Fertility & cycle"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "FSH",
+   "name": {
+    "de": "FSH",
+    "en": "Follikelstimulierendes Hormon"
+   },
+   "topic": {
+    "de": "Fruchtbarkeit & Zyklus",
+    "en": "Fertility & cycle"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "LHLUTROPIN",
+   "name": {
+    "de": "LH (Lutropin)",
+    "en": "LH"
+   },
+   "topic": {
+    "de": "Fruchtbarkeit & Zyklus",
+    "en": "Fertility & cycle"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "ESTRADIOL",
+   "name": {
+    "de": "Estradiol",
+    "en": "E2"
+   },
+   "topic": {
+    "de": "Fruchtbarkeit & Zyklus",
+    "en": "Fertility & cycle"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "FOLSAURE",
+   "name": {
+    "de": "Folsäure",
+    "en": "Folic acid"
+   },
+   "topic": {
+    "de": "Vitamine",
+    "en": "Vitamins"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "VITAMINB12",
+   "name": {
+    "de": "Vitamin B12 (Holo-TC)",
+    "en": "Vitamin B12 (holo-TC)"
+   },
+   "topic": {
+    "de": "Vitamine",
+    "en": "Vitamins"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "VITAMIND",
+   "name": {
+    "de": "Vitamin D (25-OH)",
+    "en": "Vitamin D (25-OH)"
+   },
+   "topic": {
+    "de": "Vitamine",
+    "en": "Vitamins"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "VITAMINB6",
+   "name": {
+    "de": "Vitamin B6",
+    "en": "Pyridoxalphosphat (PLP)"
+   },
+   "topic": {
+    "de": "Vitamine",
+    "en": "Vitamins"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "VITAMINB1",
+   "name": {
+    "de": "Vitamin B1",
+    "en": "Thiamin (Vitamin B1)"
+   },
+   "topic": {
+    "de": "Vitamine",
+    "en": "Vitamins"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "FERRITIN",
+   "name": {
+    "de": "Ferritin",
+    "en": "Ferritin"
+   },
+   "topic": {
+    "de": "Mineralstoffe & Spurenelemente",
+    "en": "Minerals & trace elements"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "CALCIUM",
+   "name": {
+    "de": "Calcium",
+    "en": "Kalzium"
+   },
+   "topic": {
+    "de": "Mineralstoffe & Spurenelemente",
+    "en": "Minerals & trace elements"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "MAGNESIUM",
+   "name": {
+    "de": "Magnesium",
+    "en": "Magnesium"
+   },
+   "topic": {
+    "de": "Mineralstoffe & Spurenelemente",
+    "en": "Minerals & trace elements"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "ZINK",
+   "name": {
+    "de": "Zink",
+    "en": "Zinc"
+   },
+   "topic": {
+    "de": "Mineralstoffe & Spurenelemente",
+    "en": "Minerals & trace elements"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "SELEN",
+   "name": {
+    "de": "Selen",
+    "en": "Selenium"
+   },
+   "topic": {
+    "de": "Mineralstoffe & Spurenelemente",
+    "en": "Minerals & trace elements"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "KUPFER",
+   "name": {
+    "de": "Kupfer",
+    "en": "Copper"
+   },
+   "topic": {
+    "de": "Mineralstoffe & Spurenelemente",
+    "en": "Minerals & trace elements"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "MANGAN",
+   "name": {
+    "de": "Mangan",
+    "en": "Manganese"
+   },
+   "topic": {
+    "de": "Mineralstoffe & Spurenelemente",
+    "en": "Minerals & trace elements"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "CRP",
+   "name": {
+    "de": "CRP",
+    "en": "CRP (C-reaktives Protein)"
+   },
+   "topic": {
+    "de": "Entzündung",
+    "en": "Inflammation"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "HSCRP",
+   "name": {
+    "de": "hs-CRP",
+    "en": "hs-CRP"
+   },
+   "topic": {
+    "de": "Entzündung",
+    "en": "Inflammation"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "HAMOGLOBIN",
+   "name": {
+    "de": "Hämoglobin",
+    "en": "Hb"
+   },
+   "topic": {
+    "de": "Blutbild & Muskel",
+    "en": "Blood count & muscle"
+   },
+   "material": "EDTA",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "LEUKOZYTEN",
+   "name": {
+    "de": "Leukozyten",
+    "en": "Leukocytes"
+   },
+   "topic": {
+    "de": "Blutbild & Muskel",
+    "en": "Blood count & muscle"
+   },
+   "material": "EDTA",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "KREATINKIN",
+   "name": {
+    "de": "Kreatinkinase",
+    "en": "Creatine kinase"
+   },
+   "topic": {
+    "de": "Blutbild & Muskel",
+    "en": "Blood count & muscle"
+   },
+   "material": "EDTA",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "LYMPHOZYTE",
+   "name": {
+    "de": "Lymphozyten-Anteil",
+    "en": "Lymphozyten"
+   },
+   "topic": {
+    "de": "Biologisches Alter",
+    "en": "Biological age"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "MCVMITTLER",
+   "name": {
+    "de": "MCV (mittleres Erythrozytenvolumen)",
+    "en": "MCV"
+   },
+   "topic": {
+    "de": "Biologisches Alter",
+    "en": "Biological age"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "RDWERYTHRO",
+   "name": {
+    "de": "RDW (Erythrozyten-Verteilungsbreite)",
+    "en": "RDW"
+   },
+   "topic": {
+    "de": "Biologisches Alter",
+    "en": "Biological age"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  },
+  {
+   "id": "PSA",
+   "name": {
+    "de": "PSA",
+    "en": "PSA (prostataspezifisches Antigen)"
+   },
+   "topic": {
+    "de": "Prostata",
+    "en": "Prostate"
+   },
+   "material": "Serum",
+   "volumeUl": 100,
+   "price": 9.9
+  }
+ ]
+}
