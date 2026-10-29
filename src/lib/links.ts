@@ -1,3 +1,5 @@
+import { legacyTarget } from "@/lib/legacy-urls";
+
 /** External DoctorBox destinations used across the shop */
 export const REGISTER_TEST_URL = "https://app.doctorbox.de";
 export const APP_STORE_URL = "https://apps.apple.com/de/app/doctorbox/id1448720473";
@@ -23,4 +25,25 @@ export function stripCampaignParams(href: string): string {
   const sep = query.includes("&amp;") ? "&amp;" : "&";
   const kept = query.split(/&amp;|&/).filter((p) => p && !/^utm_/i.test(p));
   return `${path}${kept.length ? `?${kept.join(sep)}` : ""}${hash}`;
+}
+
+/**
+ * Repairs hrefs that editors pasted wrongly: "www.doctorbox.de" without scheme, or a whole
+ * <a href="…"> snippet pasted into the href field (image credits). Other hrefs stay as they are.
+ */
+export function repairHref(href: string): string {
+  const h = href.trim();
+  if (/^(https?:|\/|#|mailto:|tel:)/i.test(h)) return h;
+  if (/^www\./i.test(h)) return `https://${h}`;
+  return h.match(/https?:\/\/[^\s"'<>#%&]+/i)?.[0] ?? h;
+}
+
+/** Every link in Shopify content: repaired, without campaign parameters, dead legacy targets replaced */
+export function cleanContentHref(href: string): string {
+  const h = stripCampaignParams(repairHref(href));
+  if (!h.startsWith("/")) return h;
+  const cut = h.search(/[?#]/);
+  const path = cut >= 0 ? h.slice(0, cut) : h;
+  const target = legacyTarget(path);
+  return target ? `${target}${cut >= 0 ? h.slice(cut) : ""}` : h;
 }

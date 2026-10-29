@@ -1,5 +1,5 @@
 import { stripHtml } from "@/lib/format";
-import { stripCampaignParams } from "@/lib/links";
+import { cleanContentHref } from "@/lib/links";
 import { classes, cleanText, find, findAll, hasClass, isNode, nodes, parseHtml, textOf, type HChild, type HNode } from "./html-tree";
 
 /**
@@ -81,7 +81,7 @@ function isContentImage(src: string, alt: string): boolean {
 }
 
 function rewriteHref(href: string): string {
-  return stripCampaignParams(href.replace(/https?:\/\/shop\.doctorbox\.de/, ""));
+  return cleanContentHref(href.replace(/https?:\/\/shop\.doctorbox\.de/, ""));
 }
 
 /** Minimal tokenizer: emits tags and text in order. */

@@ -1,7 +1,7 @@
 import type { Locale } from "@/lib/i18n/config";
 import { localePrefix } from "@/lib/i18n/config";
 import { normalizeHtml } from "@/lib/content/html-tree";
-import { stripCampaignParams } from "@/lib/links";
+import { cleanContentHref } from "@/lib/links";
 
 /**
  * Renders Shopify-authored HTML (descriptions, pages, articles, policies).
@@ -20,7 +20,7 @@ export function RichText({ html, locale, className = "" }: { html: string; local
     .replace(/\sdata-(?:ccp|list|aria|font|leveltext|listid|contrast)[a-z-]*='[^']*'/g, "")
     .replace(/\sdata-(?:ccp|list|aria|font|leveltext|listid|contrast)[a-z-]*="[^"]*"/g, "")
     .replace(/\sstyle="[^"]*"/g, "")
-    .replace(/href="(\/[^"]*)"/g, (_, h: string) => `href="${stripCampaignParams(h)}"`);
+    .replace(/href="([^"]*)"/g, (_, h: string) => `href="${cleanContentHref(h)}"`);
   if (prefix) {
     // keep internal links in the current language
     out = out.replace(/href="\/(products|collections|pages|policies|blogs|blog)(\/|")/g, `href="${prefix}/$1$2`);

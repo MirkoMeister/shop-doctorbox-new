@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { BLOG_BASE, GUIDE_BASE } from "@/lib/content/guides";
+import { legacyTarget } from "@/lib/legacy-urls";
 
 /**
  * URL strategy (mirrors the old Shopify store so rankings carry over):
@@ -65,6 +66,10 @@ export function proxy(request: NextRequest) {
   if (legacy[bare]) return redirect(`${prefix}${legacy[bare]}`);
   const legacyBlog = bare.match(/^\/blogs\/(blog-salute-sessuale|blog-sexual-health)\/[^/]+\/?$/);
   if (legacyBlog) return redirect(`${prefix}/blogs/blog-sexuelle-gesundheit`, false);
+
+  // Dead targets from old content: renamed products, invented English handles, moved articles
+  const moved = legacyTarget(pathname);
+  if (moved) return redirect(moved, false);
 
   // Short preview URLs → the canonical Shopify URLs
   if (bare === "/pages/gesundheitsblog") return redirect(`${prefix}${BLOG_BASE}`, false);
