@@ -532,3 +532,7 @@ body {
   border-top: 1px solid rgb(14 77 47 / 0.12);
   box-shadow: 0 -12px 32px rgb(14 77 47 / 0.08);
 }
+/* iubenda's legal footer bar: our own footer already links the legal pages */
+#iub-legal-footer#iub-legal-footer {
+  display: none !important;
+}
