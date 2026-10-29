@@ -3,7 +3,7 @@ import type { Locale } from "@/lib/i18n/config";
 
 /**
  * Consent (iubenda) + tracking. Everything the old shop loaded is kept:
- *  - iubenda CMP with autoblocking (blocks GTM/Klaviyo until consent)
+ *  - iubenda CMP with autoblocking, plus prior blocking: GTM, Meta and Klaviyo only run after consent
  *  - Google Tag Manager (GA4, Meta, TikTok and Clarity are configured inside the container)
  *  - Klaviyo onsite
  *  - Plausible (cookieless)
@@ -54,10 +54,20 @@ _iub.csConfiguration = {
         </>
       )}
 
+      {/* Prior blocking: type="text/plain" keeps the browser from running the tag; iubenda swaps it for a
+          live script once the visitor consents (class _iub_cs_activate[-inline] + data-iub-purposes).
+          Rendered as plain <script> in the server HTML so iubenda finds it on load and on later consent.
+          Purpose 4 = measurement. Marketing tags inside the container wait for ad consent (Consent Mode). */}
       {gtm && (
-        <Script id="gtm" strategy="afterInteractive" data-iub-purposes="4,5">
-          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtm}');`}
-        </Script>
+        // eslint-disable-next-line @next/next/next-script-for-ga -- must stay inert text/plain until iubenda activates it
+        <script
+          type="text/plain"
+          className="_iub_cs_activate-inline"
+          data-iub-purposes="4"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtm}');`,
+          }}
+        />
       )}
 
       {/* The GTM container calls fbq() – make sure the function exists before GTM runs, even without a pixel ID.
@@ -70,19 +80,28 @@ _iub.csConfiguration = {
       />
       {/* Meta base pixel: loads the real script and initialises the pixel when an ID is configured */}
       {metaPixel && (
-        <Script id="meta-pixel" strategy="afterInteractive" data-iub-purposes="5">
-          {`!function(b,e,v){var t=b.createElement(e);t.async=!0;t.src=v;var s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${metaPixel}');fbq('track','PageView');`}
-        </Script>
-      )}
-
-      {klaviyo && (
-        <Script
-          src={`https://static.klaviyo.com/onsite/js/${klaviyo}/klaviyo.js?company_id=${klaviyo}`}
-          strategy="lazyOnload"
+        <script
+          type="text/plain"
+          className="_iub_cs_activate-inline"
           data-iub-purposes="5"
+          dangerouslySetInnerHTML={{
+            __html: `!function(b,e,v){var t=b.createElement(e);t.async=!0;t.src=v;var s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${metaPixel}');fbq('track','PageView');`,
+          }}
         />
       )}
 
+      {/* Klaviyo onsite (forms, tracking) = marketing, purpose 5 */}
+      {klaviyo && (
+        <script
+          type="text/plain"
+          className="_iub_cs_activate"
+          data-suppressedsrc={`https://static.klaviyo.com/onsite/js/${klaviyo}/klaviyo.js?company_id=${klaviyo}`}
+          data-iub-purposes="5"
+          async
+        />
+      )}
+
+      {/* Without consent: Plausible (cookieless, no personal data) and the Trusted Shops review widget */}
       {plausible && <Script defer data-domain={plausible} src="https://plausible.io/js/script.js" strategy="lazyOnload" />}
 
       {etrusted && <Script src="https://integrations.etrusted.com/applications/widget.js/v2" strategy="lazyOnload" />}

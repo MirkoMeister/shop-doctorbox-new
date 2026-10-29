@@ -64,5 +64,7 @@ Im Shop umgesetzt: „nahezu schmerzfrei“ (Herstellerformulierung) statt „ko
 - [ ] URL-Check gegen die alte Sitemap erneut laufen lassen (alle 1.627 URLs antworteten am 28.10. mit 200 oder Weiterleitung).
 - [ ] Impressum, Datenschutz, AGB, Widerruf inhaltlich prüfen.
 - [ ] Cookie-Banner (iubenda) auf der neuen Domain testen.
+- [ ] **Tracking erst nach Einwilligung (umgesetzt 29.10.):** Tag Manager (GA4, Google Ads, TikTok, Bing, Clarity), Meta-Pixel und Klaviyo starten erst nach Zustimmung im iubenda-Banner. Vor der Zustimmung laufen nur Plausible (ohne Cookies) und das Trusted-Shops-Widget. Der Tag Manager hängt an „Messung“ (Zweck 4), Marketing-Tags im Container warten zusätzlich auf die Werbe-Einwilligung. Von Datenschutz bestätigen lassen, dass Plausible und Trusted Shops ohne Einwilligung laden dürfen.
+- [ ] **Shopify-Checkout:** Prüfen, ob GA4, Google Ads und Meta dort über Kundenereignisse oder die Shopify-Apps verbunden sind und die Einwilligung aus dem Shop respektieren (Käufe werden nur dort gemessen).
 - [ ] Google Search Console: neue Sitemap einreichen, Property bleibt dieselbe Domain.
 - [ ] Ersten Tag nach dem Umzug: Vercel-Logs auf 404 und 500 beobachten.
