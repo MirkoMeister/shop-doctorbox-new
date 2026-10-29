@@ -1,0 +1,92 @@
+{
+ "home": {
+  "path": "/",
+  "ttfb": 91,
+  "fcp": 1928,
+  "lcp": 2880,
+  "lcpEl": "IMG.object-cover object-[72%_center] lg:obje",
+  "cls": 0,
+  "tbt": 166,
+  "kb": 626,
+  "jsKb": 312,
+  "lcpRuns": [
+   2880,
+   3788
+  ]
+ },
+ "collection": {
+  "path": "/collections/sexuelle-gesundheit",
+  "ttfb": 191,
+  "fcp": 1828,
+  "lcp": 1972,
+  "lcpEl": "IMG.object-cover object-center",
+  "cls": 0,
+  "tbt": 161,
+  "kb": 548,
+  "jsKb": 316,
+  "lcpRuns": [
+   1972,
+   2292
+  ]
+ },
+ "product": {
+  "path": "/products/sti-standard-5",
+  "ttfb": 91,
+  "fcp": 2036,
+  "lcp": 2356,
+  "lcpEl": "IMG.object-contain p-4 sm:p-8",
+  "cls": 0,
+  "tbt": 194,
+  "kb": 525,
+  "jsKb": 316,
+  "lcpRuns": [
+   2356,
+   2464
+  ]
+ },
+ "article": {
+  "path": "/blogs/blog-sexuelle-gesundheit/chlamydien",
+  "ttfb": 76,
+  "fcp": 1404,
+  "lcp": 1404,
+  "lcpEl": "H1.h-display mt-5 text-balance text-moss",
+  "cls": 0,
+  "tbt": 161,
+  "kb": 494,
+  "jsKb": 311,
+  "lcpRuns": [
+   1404,
+   1616
+  ]
+ },
+ "guide": {
+  "path": "/pages/ratgeber-vegan",
+  "ttfb": 83,
+  "fcp": 1752,
+  "lcp": 1752,
+  "lcpEl": "H1.h-display mt-5 text-balance text-moss",
+  "cls": 0,
+  "tbt": 164,
+  "kb": 473,
+  "jsKb": 311,
+  "lcpRuns": [
+   1752,
+   1784
+  ]
+ },
+ "supplements": {
+  "path": "/collections/nahrungserganzungsmittel",
+  "ttfb": 68,
+  "fcp": 1632,
+  "lcp": 2096,
+  "lcpEl": "IMG.object-cover object-center",
+  "cls": 0,
+  "tbt": 166,
+  "kb": 524,
+  "jsKb": 316,
+  "lcpRuns": [
+   2096,
+   2208
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+  "ledger_version": "1.0.0",
+  "title": "SEO-Audit Headless-Shop 29.10.2026",
+  "steps": [
+    {
+      "id": "site-audit",
+      "path": "site-audit.md",
+      "title": "SEO-Audit: Technik, Performance, Migration, Links, Inhalte, hreflang, Schema, Bilder",
+      "status": "completed",
+      "owner": "Entwicklung + Content (Freigabe: Mirko Meister)",
+      "outcome": "Migration vollständig, hreflang korrekt; vor Umzug zu beheben: kein Caching, Server-Region USA, fehlende Inhalte auf 10 Seiten, 126 defekte interne Links, Vercel-Domain indexierbar",
+      "sha256": "253a7eb91caf61e3120ad3d4842e4690dc7e07e881743a4cabf50408e1e05396"
+    },
+    {
+      "id": "markdown-coverage",
+      "path": "markdown-coverage.md",
+      "title": "Markdown-Abdeckung und llms.txt",
+      "status": "completed",
+      "owner": "Entwicklung (Entscheidung: Mirko Meister)",
+      "outcome": "llms.txt und agents.md vorhanden, alle 20 Links erreichbar; 0 von 848 indexierbaren Seiten mit Markdown-Fassung, sitemap.md fehlt; Umsetzung ist Betreiber-Entscheidung",
+      "sha256": "a8eaa903c697fb7abc16cd1d8949869a58a7d9ac3d0ce83072550dbbe516c59e"
+    }
+  ]
+}
