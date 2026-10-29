@@ -75,7 +75,6 @@ export function websiteJsonLd(locale: Locale) {
 
 export function productJsonLd(product: Product, locale: Locale, reviews: ProductReview[] = []) {
   const url = absoluteUrl(locale, `/products/${product.handle}`);
-  const prices = product.variants.map((v) => parseFloat(v.price.amount));
   const offers =
     product.variants.length === 1
       ? {
@@ -88,15 +87,18 @@ export function productJsonLd(product: Product, locale: Locale, reviews: Product
           itemCondition: "https://schema.org/NewCondition",
           seller: { "@id": `${siteUrl}/#organization` },
         }
-      : {
-          "@type": "AggregateOffer",
-          url,
-          lowPrice: Math.min(...prices).toFixed(2),
-          highPrice: Math.max(...prices).toFixed(2),
-          priceCurrency: product.priceRange.minVariantPrice.currencyCode,
-          offerCount: product.variants.length,
-          availability: product.availableForSale ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-        };
+      : // one Offer per variant with its own ?variant= URL, so Google Shopping's variant links match price and availability
+        product.variants.map((v) => ({
+          "@type": "Offer",
+          url: `${url}?variant=${v.id.slice(v.id.lastIndexOf("/") + 1)}`,
+          name: v.title,
+          price: v.price.amount,
+          priceCurrency: v.price.currencyCode,
+          availability: v.availableForSale ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          sku: v.sku ?? undefined,
+          itemCondition: "https://schema.org/NewCondition",
+          seller: { "@id": `${siteUrl}/#organization` },
+        }));
   return {
     "@context": "https://schema.org",
     "@type": "Product",

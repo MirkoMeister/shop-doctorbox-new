@@ -6,6 +6,7 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { Product, Variant } from "@/lib/shopify/types";
 import { Gallery } from "./Gallery";
 import { PurchaseForm } from "./PurchaseForm";
+import { useUrlVariant } from "./use-url-variant";
 
 /**
  * Couples the gallery with the purchase form so a variant with its own
@@ -23,9 +24,10 @@ export function ProductBuyBox({
   children: React.ReactNode;
 }) {
   const [variant, setVariant] = useState<Variant | null>(null);
+  const urlVariant = useUrlVariant(product);
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14">
-      <Gallery images={product.images} title={product.title} activeImageUrl={variant?.image?.url} />
+      <Gallery images={product.images} title={product.title} activeImageUrl={(variant ?? urlVariant)?.image?.url} />
       <div>
         {children}
         <PurchaseForm product={product} locale={locale} dict={dict} onVariantChange={setVariant} />

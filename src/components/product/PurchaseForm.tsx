@@ -12,6 +12,7 @@ import { TassoNote } from "@/components/product/TassoNote";
 import { isYoungle } from "@/components/supplements/SupplementTrust";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { unitPriceOf, type UnitPrice } from "@/lib/unit-price";
+import { useUrlVariant, writeVariantToUrl } from "./use-url-variant";
 
 type Mode = "once" | "subscription";
 
@@ -36,9 +37,10 @@ export function PurchaseForm({
     (tassoVariant && cheapest && parseFloat(tassoVariant.price.amount) <= parseFloat(cheapest.price.amount) ? tassoVariant : null) ??
     cheapest ??
     product.variants[0];
-  const [selected, setSelected] = useState<Record<string, string>>(
-    Object.fromEntries(firstAvailable.selectedOptions.map((o) => [o.name, o.value])),
-  );
+  // A ?variant= link (Google Shopping) wins over the default until the visitor picks something
+  const urlVariant = useUrlVariant(product);
+  const [picked, setPicked] = useState<Record<string, string> | null>(null);
+  const selected = picked ?? Object.fromEntries((urlVariant ?? firstAvailable).selectedOptions.map((o) => [o.name, o.value]));
   const [qty, setQty] = useState(1);
   const plans = product.sellingPlanGroups.flatMap((g) => g.sellingPlans);
   const hasPlans = plans.length > 0;
@@ -67,9 +69,12 @@ export function PurchaseForm({
 
   function choose(name: string, value: string) {
     const next = { ...selected, [name]: value };
-    setSelected(next);
+    setPicked(next);
     const v = product.variants.find((v) => v.selectedOptions.every((o) => next[o.name] === o.value));
-    if (v) onVariantChange?.(v);
+    if (v) {
+      onVariantChange?.(v);
+      writeVariantToUrl(v);
+    }
   }
 
   async function submit(e: React.FormEvent) {
