@@ -156,10 +156,11 @@ export type CartLine = {
   merchandise: {
     id: string;
     title: string;
+    sku: string | null;
     requiresShipping: boolean;
     selectedOptions: { name: string; value: string }[];
     image: Image | null;
-    product: { handle: string; title: string; vendor: string; productType: string; featuredImage: Image | null; biomarkers: string[]; sampleMaterial: string | null };
+    product: { id: string; handle: string; title: string; vendor: string; productType: string; featuredImage: Image | null; biomarkers: string[]; sampleMaterial: string | null };
   };
 };
 

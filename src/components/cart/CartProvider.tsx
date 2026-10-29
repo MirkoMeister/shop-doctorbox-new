@@ -5,6 +5,7 @@ import type { Locale } from "@/lib/i18n/config";
 import { addToCart, getCart, removeLine, setDiscountCode, updateLine } from "@/lib/cart/actions";
 import type { Cart } from "@/lib/shopify/types";
 import type { CartLineInput } from "@/lib/shopify/queries";
+import { itemFromLine, trackAddToCart } from "@/lib/tracking/events";
 
 type CartContextValue = {
   cart: Cart | null;
@@ -48,6 +49,10 @@ export function CartProvider({ locale, children }: { locale: Locale; children: R
           if (res.cart) {
             setCart(res.cart);
             setOpen(true);
+            const added = res.cart.lines.find(
+              (l) => l.merchandise.id === line.merchandiseId && (l.sellingPlanAllocation?.sellingPlan.id ?? undefined) === line.sellingPlanId,
+            );
+            if (added) trackAddToCart(itemFromLine(added, line.quantity));
             resolve(true);
           } else {
             setError(res.error ?? "error");

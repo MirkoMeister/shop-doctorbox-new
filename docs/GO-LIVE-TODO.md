@@ -57,14 +57,18 @@ Im Shop umgesetzt: „nahezu schmerzfrei“ (Herstellerformulierung) statt „ko
 
 - [ ] Alle Werte aus `.env.example` gesetzt, insbesondere `ANTHROPIC_API_KEY` (Workspace-Key), `RESEND_API_KEY`, `CONTACT_TO`, `NEXT_PUBLIC_SITE_URL=https://shop.doctorbox.de`.
 - [ ] **Newsletter (Klaviyo):** `KLAVIYO_LIST_ID` in Vercel und `.env.local` setzen (Klaviyo → Listen → Liste → Einstellungen, ID im Pfad). Auf der Liste Double Opt-in aktivieren und die Bestätigungsmail auf Deutsch prüfen. Bis dahin sind Newsletter-Formulare auf Startseite und Footer sichtbar, melden bei Absenden aber einen Fehler.
-- [ ] Noch leer: Trusted-Shops-Widget-ID, Meta-Pixel-ID.
+- [ ] Noch leer: Trusted-Shops-Widget-ID. (Tracking-IDs stehen als Standardwerte im Code, siehe `src/lib/tracking/config.ts`; Env-Variablen überschreiben sie.)
 
 ## 6. Letzte Prüfung vor dem DNS-Switch
 
 - [ ] URL-Check gegen die alte Sitemap erneut laufen lassen (alle 1.627 URLs antworteten am 28.10. mit 200 oder Weiterleitung).
 - [ ] Impressum, Datenschutz, AGB, Widerruf inhaltlich prüfen.
 - [ ] Cookie-Banner (iubenda) auf der neuen Domain testen.
-- [ ] **Tracking erst nach Einwilligung (umgesetzt 29.10.):** Tag Manager (GA4, Google Ads, TikTok, Bing, Clarity), Meta-Pixel und Klaviyo starten erst nach Zustimmung im iubenda-Banner. Vor der Zustimmung laufen nur Plausible (ohne Cookies) und das Trusted-Shops-Widget. Der Tag Manager hängt an „Messung“ (Zweck 4), Marketing-Tags im Container warten zusätzlich auf die Werbe-Einwilligung. Von Datenschutz bestätigen lassen, dass Plausible und Trusted Shops ohne Einwilligung laden dürfen.
-- [ ] **Shopify-Checkout:** Prüfen, ob GA4, Google Ads und Meta dort über Kundenereignisse oder die Shopify-Apps verbunden sind und die Einwilligung aus dem Shop respektieren (Käufe werden nur dort gemessen).
+- [ ] **Tracking nach Vorgabe (umgesetzt 29.10.):** iubenda lädt vor allen anderen Skripten. Tag Manager (Zweck 4, Messung), Meta-Pixel, Reddit-Pixel und Klaviyo (Zweck 5, Marketing) starten erst nach Zustimmung. Ohne Zustimmung laufen nur Plausible (ohne Cookies) und das Trusted-Shops-Widget; von Datenschutz bestätigen lassen.
+  Ereignisse aus dem Code: dataLayer `view_item`, `add_to_cart`, `view_cart` (GA4-Format wie im alten Theme, IDs `shopify_DE_<Produkt>_<Variante>`); Meta `PageView`, `ViewContent`, `AddToCart` (kein Purchase); Reddit `PageVisit`, `ViewContent`, `AddToCart`. Käufe messen weiter die Shopify-Apps im Checkout.
+- [ ] **Neues iubenda-Konto für den Headless-Shop:** Die Shopify-App (Complianz) lässt sich nicht weiter nutzen. Im neuen Konto Website `shop.doctorbox.de` anlegen, Autoblocking, Google Consent Mode und Microsoft-UET-Consent aktivieren, Einwilligung pro Zweck. Cookie-Richtlinie um alle Dienste ergänzen (GA4, Google Ads, Tag Manager, Meta, Reddit, TikTok, Bing, Clarity, Klaviyo, Plausible, Trusted Shops, Shopify). Danach in Vercel setzen: `NEXT_PUBLIC_IUBENDA_SITE_ID`, `NEXT_PUBLIC_IUBENDA_POLICY_ID_DE`, `NEXT_PUBLIC_IUBENDA_POLICY_ID_EN`. Banner-Optik und Texte stehen im Code. Mit neuer Site-ID werden alle Besucher einmal neu gefragt.
+- [ ] **Tag Manager:** Prüfen, ob für `view_cart` ein GA4-Tag existiert (`view_item` und `add_to_cart` kamen schon aus dem alten Theme). Meta-Tags im Container gibt es nicht, es entstehen also keine Dubletten.
+- [ ] **Meta-Katalog:** In Events Manager prüfen, ob `content_ids` im Format `shopify_DE_<Produkt>_<Variante>` zu den Katalog-IDs der Shopify-App passen (der alte Shop sendete Meta serverseitig, das Format war nicht einsehbar).
+- [ ] **Einwilligung an den Checkout:** Der Shop übergibt die iubenda-Wahl an Shopify (Cookie `_tracking_consent` auf `doctorbox.de`). Das greift nur, wenn der Checkout auf einer Subdomain von `doctorbox.de` liegt (siehe Abschnitt 1, `checkout.doctorbox.de`). Sonst fehlen Einwilligung und Kauf-Zuordnung im Checkout.
 - [ ] Google Search Console: neue Sitemap einreichen, Property bleibt dieselbe Domain.
 - [ ] Ersten Tag nach dem Umzug: Vercel-Logs auf 404 und 500 beobachten.

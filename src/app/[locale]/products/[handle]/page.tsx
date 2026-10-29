@@ -25,6 +25,7 @@ import { youngleContent } from "@/content/youngle-content";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
 import { ProductReviews } from "@/components/reviews/ProductReviews";
+import { TrackViewItem } from "@/components/analytics/TrackViewItem";
 import { getProductReviews, summarize } from "@/lib/reviews/etrusted";
 import { reviewSkusFor } from "@/content/review-skus";
 import { stripHtml, truncate } from "@/lib/format";
@@ -136,6 +137,7 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
+      <TrackViewItem product={product} />
       <JsonLd
         data={[
           productJsonLd(product, locale, reviews),

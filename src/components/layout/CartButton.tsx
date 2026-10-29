@@ -2,6 +2,7 @@
 
 import { useCart } from "@/components/cart/CartProvider";
 import { BagIcon } from "@/components/ui/Icons";
+import { trackViewCart } from "@/lib/tracking/events";
 
 export function CartButton({ label }: { label: string }) {
   const { cart, setOpen } = useCart();
@@ -9,7 +10,10 @@ export function CartButton({ label }: { label: string }) {
   return (
     <button
       type="button"
-      onClick={() => setOpen(true)}
+      onClick={() => {
+        setOpen(true);
+        if (cart?.lines.length) trackViewCart(cart);
+      }}
       aria-label={`${label}${count ? ` (${count})` : ""}`}
       className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-lind group-data-[tone=dark]:text-soft group-data-[tone=dark]:hover:bg-white/10"
     >

@@ -8,7 +8,8 @@ import { CartProvider } from "@/components/cart/CartProvider";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { Analytics } from "@/components/analytics/Analytics";
+import Script from "next/script";
+import { Analytics, iubendaConfigScript, iubendaSrc } from "@/components/analytics/Analytics";
 import { AssistantProvider } from "@/components/assistant/AssistantProvider";
 import { AssistantPanel } from "@/components/assistant/AssistantPanel";
 import { AssistantTab } from "@/components/assistant/AssistantTab";
@@ -70,6 +71,12 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={host.variable} style={promo ? ({ "--promo-h": "40px" } as React.CSSProperties) : undefined}>
       <body className="min-h-dvh flex flex-col" suppressHydrationWarning>
+        {/* Consent before every other script (Next moves beforeInteractive scripts into <head>) */}
+        <Script id="iubenda-config" strategy="beforeInteractive">
+          {iubendaConfigScript(locale)}
+        </Script>
+        <Script id="iubenda-autoblocking" src={iubendaSrc().autoblocking} strategy="beforeInteractive" />
+        <Script id="iubenda-cs" src={iubendaSrc().banner} strategy="beforeInteractive" />
         <JsonLd data={[organizationJsonLd(locale), websiteJsonLd(locale)]} />
         <CartProvider locale={locale}>
           <AssistantProvider locale={locale} dict={dict}>
@@ -84,7 +91,7 @@ export default async function LocaleLayout({
           <AssistantTab label={dict.assistant.open} />
           </AssistantProvider>
         </CartProvider>
-        <Analytics locale={locale} />
+        <Analytics />
       </body>
     </html>
   );

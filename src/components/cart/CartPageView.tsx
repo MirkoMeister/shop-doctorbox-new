@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAssistant } from "@/components/assistant/AssistantProvider";
 import { useCart } from "./CartProvider";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -15,6 +15,7 @@ import { localeHref, type Locale } from "@/lib/i18n/config";
 import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import type { Cart, CartLine, ProductCard as ProductCardType } from "@/lib/shopify/types";
+import { trackViewCart } from "@/lib/tracking/events";
 
 const PREVIEW = 8;
 
@@ -291,6 +292,13 @@ function EmptyCart({ locale, dict }: { locale: Locale; dict: Dictionary }) {
 
 export function CartPageView({ locale, dict, suggestions = [] }: { locale: Locale; dict: Dictionary; suggestions?: ProductCardType[] }) {
   const { cart, loading, pending, update, remove, applyDiscount } = useCart();
+  // view_cart once per visit of the cart page, as soon as the cart is known
+  const viewTracked = useRef(false);
+  useEffect(() => {
+    if (viewTracked.current || !cart?.lines.length) return;
+    viewTracked.current = true;
+    trackViewCart(cart);
+  }, [cart]);
   const lines = cart?.lines ?? [];
   const count = cart?.totalQuantity ?? 0;
   const hasTests = lines.some((l) => !isSupplement(l.merchandise.product));

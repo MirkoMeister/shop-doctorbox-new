@@ -277,6 +277,7 @@ export const CART_FRAGMENT = /* GraphQL */ `
             ... on ProductVariant {
               id
               title
+              sku
               requiresShipping
               selectedOptions {
                 name
@@ -286,6 +287,7 @@ export const CART_FRAGMENT = /* GraphQL */ `
                 ...ImageFields
               }
               product {
+                id
                 handle
                 title
                 vendor
