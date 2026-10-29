@@ -520,3 +520,14 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .promo-track { animation: none; }
 }
+
+/* iubenda cookie banner: shop typeface and a hairline edge so the bottom bar sits with the page.
+   Colours, position and texts come from the iubenda configuration (Analytics.tsx). */
+#iubenda-cs-banner,
+#iubenda-cs-banner * {
+  font-family: var(--font-sans) !important;
+}
+#iubenda-cs-banner.iubenda-cs-bottom .iubenda-cs-container {
+  border-top: 1px solid rgb(14 77 47 / 0.12);
+  box-shadow: 0 -12px 32px rgb(14 77 47 / 0.08);
+}

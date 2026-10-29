@@ -28,7 +28,7 @@ export function iubendaConfigScript(locale: Locale): string {
     acceptButtonDisplay: true,
     rejectButtonDisplay: true,
     customizeButtonDisplay: true,
-    position: "float-bottom-left",
+    position: "bottom",
     backgroundOverlay: false,
     fontSize: "14px",
     logo: "/consent-logo.png",
