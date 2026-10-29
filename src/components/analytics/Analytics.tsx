@@ -49,9 +49,9 @@ export function iubendaConfigScript(locale: Locale): string {
   const config = {
     siteId: Number(t.iubendaSiteId),
     cookiePolicyId: Number(t.iubendaPolicyIds[locale] || t.iubendaPolicyIds.de),
-    // The iubenda plan only covers the languages it has a cookie policy for; without an English
-    // policy the banner would not appear at all on /en, so it falls back to German there
-    lang: t.iubendaPolicyIds[locale] ? locale : "de",
+    // iubenda only shows the banner in languages set up in the account; without a policy for the
+    // locale the banner would not appear at all, so such a locale falls back to German
+    lang: t.iubendaPolicyIds[locale] ? t.iubendaLang[locale] : "de",
     storage: { useSiteId: true },
     consentOnContinuedBrowsing: false,
     perPurposeConsent: true,

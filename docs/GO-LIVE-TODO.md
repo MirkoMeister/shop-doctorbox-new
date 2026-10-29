@@ -66,9 +66,9 @@ Im Shop umgesetzt: „nahezu schmerzfrei“ (Herstellerformulierung) statt „ko
 - [ ] Cookie-Banner (iubenda) auf der neuen Domain testen.
 - [ ] **Tracking nach Vorgabe (umgesetzt 29.10.):** iubenda lädt vor allen anderen Skripten. Tag Manager (Zweck 4, Messung), Meta-Pixel, Reddit-Pixel und Klaviyo (Zweck 5, Marketing) starten erst nach Zustimmung. Ohne Zustimmung laufen nur Plausible (ohne Cookies) und das Trusted-Shops-Widget; von Datenschutz bestätigen lassen.
   Ereignisse aus dem Code: dataLayer `view_item`, `add_to_cart`, `view_cart` (GA4-Format wie im alten Theme, IDs `shopify_DE_<Produkt>_<Variante>`); Meta `PageView`, `ViewContent`, `AddToCart` (kein Purchase); Reddit `PageVisit`, `ViewContent`, `AddToCart`. Käufe messen weiter die Shopify-Apps im Checkout.
-- [ ] **Neues iubenda-Konto (eingebunden 29.10.):** Einbau-Skript `794f53fb-…`, Site-ID 4741228, Cookie-Richtlinie DE 16389627 (Standardwerte im Code). Offen im iubenda-Dashboard:
+- [ ] **Neues iubenda-Konto (eingebunden 29.10.):** Einbau-Skript `794f53fb-…`, Site-ID 4741228, Cookie-Richtlinien DE 16389627 und EN 15787771 (Standardwerte im Code). Offen im iubenda-Dashboard:
   - Betreiber („ownerName“) steht auf der Vercel-Adresse; im Code mit „DoctorBox Service GmbH“ überschrieben, im Dashboard korrigieren.
-  - Nur Deutsch freigeschaltet: Englische Seiten zeigen den Banner deshalb auf Deutsch. Für Englisch die Sprache im Tarif ergänzen und `NEXT_PUBLIC_IUBENDA_POLICY_ID_EN` setzen.
+  - Englisch ist hinterlegt (en-GB, Cookie-Richtlinie 15787771) und im Code eingetragen (29.10.).
   - Der Tarif erlaubt keine eigenen Farben, kein Logo und kein White-Labeling: Der Banner hat blaue Buttons und „Created with iubenda“. Die Optik des alten Themes ist im Code hinterlegt und greift, sobald der Tarif das zulässt.
   - iubenda blendet eine eigene Fußzeile („Legal Footer“, lila, „by iubenda“) unter dem Shop-Footer ein. Im Dashboard abschalten, die Links stehen schon im Shop-Footer.
   - Autoblocking, Google Consent Mode und Microsoft-UET-Consent aktiv lassen; Cookie-Richtlinie um alle Dienste ergänzen (GA4, Google Ads, Tag Manager, Meta, Reddit, TikTok, Bing, Clarity, Klaviyo, Plausible, Trusted Shops, Shopify; das Konto zählt bisher 4 Anbieter).
