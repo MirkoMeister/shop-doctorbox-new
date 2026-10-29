@@ -61,7 +61,7 @@ Im Shop umgesetzt: „nahezu schmerzfrei“ (Herstellerformulierung) statt „ko
 
 ## 6. Letzte Prüfung vor dem DNS-Switch
 
-- [ ] **SEO-Audit vom 29.10. abarbeiten:** Punkte „vor Umzug“ aus [seo-audit-2026-10-29/site-audit.md](seo-audit-2026-10-29/site-audit.md) (Caching, Server-Region fra1, fehlende Seiteninhalte, defekte interne Links, UTM in internen Links, Sitemap).
+- [ ] **SEO-Audit vom 29.10. abarbeiten:** Caching, Server-Region fra1, `noindex` außerhalb der Live-Domain, UTM in internen Links und Sitemap sind erledigt (Abschnitt 8 in [seo-audit-2026-10-29/site-audit.md](seo-audit-2026-10-29/site-audit.md)). Offen vor dem Umzug: fehlende Seiteninhalte (C1) und defekte interne Links (L1).
 
 - [ ] URL-Check gegen die alte Sitemap erneut laufen lassen (alle 1.627 URLs antworteten am 28.10. mit 200 oder Weiterleitung).
 - [ ] Impressum, Datenschutz, AGB, Widerruf inhaltlich prüfen.

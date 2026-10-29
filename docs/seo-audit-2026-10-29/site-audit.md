@@ -1,6 +1,6 @@
 # SEO-Audit Headless-Shop DoctorBox
 
-**Stand:** 29.10.2026 · **Status:** abgeschlossen für den Stichtag, Maßnahmen noch nicht umgesetzt · **Erstellt von:** Claude (Audit), Auftraggeber Mirko Meister
+**Stand:** 29.10.2026 · **Status:** abgeschlossen für den Stichtag; T1, T2, T3, T4, T6 und L2 umgesetzt am 29.10. (siehe Abschnitt 8) · **Erstellt von:** Claude (Audit), Auftraggeber Mirko Meister
 
 ## 1. Auftrag und Umfang
 
@@ -227,3 +227,20 @@ Die Maßnahmen sind Vorschläge. Umgesetzt wird erst nach Freigabe.
 1. Verantwortliche in Abschnitt 6 eintragen und die Punkte „vor Umzug“ freigeben.
 2. Nach Umsetzung von T1 und T2 die Labormessung wiederholen ([raw/lab-performance.json](raw/lab-performance.json) als Ausgangswert).
 3. Nach dem DNS-Umzug: Crawl und Migrationsprüfung auf `shop.doctorbox.de` wiederholen, Sitemap in der Search Console einreichen, Abdeckung und Core Web Vitals nach 2 bis 4 Wochen ansehen.
+
+## 8. Umsetzungsstand
+
+Umgesetzt mit Commit `d8adc1c` am 29.10.2026 und auf `shop-doctorbox-new.vercel.app` nachgeprüft:
+
+| ID | Änderung | Nachweis |
+|---|---|---|
+| T1 | Die 404-Seite liest die Sprache im Browser statt über `headers()`. Die Trusted-Shops-Abfragen liegen in `unstable_cache`, weil die Token-Anfrage (POST, `no-store`) Seiten mit Bewertungen dynamisch machte. | Build: Startseite, 172 Produkte, 361 Seiten, 200 Artikel, Blogs, Richtlinien und eigene Seiten sind vorab erzeugt (●, Revalidate 5 min). Header `x-vercel-cache: PRERENDER` bzw. `HIT`. Antwortzeit gecachter Seiten aus Deutschland 115 bis 130 ms. Dynamisch bleiben Kollektionen, Blog-Übersicht und Suche, weil sie Filter aus der URL lesen. |
+| T2 | `vercel.json` mit `regions: ["fra1"]` | Dynamische Seiten: `x-vercel-id: fra1::fra1::…` |
+| T3 | Header `X-Robots-Tag: noindex` auf jedem Host außer dem in `NEXT_PUBLIC_SITE_URL` (Standard `shop.doctorbox.de`) | Vercel-Domain sendet `noindex`. `robots.txt` bleibt bewusst offen: Google muss die Seiten abrufen können, um das `noindex` zu sehen. |
+| T4 | Sitemap gibt Handles prozentkodiert aus | `coloalert%C2%AE-…` wie in Canonical und Links |
+| T6 | Tasso, Apotheken, Eigener Test in der Sitemap | je DE und EN enthalten |
+| L2 | `utm_*` wird aus relativen Links in Shopify-Inhalten entfernt | 801 Seiten (Ratgeber, Infoseiten, Blog, Produkte) mit 66.392 internen Links: 0 UTM-Links |
+
+Labormessung danach: [raw/lab-performance-after-d8adc1c.json](raw/lab-performance-after-d8adc1c.json). LCP Produktseite 2,36 → 1,57 s, Ratgeber 1,75 → 1,40 s, Startseite 2,88 → 2,57 s (zwei Läufe je Seite, Laborwerte schwanken).
+
+Offen aus den Punkten „vor Umzug“: C1 (fehlende Inhalte) und L1 (defekte Links), beide brauchen eine Entscheidung zu den Inhalten.
