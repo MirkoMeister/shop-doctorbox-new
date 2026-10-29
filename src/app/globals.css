@@ -523,8 +523,9 @@ body {
 
 /* iubenda cookie banner: shop typeface and a hairline edge so the bottom bar sits with the page.
    Colours, position and texts come from the iubenda configuration (Analytics.tsx). */
-#iubenda-cs-banner,
-#iubenda-cs-banner * {
+/* doubled id: iubenda's own font rule is #id + two classes with !important */
+#iubenda-cs-banner#iubenda-cs-banner,
+#iubenda-cs-banner#iubenda-cs-banner * {
   font-family: var(--font-sans) !important;
 }
 #iubenda-cs-banner.iubenda-cs-bottom .iubenda-cs-container {
