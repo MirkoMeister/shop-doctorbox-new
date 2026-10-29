@@ -305,7 +305,9 @@ export async function predictiveSearch(query: string, locale: Locale, limit = 6)
   return {
     products: (r?.products ?? []).filter(isVisibleProduct).map(reshapeProductCard),
     queries: r?.queries ?? [],
-    collections: (r?.collections ?? []).filter((c) => !EXCLUDED_COLLECTIONS.includes(c.handle)),
+    collections: (r?.collections ?? [])
+      .filter((c) => !EXCLUDED_COLLECTIONS.includes(c.handle))
+      .map((c) => ({ ...c, title: collectionTitle(c.handle, c.title) })),
   };
 }
 

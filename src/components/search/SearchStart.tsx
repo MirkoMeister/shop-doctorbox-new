@@ -28,7 +28,7 @@ export function SearchStart({ locale, dict, collections, onPickTerm, onClose }: 
 
   const byHandle = new Map(collections.map((c) => [c.handle, c]));
   const topics = SEARCH_TOPICS.map((h) => byHandle.get(h)).filter((c): c is Collection => Boolean(c));
-  const popular = POPULAR_SEARCHES[locale].filter((p) => !recent.some((r) => r.toLowerCase() === p.toLowerCase())).slice(0, 8);
+  const popular = POPULAR_SEARCHES[locale].filter((p) => !recent.some((r) => r.toLowerCase() === p.toLowerCase())).slice(0, 9);
 
   return (
     <div className="text-soft">
@@ -77,14 +77,14 @@ export function SearchStart({ locale, dict, collections, onPickTerm, onClose }: 
       {topics.length > 0 && (
         <section className="mt-8" aria-label={dict.nav.categories}>
           <h2 className="text-sm font-medium text-soft/70">{dict.nav.categories}</h2>
-          <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <ul className="mt-3 grid grid-cols-2 gap-2">
             {topics.map((c) => (
               <li key={c.handle}>
                 <Link href={href(`/collections/${c.handle}`)} onClick={onClose} className="group flex h-full items-center gap-3 rounded-2xl bg-white/[0.07] p-2 pr-3 transition-colors hover:bg-white/[0.14]">
                   <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white/10">
                     {c.image && <Image src={shopifyImage(c.image.url, 120)} alt="" fill sizes="48px" className="object-cover" />}
                   </span>
-                  <span className="min-w-0 text-sm font-medium leading-snug">{c.title}</span>
+                  <span className="min-w-0 hyphens-auto break-words text-sm font-medium leading-snug">{c.title}</span>
                 </Link>
               </li>
             ))}

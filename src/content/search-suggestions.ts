@@ -2,8 +2,8 @@ import type { Locale } from "@/lib/i18n/config";
 
 /** Terms offered before the visitor types: tests first, then supplements. */
 export const POPULAR_SEARCHES: Record<Locale, string[]> = {
-  de: ["Rundum Check", "Vitamin D", "Chlamydien", "Testosteron", "Schilddrüse", "Ferritin", "Cortisol", "Blutzucker", "Omega-3", "Kreatin", "Magnesium"],
-  en: ["Full check", "Vitamin D", "Chlamydia", "Testosterone", "Thyroid", "Ferritin", "Cortisol", "Blood sugar", "Omega-3", "Creatine", "Magnesium"],
+  de: ["Rundum Check", "Vitamin D", "Chlamydien", "Testosteron", "Schilddrüse", "Ferritin", "Cortisol", "Blutzucker", "Supplements", "Omega-3", "Kreatin", "Magnesium"],
+  en: ["Full check", "Vitamin D", "Chlamydia", "Testosterone", "Thyroid", "Ferritin", "Cortisol", "Blood sugar", "Supplements", "Omega-3", "Creatine", "Magnesium"],
 };
 
 /** Collections shown as topic tiles in the empty search; order matters, max 8 */
