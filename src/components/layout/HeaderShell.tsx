@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePublicPathname } from "@/lib/i18n/use-public-pathname";
 import { useEffect, useState } from "react";
 
 /**
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
  * pages it is a plain white bar. Children style themselves via `group-data-[tone=dark]`.
  */
 export function HeaderShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = usePublicPathname();
   const [darkHero, setDarkHero] = useState(false);
 
   useEffect(() => {

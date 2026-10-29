@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { usePublicPathname } from "@/lib/i18n/use-public-pathname";
 import { useEffect, useState } from "react";
 import type { ActiveCampaign } from "@/content/campaigns";
 import type { Locale } from "@/lib/i18n/config";
@@ -23,7 +24,7 @@ export type FeaturedTeaser = { handle: string; title: string; image: string | nu
  * language.
  */
 export function MenuDrawer({ locale, dict, collections, featured, campaign = null }: { locale: Locale; dict: Dictionary; collections: Collection[]; featured: FeaturedTeaser | null; campaign?: ActiveCampaign | null }) {
-  const pathname = usePathname();
+  const pathname = usePublicPathname();
   const router = useRouter();
   const [state, setState] = useState<{ path: string; open: boolean }>({ path: pathname, open: false });
   const [query, setQuery] = useState("");

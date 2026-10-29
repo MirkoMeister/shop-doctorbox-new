@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { usePublicPathname } from "@/lib/i18n/use-public-pathname";
 import { useEffect, useRef, useState } from "react";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
@@ -29,7 +30,7 @@ export function FilterBar({
   resultCount: number;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePublicPathname();
   const params = useSearchParams();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [sheet, setSheet] = useState(false);
