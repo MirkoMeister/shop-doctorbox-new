@@ -243,4 +243,8 @@ Umgesetzt mit Commit `d8adc1c` am 29.10.2026 und auf `shop-doctorbox-new.vercel.
 
 Labormessung danach: [raw/lab-performance-after-d8adc1c.json](raw/lab-performance-after-d8adc1c.json). LCP Produktseite 2,36 → 1,57 s, Ratgeber 1,75 → 1,40 s, Startseite 2,88 → 2,57 s (zwei Läufe je Seite, Laborwerte schwanken).
 
-Offen aus den Punkten „vor Umzug“: C1 (fehlende Inhalte) und L1 (defekte Links), beide brauchen eine Entscheidung zu den Inhalten.
+**L1 (teilweise), Commit `f0c467b`:** 301 und direkte Link-Korrektur für 18 erfundene englische bzw. umbenannte Produkt-Handles, 3 verschobene Blogartikel und die fehlende `contact-information`-Richtlinie (Zuordnung in `src/lib/legacy-urls.ts`). Links ohne Schema (`www.doctorbox.de`) und der kaputte Freepik-Bildnachweis werden beim Rendern repariert. Nachprüfung der 97 Quellseiten (4.722 interne Links): übrig sind nur die offenen Fälle ProAktiv (9 Ziele), Darmgesundheits-Check (DE/EN) und `allergietest-inhalationsallergene`.
+
+**Nebenbefund behoben, Commit `3a23c3e`:** Nach T1 übernahmen vorab erzeugte deutsche Seiten den internen Pfad `/de/…` in `usePathname()`. Der Sprachwechsel verlinkte dadurch auf `/en/de/…` (404). Ein gemeinsamer Hook entfernt das interne Präfix für Sprachwechsel, Menü, Filter, Header und Routen-Tracking.
+
+Offen aus den Punkten „vor Umzug“: C1 (fehlende Inhalte), Rest von L1 (Entscheidung zu ProAktiv, Darmgesundheits-Check, Allergietest) und die Übernahme der Shopify-URL-Weiterleitungen (Export aus dem Shopify-Admin nötig; der neue Shop kennt sie nicht).
