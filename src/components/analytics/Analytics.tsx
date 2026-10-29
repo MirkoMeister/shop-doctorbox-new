@@ -6,9 +6,10 @@ import { RouteTracker } from "./RouteTracker";
 /**
  * Consent (iubenda) + tracking, following the tracking brief for the headless shop.
  *
- * 1. iubenda loads first (beforeInteractive, rendered by the root layout): configuration as in the old theme
- *    (Complianz app), autoblocking, then the banner. The visitor's choice is passed on to
- *    Shopify's Customer Privacy API so the checkout (Meta, Google and Reddit apps) respects it.
+ * 1. iubenda loads first (beforeInteractive, rendered by the root layout): our configuration (look of the
+ *    old theme; it takes precedence over the dashboard settings), then the embed with autoblocking and
+ *    banner. The visitor's choice is passed on to Shopify's Customer Privacy API so the checkout
+ *    (Meta, Google and Reddit apps) respects it.
  * 2. Every tag waits for consent ("prior blocking"): rendered as type="text/plain" and swapped
  *    for a live script by iubenda (class _iub_cs_activate[-inline] + data-iub-purposes).
  *    Purpose 4 = measurement (GTM), purpose 5 = marketing (Meta, Reddit, Klaviyo).
@@ -41,13 +42,16 @@ export function iubendaConfigScript(locale: Locale): string {
     rejectButtonCaptionColor: "#ffffff",
     customizeButtonColor: "#0C432A",
     customizeButtonCaptionColor: "#ffffff",
+    ownerName: "DoctorBox Service GmbH",
   };
   if (locale === "de") banner.customizeButtonCaption = "Einstellungen anzeigen";
 
   const config = {
     siteId: Number(t.iubendaSiteId),
-    cookiePolicyId: Number(t.iubendaPolicyIds[locale]),
-    lang: locale,
+    cookiePolicyId: Number(t.iubendaPolicyIds[locale] || t.iubendaPolicyIds.de),
+    // The iubenda plan only covers the languages it has a cookie policy for; without an English
+    // policy the banner would not appear at all on /en, so it falls back to German there
+    lang: t.iubendaPolicyIds[locale] ? locale : "de",
     storage: { useSiteId: true },
     consentOnContinuedBrowsing: false,
     perPurposeConsent: true,
@@ -59,12 +63,10 @@ export function iubendaConfigScript(locale: Locale): string {
     googleConsentMode: true,
     uetConsentMode: true,
     enableTcf: false,
-    whitelabel: true,
     cookiePolicyInOtherWindow: true,
     cookiePolicyUrl: localeHref(locale, "/pages/cookies"),
     privacyPolicyUrl: localeHref(locale, "/policies/privacy-policy"),
     floatingPreferencesButtonDisplay: "anchored-bottom-left",
-    purposes: "1, 2, 3, 4, 5",
     promptToAcceptOnBlockedElements: true,
     banner,
   };
@@ -95,12 +97,9 @@ export function iubendaConfigScript(locale: Locale): string {
   return iubendaConfig;
 }
 
-/** iubenda before every other script; must be rendered by the root layout (beforeInteractive) */
-export function iubendaSrc() {
-  return {
-    autoblocking: `https://cs.iubenda.com/autoblocking/${TRACKING.iubendaSiteId}.js`,
-    banner: "https://cdn.iubenda.com/cs/iubenda_cs.js",
-  };
+/** iubenda embed (autoblocking + banner) right after the inline configuration, before every other script */
+export function iubendaEmbedSrc() {
+  return `https://embeds.iubenda.com/widgets/${TRACKING.iubendaEmbedId}.js`;
 }
 
 export function Analytics() {

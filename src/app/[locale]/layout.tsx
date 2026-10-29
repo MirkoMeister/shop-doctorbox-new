@@ -9,7 +9,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import Script from "next/script";
-import { Analytics, iubendaConfigScript, iubendaSrc } from "@/components/analytics/Analytics";
+import { Analytics, iubendaConfigScript, iubendaEmbedSrc } from "@/components/analytics/Analytics";
 import { AssistantProvider } from "@/components/assistant/AssistantProvider";
 import { AssistantPanel } from "@/components/assistant/AssistantPanel";
 import { AssistantTab } from "@/components/assistant/AssistantTab";
@@ -75,8 +75,7 @@ export default async function LocaleLayout({
         <Script id="iubenda-config" strategy="beforeInteractive">
           {iubendaConfigScript(locale)}
         </Script>
-        <Script id="iubenda-autoblocking" src={iubendaSrc().autoblocking} strategy="beforeInteractive" />
-        <Script id="iubenda-cs" src={iubendaSrc().banner} strategy="beforeInteractive" />
+        <Script id="iubenda-embed" src={iubendaEmbedSrc()} strategy="beforeInteractive" />
         <JsonLd data={[organizationJsonLd(locale), websiteJsonLd(locale)]} />
         <CartProvider locale={locale}>
           <AssistantProvider locale={locale} dict={dict}>
