@@ -279,6 +279,8 @@ body {
   color: var(--color-green);
   text-decoration: underline;
   text-underline-offset: 3px;
+  /* raw source URLs as link text */
+  overflow-wrap: anywhere;
 }
 .prose-db a:hover {
   color: var(--color-moss);
@@ -380,6 +382,8 @@ body {
   color: var(--color-green);
   text-decoration: underline;
   text-underline-offset: 3px;
+  /* raw source URLs as link text */
+  overflow-wrap: anywhere;
 }
 .article-inline a:hover {
   color: var(--color-moss);
@@ -535,4 +539,25 @@ body {
 /* iubenda's legal footer bar: our own footer already links the legal pages */
 #iub-legal-footer#iub-legal-footer {
   display: none !important;
+}
+
+/* Phones: German compounds in large headlines, long uppercase CTAs and wide
+   tables would otherwise run past the right edge (html clips, so they get cut). */
+@layer components {
+@media (max-width: 639px) {
+  :is(h1, h2, h3, .h-display, .h1, .h2) {
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+  .btn {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+  }
+  .prose-db table {
+    display: block;
+    overflow-x: auto;
+  }
+}
 }

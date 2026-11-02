@@ -101,7 +101,7 @@ export function GuideArticle({
       <header className="bg-soft">
         <div className="mx-auto max-w-7xl px-4 pb-10 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
           <Breadcrumbs items={crumbs} className="mb-8" />
-          <div className={heroImage ? "grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-14" : ""}>
+          <div className={heroImage ? "grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-14" : ""}>
             <div className="max-w-3xl">
               {topicHref ? (
                 <Link href={topicHref} className="chip chip-soft !bg-white text-moss hover:!bg-lind">

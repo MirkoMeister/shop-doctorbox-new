@@ -22,8 +22,8 @@ export function AssistantTab({ label }: { label: string }) {
         aria-label={label}
         title={label}
         tabIndex={visible ? 0 : -1}
-        className={`pointer-events-auto absolute right-0 top-1/2 flex -translate-y-1/2 flex-col items-center gap-2 rounded-l-2xl bg-moss py-3 pl-2 pr-1.5 text-soft shadow-float transform-gpu transition-transform duration-[380ms] ease-[cubic-bezier(.16,1,.3,1)] hover:bg-green ${
-          visible ? "translate-x-0" : "translate-x-full"
+        className={`pointer-events-auto absolute right-0 top-1/2 flex -translate-y-1/2 flex-col items-center gap-2 rounded-l-2xl bg-moss py-3 pl-2 pr-1.5 text-soft shadow-float transform-gpu transition-[transform,visibility] duration-[380ms] ease-[cubic-bezier(.16,1,.3,1)] hover:bg-green ${
+          visible ? "translate-x-0" : "invisible translate-x-full"
         }`}
       >
         <MiraAvatar size={32} className="ring-2 ring-white/20" />

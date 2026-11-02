@@ -47,7 +47,7 @@ export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary 
         role="dialog"
         aria-modal="true"
         aria-label={dict.cart.title}
-        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-float transition-transform duration-300 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-float transition-[transform,visibility] duration-300 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? "translate-x-0" : "invisible translate-x-full"}`}
       >
         <header className="flex items-center justify-between border-b border-line px-5 py-4">
           <h2 className="h4">

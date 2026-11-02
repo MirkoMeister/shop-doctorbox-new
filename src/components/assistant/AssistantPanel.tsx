@@ -63,8 +63,8 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
         role="dialog"
         aria-modal="true"
         aria-label={t.title}
-        className={`absolute inset-y-0 right-0 flex w-full transform-gpu flex-col bg-white shadow-float will-change-transform transition-transform duration-[380ms] ease-[cubic-bezier(.16,1,.3,1)] sm:w-[min(100%,480px)] ${
-          open ? "translate-x-0" : "translate-x-full"
+        className={`absolute inset-y-0 right-0 flex w-full transform-gpu flex-col bg-white shadow-float will-change-transform transition-[transform,visibility] duration-[380ms] ease-[cubic-bezier(.16,1,.3,1)] sm:w-[min(100%,480px)] ${
+          open ? "translate-x-0" : "invisible translate-x-full"
         }`}
       >
         <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">

@@ -89,7 +89,7 @@ export function MenuDrawer({ locale, dict, collections, featured, campaign = nul
           role="dialog"
           aria-modal="true"
           aria-label={dict.nav.menu}
-          className={`absolute inset-0 flex w-full flex-col overflow-y-auto bg-white pt-[var(--promo-h,0px)] transition-transform duration-500 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? "translate-x-0" : "-translate-x-full"}`}
+          className={`absolute inset-0 flex w-full flex-col overflow-y-auto bg-white pt-[var(--promo-h,0px)] transition-[transform,visibility] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? "translate-x-0" : "invisible -translate-x-full"}`}
         >
           {/* Top row: same grid and height as the header, so the "x" sits where the burger was */}
           <div className="mx-auto grid h-[72px] w-full max-w-7xl shrink-0 grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:h-[88px] lg:px-8">
