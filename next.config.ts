@@ -52,6 +52,8 @@ const nextConfig: NextConfig = {
         destination: `https://${shopifyDomain}${source.replace(/:path\*$/, ":path*")}`,
         permanent: false,
       })),
+      // Migrated content links images as shop.doctorbox.de/cdn/shop/…, which is the Shopify CDN under the custom domain
+      { source: "/cdn/shop/:path*", destination: "https://cdn.shopify.com/s/files/1/0564/6991/3683/:path*", permanent: false },
     ];
   },
 };
