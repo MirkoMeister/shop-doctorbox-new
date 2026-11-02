@@ -17,6 +17,12 @@ import { Burger } from "./Burger";
 
 export type FeaturedTeaser = { handle: string; title: string; image: string | null; subtitle?: string | null };
 
+/* Topic tiles are ~100px wide on phones: break long compounds at the seam
+   ("Frauen-gesundheit") instead of wherever the hyphenation dictionary fits. */
+function tileTitle(title: string) {
+  return title.replace(/(\p{Ll})(gesundheit|lichkeiten)/gu, "$1\u00AD$2");
+}
+
 /**
  * Full-screen menu (opened by the burger). Top: search. Left: the primary
  * pages in large type and the service links. Right: topics as image tiles and
@@ -180,7 +186,7 @@ export function MenuDrawer({ locale, dict, collections, featured, campaign = nul
                           <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-white">
                             {c.image && <Image src={shopifyImage(c.image.url, 120)} alt="" fill sizes="44px" className="object-cover" />}
                           </span>
-                          <span className="min-w-0 text-[0.95rem] font-medium leading-snug">{c.title}</span>
+                          <span className="min-w-0 hyphens-manual text-[0.95rem] font-medium leading-snug">{tileTitle(c.title)}</span>
                         </Link>
                       </li>
                     ))}
