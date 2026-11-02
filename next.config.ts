@@ -31,6 +31,11 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Pre-sized photos (scripts/build-images.mjs): names aren't content-hashed, so a day fresh, then revalidated in the background
+        source: "/_img/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+      {
         source: "/(.*)",
         missing: [{ type: "host", value: siteHost }],
         headers: [{ key: "X-Robots-Tag", value: "noindex" }],
