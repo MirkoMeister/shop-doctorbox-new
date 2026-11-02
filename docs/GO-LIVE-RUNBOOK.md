@@ -8,18 +8,18 @@
 - [ ] **Vercel, Umgebungsvariablen (Production):** `SHOPIFY_STORE_DOMAIN=doctorbox-heimtests.myshopify.com` (zeigt sie auf `shop.doctorbox.de`, ruft der Shop nach dem DNS-Wechsel sich selbst auf und fällt aus). `NEXT_PUBLIC_SITE_URL=https://shop.doctorbox.de` oder leer lassen. Danach neu deployen.
 - [ ] **Vercel, Domain:** `shop.doctorbox.de` im Projekt hinzufügen. Vercel zeigt den DNS-Eintrag an, der beim Umschalten gesetzt wird.
 - [ ] **Rabattcode `MOVEMBER26`** in Shopify anlegen (20 % auf alle Heimtests, 1.–30.11.). Die Seite bewirbt ihn an 20 Stellen, Shopify meldet ihn heute als nicht anwendbar.
-- [ ] **Weiterleitungs-Theme vorbereiten:** Das live Theme duplizieren und im Duplikat in `layout/theme.liquid` direkt nach `<head>` den Block aus Abschnitt D einfügen. Noch **nicht** veröffentlichen.
+- [ ] **Weiterleitungs-Theme vorbereiten:** Das live Theme duplizieren und im Duplikat in `layout/theme.liquid` direkt nach `<head>` den Block aus Abschnitt D einfügen. Noch **nicht** veröffentlichen (erst nach dem DNS-Wechsel, Schritt B3).
 - [ ] **Shopify-URL-Weiterleitungen** exportieren (Onlineshop → Navigation → URL-Weiterleitungen → Exportieren) und in den Shop übernehmen lassen.
 
 ## B. Umschalten (direkt hintereinander, ruhige Uhrzeit)
 
 1. [ ] Shopify: `checkout.doctorbox.de` als **primäre** Domain festlegen.
-2. [ ] Shopify: das Weiterleitungs-Theme veröffentlichen.
-3. [ ] DNS: `shop.doctorbox.de` auf den von Vercel angezeigten Eintrag umstellen (TTL steht bereits niedrig).
+2. [ ] DNS: `shop.doctorbox.de` auf den von Vercel angezeigten Eintrag umstellen (TTL steht bereits niedrig). Prüfen, dass `https://shop.doctorbox.de` den neuen Shop zeigt.
+3. [ ] Shopify: erst **jetzt** das Weiterleitungs-Theme veröffentlichen. Vorher würde es auf `shop.doctorbox.de` weiterleiten, das noch bei Shopify liegt: Endlosschleife.
 4. [ ] Shopify: `shop.doctorbox.de` aus den Domains entfernen.
-5. [ ] Vercel: `SHOPIFY_ONLINE_STORE_DOMAIN=checkout.doctorbox.de` setzen und neu deployen.
+5. [ ] Vercel: `SHOPIFY_ONLINE_STORE_DOMAIN=checkout.doctorbox.de` setzen (bereits eingetragen) und neu deployen.
 
-Zwischen 1 und 3 läuft der alte Shop wenige Minuten unter der Checkout-Domain; zwischen 3 und dem Zertifikat von Vercel kann `shop.doctorbox.de` ein bis zwei Minuten einen Zertifikatsfehler zeigen.
+Zwischen 1 und 3 läuft der alte Shop wenige Minuten unter der Checkout-Domain; nach 2 kann `shop.doctorbox.de` ein bis zwei Minuten einen Zertifikatsfehler zeigen, bis Vercel das Zertifikat ausgestellt hat.
 
 ## C. Prüfen (direkt danach)
 
