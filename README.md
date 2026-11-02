@@ -83,7 +83,7 @@ Design-Entscheidungen stehen in `DESIGN.md` (Farbtokens aus dem Styleguide, Host
 
 ## Deployment
 
-Vercel oder jeder Node-Host. `NEXT_PUBLIC_SITE_URL` auf die Live-Domain setzen. Im Shopify-Admin
+Scalingo (App `doctorbox-shop`, deployt automatisch aus `dctrbx/heimtests-new-shop` `main`); läuft auf jedem Node-Host. `NEXT_PUBLIC_SITE_URL` auf die Live-Domain setzen. Ablauf des Domain-Umzugs: `docs/GO-LIVE-RUNBOOK.md`. Im Shopify-Admin
 später den Headless-Kanal/Custom-Domain umstellen; der Checkout läuft unverändert über
 `shop.doctorbox.de/checkouts/...`. Optional den Storefront-Scope `unauthenticated_read_product_inventory`
 freischalten, um Lagerbestände anzuzeigen.

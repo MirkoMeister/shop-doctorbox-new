@@ -1,14 +1,14 @@
 # Go-live-Checkliste: Headless-Shop auf shop.doctorbox.de
 
-Stand: 28.10.2026. Offene Punkte vor dem DNS-Umzug von Shopify auf Vercel.
+Stand: 28.10.2026. Offene Punkte vor dem DNS-Umzug von Shopify auf den Headless-Shop. Hosting seit 02.11.2026: Scalingo (Vercel-Projekt gelöscht), Ablauf siehe `GO-LIVE-RUNBOOK.md`.
 Erledigtes bitte abhaken, Verantwortliche eintragen.
 
 ## 1. Domains und Checkout (kritisch)
 
-- [ ] **Checkout-Domain in Shopify anlegen.** Heute ist `shop.doctorbox.de` die Primärdomain von Shopify, der Checkout-Link lautet `shop.doctorbox.de/cart/c/…`. Zeigt die Domain auf Vercel, bricht der Checkout.
+- [ ] **Checkout-Domain in Shopify anlegen.** Heute ist `shop.doctorbox.de` die Primärdomain von Shopify, der Checkout-Link lautet `shop.doctorbox.de/cart/c/…`. Zeigt die Domain auf den Headless-Shop, bricht der Checkout.
   Lösung: Subdomain anlegen, zum Beispiel `checkout.doctorbox.de`, in Shopify als Primärdomain setzen (CNAME auf `shops.myshopify.com`).
-- [ ] **Env-Variable setzen:** `SHOPIFY_ONLINE_STORE_DOMAIN=checkout.doctorbox.de` in Vercel (Fallback im Code: `doctorbox-heimtests.myshopify.com`). Dorthin gehen Proxy für UCP, Weiterleitungen für Checkout, Konto, Bestellungen, Apps.
-- [ ] **`SHOPIFY_STORE_DOMAIN`** in Vercel vor dem Umzug auf `doctorbox-heimtests.myshopify.com` stellen, sonst ruft der Shop seine eigene Domain auf.
+- [ ] **Env-Variable setzen:** `SHOPIFY_ONLINE_STORE_DOMAIN=checkout.doctorbox.de` in Scalingo (Fallback im Code: `doctorbox-heimtests.myshopify.com`). Dorthin gehen Proxy für UCP, Weiterleitungen für Checkout, Konto, Bestellungen, Apps.
+- [ ] **`SHOPIFY_STORE_DOMAIN`** in Scalingo vor dem Umzug auf `doctorbox-heimtests.myshopify.com` stellen, sonst ruft der Shop seine eigene Domain auf.
 - [ ] Nach dem Umzug prüfen: Produkt in den Warenkorb, „Zur Kasse“, Checkout lädt auf der Checkout-Domain, Testbestellung bis zur Bestätigung.
 
 ## 2. Agentic Commerce (ChatGPT, Perplexity, Copilot, Shop-App)
@@ -51,12 +51,12 @@ Im Shop umgesetzt: „nahezu schmerzfrei“ (Herstellerformulierung) statt „ko
 - [ ] **Datenschutzerklärung:** Mira ergänzen (Verarbeitung durch Anthropic, Zweck, keine Speicherung bei DoctorBox, Hinweis auf Gesundheitsdaten) und Auftragsverarbeitung mit Anthropic prüfen.
   Fakten für den Text: Eingaben und Antworten gehen über unseren Server an die Anthropic-API (Anthropic PBC, USA; Standardvertragsklauseln/DPF über das Anthropic Data Processing Addendum, abrufbar im Anthropic-Konto). DoctorBox speichert das Gespräch nicht; der Browser hält es nur bis zum Schließen der Seite. Serverseitig wird nur eine anonymisierte Kennung für die Ratenbegrenzung kurz gehalten (30 Anfragen pro 10 Minuten). Anthropic bewahrt API-Daten nach eigener Richtlinie zeitlich begrenzt auf, falls gewünscht „Zero Data Retention“ bei Anthropic beantragen. Rechtsgrundlage für Gesundheitsangaben in der Eingabe: Einwilligung (Art. 9 Abs. 2 a DSGVO), Hinweis vor dem ersten Senden prüfen.
 
-## 5. Vercel-Umgebungsvariablen (vollständig?)
+## 5. Scalingo-Umgebungsvariablen (vollständig?)
 
-- [ ] **Trusted Shops Bewertungen:** `ETRUSTED_CLIENT_ID`, `ETRUSTED_CLIENT_SECRET`, `ETRUSTED_CHANNEL_ID=chl-2cbd51e9-0164-4b34-a260-c813d0007e3f` in Vercel setzen (lokal bereits aktiv). Ohne sie fällt der Shop auf die Shopify-Sterne zurück.
+- [ ] **Trusted Shops Bewertungen:** `ETRUSTED_CLIENT_ID`, `ETRUSTED_CLIENT_SECRET`, `ETRUSTED_CHANNEL_ID=chl-2cbd51e9-0164-4b34-a260-c813d0007e3f` in Scalingo setzen (lokal bereits aktiv). Ohne sie fällt der Shop auf die Shopify-Sterne zurück.
 
 - [ ] Alle Werte aus `.env.example` gesetzt, insbesondere `ANTHROPIC_API_KEY` (Workspace-Key), `RESEND_API_KEY`, `CONTACT_TO`, `NEXT_PUBLIC_SITE_URL=https://shop.doctorbox.de`.
-- [ ] **Newsletter (Klaviyo):** `KLAVIYO_LIST_ID` in Vercel und `.env.local` setzen (Klaviyo → Listen → Liste → Einstellungen, ID im Pfad). Auf der Liste Double Opt-in aktivieren und die Bestätigungsmail auf Deutsch prüfen. Bis dahin sind Newsletter-Formulare auf Startseite und Footer sichtbar, melden bei Absenden aber einen Fehler.
+- [ ] **Newsletter (Klaviyo):** `KLAVIYO_LIST_ID` in Scalingo und `.env.local` setzen (Klaviyo → Listen → Liste → Einstellungen, ID im Pfad). Auf der Liste Double Opt-in aktivieren und die Bestätigungsmail auf Deutsch prüfen. Bis dahin sind Newsletter-Formulare auf Startseite und Footer sichtbar, melden bei Absenden aber einen Fehler.
 - [ ] Noch leer: Trusted-Shops-Widget-ID. (Tracking-IDs stehen als Standardwerte im Code, siehe `src/lib/tracking/config.ts`; Env-Variablen überschreiben sie.)
 
 ## 6. Letzte Prüfung vor dem DNS-Switch
@@ -78,4 +78,4 @@ Im Shop umgesetzt: „nahezu schmerzfrei“ (Herstellerformulierung) statt „ko
 - [ ] **Meta-Katalog:** In Events Manager prüfen, ob `content_ids` im Format `shopify_DE_<Produkt>_<Variante>` zu den Katalog-IDs der Shopify-App passen (der alte Shop sendete Meta serverseitig, das Format war nicht einsehbar).
 - [ ] **Einwilligung an den Checkout:** Der Shop übergibt die iubenda-Wahl an Shopify (Cookie `_tracking_consent` auf `doctorbox.de`). Das greift nur, wenn der Checkout auf einer Subdomain von `doctorbox.de` liegt (siehe Abschnitt 1, `checkout.doctorbox.de`). Sonst fehlen Einwilligung und Kauf-Zuordnung im Checkout.
 - [ ] Google Search Console: neue Sitemap einreichen, Property bleibt dieselbe Domain.
-- [ ] Ersten Tag nach dem Umzug: Vercel-Logs auf 404 und 500 beobachten.
+- [ ] Ersten Tag nach dem Umzug: Scalingo-Logs auf 404 und 500 beobachten.
