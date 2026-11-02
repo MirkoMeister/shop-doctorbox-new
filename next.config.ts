@@ -13,12 +13,10 @@ const siteHost = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://shop.docto
 const nextConfig: NextConfig = {
   // Dev only: lets phones/laptops in the local network load the dev server via LAN IP or Bonjour name
   allowedDevOrigins: ["192.168.178.187", "mirkos-macbook-pro.local", "localhost"],
+  // No on-server image optimisation: the Shopify CDN resizes its own images, local photos are pre-sized at build
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "cdn.shopify.com" },
-      { protocol: "https", hostname: "shop.doctorbox.de" },
-    ],
-    formats: ["image/avif", "image/webp"],
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
   },
   async headers() {
     return [
@@ -48,11 +46,13 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     // Shopify-hosted flows that have no page in this app
-    return ["/checkouts/:path*", "/cart/c/:path*", "/account/:path*", "/orders/:path*", "/apps/:path*", "/tools/:path*", "/password"].map((source) => ({
-      source,
-      destination: `https://${shopifyDomain}${source.replace(/:path\*$/, ":path*")}`,
-      permanent: false,
-    }));
+    return [
+      ...["/checkouts/:path*", "/cart/c/:path*", "/account/:path*", "/orders/:path*", "/apps/:path*", "/tools/:path*", "/password"].map((source) => ({
+        source,
+        destination: `https://${shopifyDomain}${source.replace(/:path\*$/, ":path*")}`,
+        permanent: false,
+      })),
+    ];
   },
 };
 
