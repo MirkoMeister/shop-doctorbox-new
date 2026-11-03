@@ -28,6 +28,7 @@ import type {
   ProductCard,
   SearchResult,
 } from "./types";
+import { rankSearchResults } from "@/lib/search-rank";
 
 const CTX = "@inContext(language: $language, country: $country)";
 const CTX_VARS = "$language: LanguageCode, $country: CountryCode";
@@ -317,10 +318,11 @@ export async function predictiveSearch(query: string, locale: Locale, limit = 6)
       queries: { text: string; styledText: string }[];
       collections: { handle: string; title: string }[];
     } | null;
-  }>(PREDICTIVE_SEARCH_QUERY, { variables: { query, limit }, locale, revalidate: 60 });
+  }>(PREDICTIVE_SEARCH_QUERY, { variables: { query, limit: 10 }, locale, revalidate: 60 });
   const r = data.predictiveSearch;
   return {
-    products: (r?.products ?? []).filter(isVisibleProduct).map(reshapeProductCard),
+    // ask for the maximum (10) and keep the best `limit` after our own ranking
+    products: rankSearchResults(query, (r?.products ?? []).filter(isVisibleProduct).map(reshapeProductCard)).slice(0, limit),
     queries: r?.queries ?? [],
     collections: (r?.collections ?? [])
       .filter((c) => !EXCLUDED_COLLECTIONS.includes(c.handle))
@@ -350,10 +352,13 @@ export async function searchProducts(query: string, locale: Locale): Promise<Pro
     { variables: { query }, locale, revalidate: 60 },
   );
   return applyReviewSummaries(
-    nodes(data.search)
-    .filter((n) => n && "handle" in n)
-    .filter(isVisibleProduct)
-    .map(reshapeProductCard),
+    rankSearchResults(
+      query,
+      nodes(data.search)
+        .filter((n) => n && "handle" in n)
+        .filter(isVisibleProduct)
+        .map(reshapeProductCard),
+    ),
   );
 }
 
