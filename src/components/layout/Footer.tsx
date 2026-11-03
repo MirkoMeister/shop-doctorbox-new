@@ -21,7 +21,7 @@ export function Footer({
   const href = (p: string) => localeHref(locale, p);
   const year = new Date().getFullYear();
 
-  const columns: { title: string; links: { label: string; href: string; external?: boolean }[] }[] = [
+  const columns: { title: string; links: { label: string; href: string; external?: boolean; withdraw?: boolean }[] }[] = [
     {
       title: dict.footer.shop,
       links: [
@@ -61,6 +61,8 @@ export function Footer({
         { label: dict.footer.privacy, href: href("/policies/privacy-policy") },
         { label: dict.footer.terms, href: href("/policies/terms-of-service") },
         { label: dict.footer.refund, href: href("/policies/refund-policy") },
+        // § 356a BGB: clearly labelled, on every page; leads to the app's form on the Shopify domain
+        { label: dict.footer.withdraw, href: href("/pages/widerruf-formular"), withdraw: true },
         { label: dict.footer.subscriptionPolicy, href: href("/policies/subscription-policy") },
         { label: dict.footer.cookies, href: "#iubenda-cs-preferences" },
       ],
@@ -93,6 +95,10 @@ export function Footer({
                     <li key={l.label}>
                       {l.external ? (
                         <a href={l.href} target="_blank" rel="noopener" className="text-[0.95rem] text-soft/85 hover:text-white">
+                          {l.label}
+                        </a>
+                      ) : l.withdraw ? (
+                        <a href={l.href} className="text-[0.95rem] font-semibold text-white underline underline-offset-4 hover:text-turquoise">
                           {l.label}
                         </a>
                       ) : l.href.startsWith("#") ? (

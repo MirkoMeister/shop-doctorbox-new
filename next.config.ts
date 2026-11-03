@@ -57,6 +57,13 @@ const nextConfig: NextConfig = {
         destination: `https://${shopifyDomain}${source.replace(/:path\*$/, ":path*")}`,
         permanent: false,
       })),
+      // Withdrawal form (§ 356a BGB) comes from the "EU Widerruf Button" app, which only renders in the Shopify theme;
+      // the redirect theme leaves this page alone
+      ...["/pages/widerruf-formular", "/en/pages/widerruf-formular"].map((source) => ({
+        source,
+        destination: `https://${shopifyDomain}${source}`,
+        permanent: false,
+      })),
       // Migrated content links images as shop.doctorbox.de/cdn/shop/…, which is the Shopify CDN under the custom domain
       { source: "/cdn/shop/:path*", destination: "https://cdn.shopify.com/s/files/1/0564/6991/3683/:path*", permanent: false },
     ];
