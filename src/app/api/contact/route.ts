@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { email, honeypot, invalidResponse, line, rateLimitedResponse, requiredLine } from "@/lib/form-fields";
+import { sendMail } from "@/lib/mail";
 import { clientIp, rateLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -15,12 +16,12 @@ const Payload = z.object({
   locale: line(10).optional(),
 });
 
-/** Each message lands in the support inbox and uses Resend quota */
+/** Each message lands in the support inbox and uses mail quota */
 const limited = rateLimiter({ windowMs: 60 * 60 * 1000, perKey: 5, global: 100 });
 
 /**
- * Contact form endpoint. Sends the message by e-mail through Resend when
- * RESEND_API_KEY is configured; otherwise it is logged on the server so the
+ * Contact form endpoint. Sends the message by e-mail (Brevo or Resend, see lib/mail.ts) when
+ * a key is configured; otherwise it is logged on the server so the
  * form still works in development. Recipient: CONTACT_TO (falls back to B2B_INQUIRY_TO).
  */
 export async function POST(req: NextRequest) {
@@ -41,25 +42,16 @@ export async function POST(req: NextRequest) {
     body.message,
   ].join("\n");
 
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    console.info("[contact] (no RESEND_API_KEY configured, logging only)\n" + text);
-    return NextResponse.json({ ok: true, delivered: false });
-  }
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: process.env.B2B_INQUIRY_FROM ?? "DoctorBox Shop <shop@doctorbox.de>",
-      to: [to],
-      reply_to: body.email,
-      subject: `Kontakt (${body.topic}): ${body.name}${body.order ? ` · ${body.order}` : ""}`,
-      text,
-    }),
-  });
-  if (!res.ok) {
-    console.error("[contact] resend failed", res.status, await res.text());
+  let sent: boolean;
+  try {
+    sent = await sendMail({ to, replyTo: body.email, subject: `Kontakt (${body.topic}): ${body.name}${body.order ? ` · ${body.order}` : ""}`, text });
+  } catch (err) {
+    console.error("[contact] delivery failed", err);
     return NextResponse.json({ ok: false, error: "delivery" }, { status: 502 });
+  }
+  if (!sent) {
+    console.info("[contact] (no BREVO_API_KEY or RESEND_API_KEY configured, logging only)\n" + text);
+    return NextResponse.json({ ok: true, delivered: false });
   }
   return NextResponse.json({ ok: true, delivered: true });
 }

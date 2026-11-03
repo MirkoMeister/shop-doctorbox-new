@@ -27,7 +27,7 @@ Weitere Befehle: `npm run build` (Produktions-Build), `npm run lint`, `npx tsc -
 | `NEXT_PUBLIC_KLAVIYO_COMPANY_ID`, `NEXT_PUBLIC_KLAVIYO_LIST_ID` | Klaviyo Onsite + Newsletter-Formular im Footer (Formular erscheint nur mit List-ID) |
 | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | Plausible (cookieless) |
 | `NEXT_PUBLIC_ETRUSTED_ENABLED`, `NEXT_PUBLIC_ETRUSTED_WIDGET_ID` | Trusted Shops Widget-Bootstrap |
-| `RESEND_API_KEY`, `B2B_INQUIRY_TO`, `B2B_INQUIRY_FROM` | Zustellung des B2B-Anfrageformulars per E-Mail (ohne Key wird serverseitig nur geloggt) |
+| `BREVO_API_KEY` oder `RESEND_API_KEY`, `B2B_INQUIRY_TO`, `CONTACT_TO`, `B2B_INQUIRY_FROM` | Zustellung von B2B- und Kontaktformular per E-Mail (`src/lib/mail.ts`, Brevo vor Resend; ohne Key wird serverseitig nur geloggt). Der Absender muss beim Anbieter verifiziert sein |
 | `ANTHROPIC_API_KEY` | V2: KI-Testberater (Claude API) |
 
 ## URL-Struktur und SEO
@@ -57,7 +57,7 @@ Die URLs entsprechen 1:1 dem alten Shopify-Shop, damit das Google-Ranking erhalt
 | 181 sektionsbasierte Pages | Einmalig aus dem gerenderten HTML migriert nach `src/content/pages/{de,en}/<handle>.json` (die Pages-API liefert für diese Seiten keinen Body). 22 Pages mit API-Body kommen weiterhin live aus Shopify. |
 | Impressum | `src/content/policies/{de,en}/legal-notice.json` (nicht in der Storefront API) |
 | Infokasten zu Biomarkern (Produktseite) | `src/content/biomarkers.data.ts` (alle Laborwerte, Allergene, HPV, Candida, genetische Scores; DE/EN) und `src/content/biomarkers.ts` (STI-Texte, Zuordnung, Themen-Headlines). Neue Werte in `VALUES` ergänzen, Schreibweisen über `aliases`. Prüfskript: `npx tsx scratchpad/check_biomarkers.ts`-Ansatz, siehe Git-Historie. |
-| B2B-Seite | `src/app/[locale]/pages/b2b/page.tsx`; Marker-Portfolio aus `src/lib/catalog/markers.ts`; Anfrageformular → `src/app/api/b2b/route.ts` (Resend, Env `RESEND_API_KEY`, `B2B_INQUIRY_TO`) |
+| B2B-Seite | `src/app/[locale]/pages/b2b/page.tsx`; Marker-Portfolio aus `src/lib/catalog/markers.ts`; Anfrageformular → `src/app/api/b2b/route.ts` (Versand über `src/lib/mail.ts`, Env `BREVO_API_KEY`, `B2B_INQUIRY_TO`) |
 
 Italienische Produkte (Tag `IT`), die Collection `salute-sessuale` und der Blog `blog-salute-sessuale` sind ausgeblendet.
 
