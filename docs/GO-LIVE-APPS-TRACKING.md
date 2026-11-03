@@ -21,11 +21,11 @@ Grundregel: Alles, was im **Theme** läuft (App-Einbettungen, Snippets, Skripte 
 | EU Widerruf Button | Formular über die Shopify-Domain | erledigt, siehe 1.1 |
 | Simple Bundles v2 | Theme-Skript fehlt, Bundles über die Storefront-API | mit Testbestellung prüfen (1.4) |
 | Shopify Inbox (Chat) | **fehlt** | Chat gewünscht? Sonst übernimmt Mira |
-| Lucky Orange (Heatmaps) | fehlt | wird nicht genutzt: deinstallieren |
+| Lucky Orange (Heatmaps) | fehlt | deinstalliert (03.11.2026) |
 | Google & YouTube „Store widget“ | fehlt | optional (Shop-Bewertungsbadge) |
 | Microsoft Clarity (App-Einbettung) | über GTM weiter vorhanden | nichts |
 | Klaviyo Onsite (Formulare, Tracking) | klaviyo.js wird nach Einwilligung geladen, Formulare erscheinen; „Viewed Product“/„Added to Cart“ nachgebaut (c4d2fba) | nichts |
-| Yoast SEO, IndexGPT (Schema), AVADA SEO | ersetzt durch eigene Metadaten und JSON-LD | nichts |
+| Yoast SEO, IndexGPT (Schema), AVADA SEO | ersetzt durch eigene Metadaten und JSON-LD | IndexGPT kann deinstalliert werden: sein Schema-Block gibt im alten Theme nichts mehr aus, `llms.txt` kommt vom Shop bzw. von Shopify |
 | Cookie-Banner (GDPR legal cookie / Complianz) | ersetzt durch iubenda, Einwilligung geht an Shopify | nichts |
 | KI-Berater (`header-ki-chat`, Backend auf ai-berater-backend.vercel.app) | ersetzt durch Mira | Backend kann nach dem Umzug abgeschaltet werden |
 | Zammad-Chat (ticket.doctorbox.de) | **fehlt** | gewünscht? |
