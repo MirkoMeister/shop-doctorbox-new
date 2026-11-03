@@ -2,19 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "./CartProvider";
 import type { Locale } from "@/lib/i18n/config";
 import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney, shopifyImage } from "@/lib/format";
-import { CloseIcon, MinusIcon, PinIcon, PlusIcon } from "@/components/ui/Icons";
+import { CheckIcon, CloseIcon, MinusIcon, PinIcon, PlusIcon } from "@/components/ui/Icons";
 import { trackBeginCheckout } from "@/lib/tracking/events";
 import { lockScroll } from "@/lib/scroll-lock";
+import { UPSELL_LINE_ATTRIBUTE, type CartUpsell } from "@/content/cart-upsell";
 
-export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
-  const { cart, open, setOpen, update, remove, pending } = useCart();
+export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; dict: Dictionary; upsell?: CartUpsell | null }) {
+  const { cart, open, setOpen, update, remove, add, pending } = useCart();
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -148,6 +149,9 @@ export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary 
               })}
             </ul>
           )}
+          {upsell && lines.length > 0 && !lines.some((l) => l.merchandise.product.handle === upsell.handle) && (
+            <UpsellCard upsell={upsell} locale={locale} pending={pending} onNavigate={() => setOpen(false)} onAdd={() => add({ merchandiseId: upsell.variantId, quantity: 1, attributes: [UPSELL_LINE_ATTRIBUTE] })} />
+          )}
         </div>
 
         {lines.length > 0 && cart && (
@@ -174,5 +178,38 @@ export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary 
         )}
       </div>
     </div>
+  );
+}
+
+/** One-click add-on below the cart lines (src/content/cart-upsell.ts) */
+function UpsellCard({ upsell, locale, pending, onAdd, onNavigate }: { upsell: CartUpsell; locale: Locale; pending: boolean; onAdd: () => Promise<boolean>; onNavigate: () => void }) {
+  const [added, setAdded] = useState(false);
+  return (
+    <section className="mt-2 rounded-[var(--radius-card)] bg-soft p-4" aria-label={upsell.kicker}>
+      <p className="text-sm font-semibold text-green">{upsell.kicker}</p>
+      <div className="mt-2 flex gap-3">
+        <Link href={localeHref(locale, `/products/${upsell.handle}`)} onClick={onNavigate} className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
+          {upsell.image && <Image src={shopifyImage(upsell.image, 200)} alt={upsell.title} fill sizes="56px" className="object-cover" />}
+        </Link>
+        <div className="min-w-0 flex-1">
+          <Link href={localeHref(locale, `/products/${upsell.handle}`)} onClick={onNavigate} className="font-medium leading-snug hover:text-green">
+            {upsell.title}
+          </Link>
+          <p className="mt-0.5 text-sm leading-snug text-ink-muted">{upsell.text}</p>
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <span className="font-semibold tabular-nums">{formatMoney(upsell.price, locale)}</span>
+            <button
+              type="button"
+              disabled={pending || added}
+              onClick={async () => setAdded(await onAdd())}
+              className="btn btn-secondary btn-sm inline-flex items-center gap-1.5"
+            >
+              {added ? <CheckIcon width={14} height={14} /> : <PlusIcon width={14} height={14} />}
+              {added ? upsell.added : upsell.add}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

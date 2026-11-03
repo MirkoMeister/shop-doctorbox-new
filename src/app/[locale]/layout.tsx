@@ -16,7 +16,8 @@ import { AssistantTab } from "@/components/assistant/AssistantTab";
 import { SUGGESTIONS } from "@/lib/assistant/prompt";
 import { isLocale, locales, siteUrl, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getCollection, getNavCollections, TOP_PICKS_COLLECTION } from "@/lib/shopify/queries";
+import { getCollection, getNavCollections, getProduct, TOP_PICKS_COLLECTION } from "@/lib/shopify/queries";
+import { CART_UPSELL_HANDLE, cartUpsell } from "@/content/cart-upsell";
 import { JsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 
 const host = Host_Grotesk({
@@ -63,9 +64,10 @@ export default async function LocaleLayout({
   if (!isLocale(raw)) notFound();
   const locale: Locale = raw;
   const dict = getDictionary(locale);
-  const [collections, picks] = await Promise.all([
+  const [collections, picks, upsellProduct] = await Promise.all([
     getNavCollections(locale).catch(() => []),
     getCollection(TOP_PICKS_COLLECTION, locale).catch(() => null),
+    getProduct(CART_UPSELL_HANDLE, locale).catch(() => null),
   ]);
   const campaign = activeCampaign(locale);
   const promo = Boolean(campaign);
@@ -91,7 +93,7 @@ export default async function LocaleLayout({
             {children}
           </main>
           <Footer locale={locale} dict={dict} collections={collections} />
-          <CartDrawer locale={locale} dict={dict} />
+          <CartDrawer locale={locale} dict={dict} upsell={cartUpsell(upsellProduct, locale)} />
           <AssistantPanel locale={locale} dict={dict} suggestions={SUGGESTIONS[locale]} />
           <AssistantTab label={dict.assistant.open} />
           </AssistantProvider>
