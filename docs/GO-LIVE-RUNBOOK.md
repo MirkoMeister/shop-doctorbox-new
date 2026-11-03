@@ -35,10 +35,10 @@ Zwischen 1 und 3 läuft der alte Shop wenige Minuten unter der Checkout-Domain; 
 
 ## D. Block für das Weiterleitungs-Theme
 
-Leitet jede Shop-Seite des alten Themes mit Pfad, Parametern (z. B. `?variant=`) und Anker auf den neuen Shop. Kundenkonto-Seiten bleiben bei Shopify.
+Leitet jede Shop-Seite des alten Themes mit Pfad, Parametern (z. B. `?variant=`) und Anker auf den neuen Shop. Kundenkonto-Seiten und App-Proxy-Seiten (`/apps/…`, `/tools/…`, z. B. Abo-Kundenportal) bleiben bei Shopify; der neue Shop leitet diese Pfade dorthin, eine Weiterleitung zurück wäre eine Schleife.
 
 ```liquid
-{%- unless template contains 'customers' -%}
+{%- unless template contains 'customers' or request.path contains '/apps/' or request.path contains '/tools/' -%}
   <meta name="robots" content="noindex">
   <script>location.replace("https://shop.doctorbox.de" + location.pathname + location.search + location.hash);</script>
   <noscript><meta http-equiv="refresh" content="0; url=https://shop.doctorbox.de{{ request.path }}"></noscript>

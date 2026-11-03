@@ -43,6 +43,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: { default: dict.meta.defaultTitle, template: `%s | DoctorBox` },
     description: dict.meta.defaultDescription,
     applicationName: dict.meta.siteName,
+    // Taken over from the Shopify theme: Merchant Center / Search Console claims and Meta domain verification
+    // check these tags on shop.doctorbox.de (doctorbox.de has no DNS TXT records for them)
+    verification: {
+      google: ["eRw_3axwSRq53OimqIdv8G3XAs36BWGxpZCzYGT0fRI", "qxM-Ryw0_Id81G0prUStRoAS-tl09_pO7KOloVLRn-M"],
+      other: { "facebook-domain-verification": "bbmzqz6e0vxmp4637s5l6a0wlso7s8" },
+    },
   };
 }
 
