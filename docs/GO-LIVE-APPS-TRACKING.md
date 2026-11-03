@@ -56,3 +56,14 @@ Nicht genutzt (laut Mirko, 03.11.2026): Judge.me, Bloggle, Lucky Orange. Deaktiv
 - Preise und Verfügbarkeit: JSON-LD mit einem Angebot je Variante und `?variant=`-URL, passend zum Feed.
 - Rückgabe- und Versandinfos: `/policies/*` werden vom neuen Shop ausgeliefert.
 - Kauf-Conversions für Google Ads: kommen aus dem Checkout-Pixel der Google & YouTube-App, unverändert.
+
+## 5. Bestellungen über Mira
+
+Öffnet jemand ein Produkt aus einer Empfehlung von Mira und legt es danach in den Warenkorb, bekommt die Warenkorbposition die versteckte Eigenschaft `_mira` = `empfohlen` (`src/lib/assistant/attribution.ts`). Shopify übernimmt sie in die Bestellung; im Admin steht sie an der Position, Kunden sehen sie nicht.
+
+Tag „Mira“ per Shopify Flow (einmalig einrichten):
+1. Apps → Shopify Flow → Workflow erstellen → Auslöser „Bestellung erstellt“ (Order created).
+2. Bedingung: „Bestellung / Positionen / Benutzerdefinierte Attribute / Schlüssel“ ist gleich `_mira` (bei „Mindestens eins von“).
+3. Aktion „Bestellungstags hinzufügen“: `Mira`. Workflow aktivieren.
+
+Danach in Bestellungen nach dem Tag `Mira` filtern. Hinweis: Lag dieselbe Variante schon vorher ohne Mira im Warenkorb, steht sie danach zweimal dort (eine Position mit, eine ohne Markierung).

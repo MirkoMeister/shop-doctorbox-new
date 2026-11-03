@@ -7,6 +7,7 @@ import type { ProductTeaser } from "@/app/api/assistant/route";
 import { formatMoney, shopifyImage } from "@/lib/format";
 import { localeHref, type Locale } from "@/lib/i18n/config";
 import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
+import { rememberMiraPick } from "@/lib/assistant/attribution";
 import { ArrowRight, DoubleCheckIcon, DropIcon } from "@/components/ui/Icons";
 
 /** Display name: drop " - Geschlechtskrankheiten-Test" style suffixes, keep "| Für Männer" qualifiers */
@@ -45,7 +46,10 @@ function InlineProduct({ p, locale, onNavigate, tone }: { p: ProductTeaser; loca
   return (
     <Link
       href={localeHref(locale, `/products/${p.handle}`)}
-      onClick={onNavigate}
+      onClick={() => {
+        rememberMiraPick(p.handle);
+        onNavigate?.();
+      }}
       className={`mx-0.5 inline-flex max-w-full items-center whitespace-nowrap rounded-full px-2 py-0.5 align-baseline font-semibold text-moss transition-colors hover:bg-green hover:text-white ${
         tone === "light" ? "bg-lind/70" : "border border-line bg-white hover:border-green"
       }`}
@@ -200,7 +204,10 @@ export function Thread({
                   <li key={p.handle}>
                     <Link
                       href={localeHref(locale, `/products/${p.handle}`)}
-                      onClick={onNavigate}
+                      onClick={() => {
+                        rememberMiraPick(p.handle);
+                        onNavigate?.();
+                      }}
                       className={`group flex gap-3 bg-white p-2.5 transition-shadow hover:shadow-float ${
                         wa ? "rounded-2xl rounded-tl-sm shadow-[0_1px_1px_rgba(18,33,55,0.08)]" : "rounded-2xl border border-line/70 p-3 shadow-card"
                       }`}

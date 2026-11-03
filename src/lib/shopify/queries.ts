@@ -716,7 +716,7 @@ export async function fetchCart(id: string, locale: Locale, buyerIp?: string | n
   return reshapeCart(data.cart);
 }
 
-export type CartLineInput = { merchandiseId: string; quantity: number; sellingPlanId?: string };
+export type CartLineInput = { merchandiseId: string; quantity: number; sellingPlanId?: string; attributes?: { key: string; value: string }[] };
 
 const CART_CREATE = /* GraphQL */ `
   mutation CartCreate($lines: [CartLineInput!], ${CTX_VARS}) ${CTX} {

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
+import { isMiraPick, MIRA_LINE_ATTRIBUTE } from "@/lib/assistant/attribution";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
@@ -83,6 +84,7 @@ export function PurchaseForm({
       merchandiseId: variant.id,
       quantity: qty,
       ...(mode === "subscription" && planId ? { sellingPlanId: planId } : {}),
+      ...(isMiraPick(product.handle) ? { attributes: [MIRA_LINE_ATTRIBUTE] } : {}),
     });
     if (ok) {
       setJustAdded(true);
