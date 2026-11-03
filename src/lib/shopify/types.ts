@@ -154,6 +154,8 @@ export type CartLine = {
   id: string;
   quantity: number;
   cost: { totalAmount: Money; compareAtAmountPerQuantity: Money | null };
+  /** product discounts on this line (automatic and code); amounts of 0 come from discounts that didn't apply */
+  discountAllocations: { discountedAmount: { amount: string } }[];
   sellingPlanAllocation: { sellingPlan: { id: string; name: string } } | null;
   merchandise: {
     id: string;

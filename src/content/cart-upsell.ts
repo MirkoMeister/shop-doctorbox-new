@@ -14,8 +14,9 @@ export const CART_UPSELL_HANDLE = "vitamin-d-test";
 export const UPSELL_PERCENT_OFF = 20;
 export const UPSELL_LINE_ATTRIBUTE = { key: "_upsell", value: "warenkorb" };
 
-const copy: Record<Locale, { kicker: string; text: string; add: string; added: string; instead: string }> = {
+const copy: Record<Locale, { kicker: string; plainKicker: string; text: string; add: string; added: string; instead: string }> = {
   de: {
+    plainKicker: "Noch dazu?",
     kicker: UPSELL_PERCENT_OFF ? `Noch dazu? Mit deinem Einkauf ${UPSELL_PERCENT_OFF} % günstiger` : "Noch dazu?",
     text: "Gerade in der dunklen Jahreszeit lohnt ein Blick auf den Vitamin-D-Wert. Ein paar Tropfen Blut, Befund in der App.",
     add: "Hinzufügen",
@@ -23,6 +24,7 @@ const copy: Record<Locale, { kicker: string; text: string; add: string; added: s
     instead: "statt",
   },
   en: {
+    plainKicker: "Add this?",
     kicker: UPSELL_PERCENT_OFF ? `Add this? ${UPSELL_PERCENT_OFF}% off with your order` : "Add this?",
     text: "In the darker months it is worth checking your vitamin D level. A few drops of blood, result in the app.",
     add: "Add",
@@ -40,6 +42,8 @@ export type CartUpsell = {
   offerPrice: Money | null;
   image: string | null;
   kicker: string;
+  /** without the offer (cart holds only discounted items) */
+  plainKicker: string;
   text: string;
   add: string;
   added: string;

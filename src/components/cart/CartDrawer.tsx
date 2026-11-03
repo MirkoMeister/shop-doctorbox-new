@@ -150,7 +150,14 @@ export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; di
             </ul>
           )}
           {upsell && lines.length > 0 && !lines.some((l) => l.merchandise.product.handle === upsell.handle) && (
-            <UpsellCard upsell={upsell} locale={locale} pending={pending} onNavigate={() => setOpen(false)} onAdd={() => add({ merchandiseId: upsell.variantId, quantity: 1, attributes: [UPSELL_LINE_ATTRIBUTE] })} />
+            <UpsellCard
+              upsell={upsell}
+              // Shopify: a line that already has a product discount (e.g. MOVEMBER26) doesn't count as the
+              // "buys" item of VITAMIND WINTER, so the offer price needs one undiscounted other line
+              offer={lines.some((l) => l.merchandise.product.handle !== upsell.handle && l.discountAllocations.every((a) => Number(a.discountedAmount.amount) === 0))}
+              locale={locale}
+              pending={pending}
+              onNavigate={() => setOpen(false)} onAdd={() => add({ merchandiseId: upsell.variantId, quantity: 1, attributes: [UPSELL_LINE_ATTRIBUTE] })} />
           )}
         </div>
 
@@ -182,11 +189,12 @@ export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; di
 }
 
 /** One-click add-on below the cart lines (src/content/cart-upsell.ts) */
-function UpsellCard({ upsell, locale, pending, onAdd, onNavigate }: { upsell: CartUpsell; locale: Locale; pending: boolean; onAdd: () => Promise<boolean>; onNavigate: () => void }) {
+function UpsellCard({ upsell, offer, locale, pending, onAdd, onNavigate }: { upsell: CartUpsell; offer: boolean; locale: Locale; pending: boolean; onAdd: () => Promise<boolean>; onNavigate: () => void }) {
   const [added, setAdded] = useState(false);
+  const offerPrice = offer ? upsell.offerPrice : null;
   return (
     <section className="mt-2 rounded-[var(--radius-card)] bg-soft p-4" aria-label={upsell.kicker}>
-      <p className="text-sm font-semibold text-green">{upsell.kicker}</p>
+      <p className="text-sm font-semibold text-green">{offerPrice ? upsell.kicker : upsell.plainKicker}</p>
       <div className="mt-2 flex gap-3">
         <Link href={localeHref(locale, `/products/${upsell.handle}`)} onClick={onNavigate} className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
           {upsell.image && <Image src={shopifyImage(upsell.image, 200)} alt={upsell.title} fill sizes="56px" loading="eager" className="object-cover" />}
@@ -198,8 +206,8 @@ function UpsellCard({ upsell, locale, pending, onAdd, onNavigate }: { upsell: Ca
           <p className="mt-0.5 text-sm leading-snug text-ink-muted">{upsell.text}</p>
           <div className="mt-2 flex items-center justify-between gap-3">
             <span className="flex flex-col tabular-nums leading-tight">
-              <span className="font-semibold">{formatMoney(upsell.offerPrice ?? upsell.price, locale)}</span>
-              {upsell.offerPrice && (
+              <span className="font-semibold">{formatMoney(offerPrice ?? upsell.price, locale)}</span>
+              {offerPrice && (
                 <span className="text-xs text-ink-muted">
                   {upsell.instead} <s>{formatMoney(upsell.price, locale)}</s>
                 </span>

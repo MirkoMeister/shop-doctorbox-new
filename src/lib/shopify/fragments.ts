@@ -275,6 +275,11 @@ export const CART_FRAGMENT = /* GraphQL */ `
               ...MoneyFields
             }
           }
+          discountAllocations {
+            discountedAmount {
+              amount
+            }
+          }
           sellingPlanAllocation {
             sellingPlan {
               id
