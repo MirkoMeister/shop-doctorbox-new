@@ -1,9 +1,9 @@
 import { HALLOWEEN, halloweenActive, halloweenCopy } from "@/content/halloween";
-import { MOVEMBER, movemberActive, movemberCopy } from "@/content/movember";
+import { MOVEMBER, movemberActive, movemberCopy, movemberHandles } from "@/content/movember";
 import type { Locale } from "@/lib/i18n/config";
 
-/** What the announcement bar and the cart need from whichever campaign runs now. */
-export type ActiveCampaign = { key: string; code: string; percent: number; page: string; bar: string; barCta: string; emoji: string; until: string };
+/** What the announcement bar and the cart need from whichever campaign runs now. `handles`: the products the code applies to (none: every test). */
+export type ActiveCampaign = { key: string; code: string; percent: number; page: string; bar: string; barCta: string; emoji: string; until: string; handles?: string[] };
 
 export function activeCampaign(locale: Locale, now = new Date()): ActiveCampaign | null {
   if (halloweenActive(now)) {
@@ -12,7 +12,7 @@ export function activeCampaign(locale: Locale, now = new Date()): ActiveCampaign
   }
   if (movemberActive(now)) {
     const t = movemberCopy(locale);
-    return { key: "movember", code: MOVEMBER.code, percent: MOVEMBER.percent, page: MOVEMBER.page, bar: t.bar, barCta: t.barCta, emoji: "👨🏻", until: locale === "en" ? "30 November" : "30. November" };
+    return { key: "movember", code: MOVEMBER.code, percent: MOVEMBER.percent, page: MOVEMBER.page, bar: t.bar, barCta: t.barCta, emoji: "👨🏻", until: locale === "en" ? "30 November" : "30. November", handles: movemberHandles };
   }
   return null;
 }

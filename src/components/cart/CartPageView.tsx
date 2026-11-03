@@ -145,7 +145,9 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
   const total = parseFloat(cart.cost.totalAmount.amount);
   const discount = Math.max(0, subtotal - total);
   const campaign = activeCampaign(locale);
-  const promo = campaign && hasTests && !applied ? campaign : null;
+  // only suggest the code when it will apply to something in the cart
+  const eligible = campaign && (campaign.handles ? cart.lines.some((l) => campaign.handles!.includes(l.merchandise.product.handle)) : hasTests);
+  const promo = campaign && eligible && !applied ? campaign : null;
 
   async function submitCode(value: string) {
     const ok = await applyDiscount(value);

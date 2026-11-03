@@ -1,6 +1,6 @@
 import type { Locale } from "@/lib/i18n/config";
 
-/** Movember: men's health month, 20 % with a code, 1 to 30 November 2026 (Berlin). */
+/** Movember: men's health month, 20 % with a code, 1 to 30 November 2026 (Berlin). The code applies only to the tests listed here. */
 export const MOVEMBER = {
   code: "MOVEMBER26",
   percent: 20,
@@ -11,13 +11,16 @@ export const MOVEMBER = {
   spotlight: "rundum-check-fur-manner",
   /** editorial groups; keys match the copy below */
   groups: [
-    { key: "vorsorge", handles: ["psa-test-prostata-vorsorge", "darmkrebsvorsorge"] },
+    { key: "vorsorge", handles: ["psa-test-prostata-vorsorge", "darmkrebsvorsorge", "personalisierte-prostatakrebspravention", "personalisierte-krebspravention-fur-manner"] },
     { key: "herz", handles: ["herz-kreislauf-check", "blutzucker-hba1c", "leber-check"] },
     { key: "hormone", handles: ["testosteron-test", "hormon-check-fur-manner"] },
     { key: "kopf", handles: ["cortisol-check", "burnout-stess-check"] },
     { key: "sex", handles: ["sti-pro-10", "sti-complete-trio-fur-manner"] },
   ],
 };
+
+/** Every test on the page. The MOVEMBER26 discount in Shopify must cover exactly these products. */
+export const movemberHandles = [MOVEMBER.spotlight, ...MOVEMBER.groups.flatMap((g) => g.handles)];
 
 export type MovemberPhase = "before" | "active" | "ended";
 export function movemberPhase(now = new Date()): MovemberPhase {
@@ -77,11 +80,11 @@ export type MovemberCopy = {
 const de: MovemberCopy = {
   metaTitle: "Movember: 20 % auf Heimtests für Männer mit Code MOVEMBER26",
   metaDescription: "Männergesundheit im November: PSA, Testosteron, Herz-Kreislauf, Darmkrebsvorsorge und mehr, 20 % günstiger mit dem Code MOVEMBER26. Messen statt aufschieben.",
-  bar: "Movember: 20 % auf alle Heimtests mit Code MOVEMBER26, den ganzen November",
+  bar: "Movember: 20 % auf Heimtests für Männer mit Code MOVEMBER26, den ganzen November",
   barCta: "Zur Aktion",
   kicker: "Movember, der Monat der Männergesundheit",
   title: "Männer, [[macht den Check]].",
-  lead: "Männer gehen seltener zur Vorsorge und sterben im Schnitt rund fünf Jahre früher als Frauen. Im November gibt es 20 % auf alle Heimtests: Blut abnehmen, einschicken, Befund in der App. Ohne Wartezimmer.",
+  lead: "Männer gehen seltener zur Vorsorge und sterben im Schnitt rund fünf Jahre früher als Frauen. Im November gibt es 20 % auf die Heimtests für Männer: Blut abnehmen, einschicken, Befund in der App. Ohne Wartezimmer.",
   codeLabel: "Dein Code",
   copy: "Code kopieren",
   copied: "Kopiert",
@@ -89,8 +92,8 @@ const de: MovemberCopy = {
   startsLabel: "Die Aktion startet in",
   units: ["Tage", "Std", "Min", "Sek"],
   cta: "Zu den Tests",
-  note: "Der Rabatt wird im Warenkorb abgezogen. Gültig vom 1. bis 30. November auf alle DoctorBox Heimtests.",
-  beforeNote: "Ab 1. November gilt der Code auf alle DoctorBox Heimtests. Die Tests kannst du dir jetzt schon ansehen.",
+  note: "Der Rabatt wird im Warenkorb abgezogen. Gültig vom 1. bis 30. November auf die Tests auf dieser Seite.",
+  beforeNote: "Ab 1. November gilt der Code auf die Tests auf dieser Seite. Ansehen kannst du sie dir jetzt schon.",
   facts: [
     { value: "5 Jahre", label: "früher sterben Männer in Deutschland im Schnitt als Frauen" },
     { value: "Nr. 1", label: "Prostatakrebs ist die häufigste Krebsart bei Männern" },
@@ -111,7 +114,7 @@ const de: MovemberCopy = {
   dealsTitle: "Die Tests zum [[Movember]]",
   dealsText: "Nach Thema sortiert, alle 20 % günstiger mit dem Code. Wenn du nicht weißt, wo du anfangen sollst: Der Rundum Check oben deckt die wichtigsten Werte ab.",
   groups: {
-    vorsorge: { title: "Prostata & Darm", text: "Die zwei Krebsarten, bei denen Früherkennung nachweislich Leben rettet. PSA aus dem Blut, Darmkrebsvorsorge aus einer Stuhlprobe." },
+    vorsorge: { title: "Prostata & Darm", text: "Die zwei Krebsarten, bei denen Früherkennung nachweislich Leben rettet. PSA aus dem Blut, Darmkrebsvorsorge aus einer Stuhlprobe, dazu zwei Gentests, die dein persönliches Krebsrisiko einschätzen." },
     herz: { title: "Herz & Stoffwechsel", text: "Herz-Kreislauf-Erkrankungen sind Todesursache Nummer eins. Blutfette, Blutzucker und Leberwerte zeigen das Risiko lange vorher." },
     hormone: { title: "Hormone & Antrieb", text: "Weniger Energie, weniger Lust, schlechter Schlaf: Testosteron und die Hormonachse geben Antworten." },
     kopf: { title: "Kopf & Stress", text: "Dauerstress hinterlässt Spuren in den Werten. Cortisol und der Burnout-Stress-Check machen sie sichtbar." },
@@ -126,27 +129,27 @@ const de: MovemberCopy = {
   talkPhoneNote: "oder 0800 111 0 222, rund um die Uhr, kostenlos",
   howTitle: "So löst du den [[Rabatt]] ein",
   steps: [
-    { title: "Test wählen", text: "Lege einen oder mehrere Heimtests in den Warenkorb." },
+    { title: "Test wählen", text: "Lege einen oder mehrere Tests von dieser Seite in den Warenkorb." },
     { title: "Code eingeben", text: "Im Warenkorb auf „Rabattcode eingeben“ tippen und MOVEMBER26 eintragen." },
     { title: "20 % sparen", text: "Der Rabatt wird sofort abgezogen. Versand in neutraler Verpackung wie immer." },
   ],
   endedTitle: "Der Movember ist vorbei, die Vorsorge nicht",
   endedText: "Die Aktion ist beendet. Die Tests gibt es weiterhin, und Mira hilft dir beim Auswählen.",
   endedCta: "Alle Heimtests ansehen",
-  finePrint: "Gültig vom 1. bis 30. November 2026, 23:59 Uhr, auf alle DoctorBox Heimtests; nicht mit anderen Codes oder Abo-Rabatten kombinierbar. Ein Code pro Bestellung.",
-  allTitle: "Gilt für [[jeden Heimtest]]",
-  allText: "Nicht nur für die Auswahl oben: Mit MOVEMBER26 ist jeder DoctorBox Heimtest 20 % günstiger, auch die Rundum Checks für Frauen.",
-  allCta: "Alle Heimtests ansehen",
+  finePrint: "Gültig vom 1. bis 30. November 2026, 23:59 Uhr, auf die auf dieser Seite gezeigten Heimtests; nicht mit anderen Codes oder Abo-Rabatten kombinierbar. Ein Code pro Bestellung.",
+  allTitle: "Gilt für [[die Tests auf dieser Seite]]",
+  allText: "MOVEMBER26 gilt für den Rundum Check und alle Tests in den Themen oben. Auf andere Heimtests und Nahrungsergänzungsmittel wird der Code nicht angewendet.",
+  allCta: "Zu den Aktions-Tests",
 };
 
 const en: MovemberCopy = {
   metaTitle: "Movember: 20% off home tests for men with code MOVEMBER26",
   metaDescription: "Men's health in November: PSA, testosterone, heart and metabolism, bowel cancer screening and more, 20% off with the code MOVEMBER26. Measure instead of postponing.",
-  bar: "Movember: 20% off all home tests with code MOVEMBER26, all November long",
+  bar: "Movember: 20% off home tests for men with code MOVEMBER26, all November long",
   barCta: "See the campaign",
   kicker: "Movember, the month of men's health",
   title: "Men, [[get checked]].",
-  lead: "Men see the doctor less often and die about five years earlier than women on average. In November, every home test is 20% off: take a sample, send it in, read your result in the app. No waiting room.",
+  lead: "Men see the doctor less often and die about five years earlier than women on average. In November, the home tests for men are 20% off: take a sample, send it in, read your result in the app. No waiting room.",
   codeLabel: "Your code",
   copy: "Copy code",
   copied: "Copied",
@@ -154,8 +157,8 @@ const en: MovemberCopy = {
   startsLabel: "The campaign starts in",
   units: ["days", "hrs", "min", "sec"],
   cta: "See the tests",
-  note: "The discount is deducted in the cart. Valid 1 to 30 November on all DoctorBox home tests.",
-  beforeNote: "From 1 November the code applies to all DoctorBox home tests. You can browse the tests now.",
+  note: "The discount is deducted in the cart. Valid 1 to 30 November on the tests on this page.",
+  beforeNote: "From 1 November the code applies to the tests on this page. You can browse them now.",
   facts: [
     { value: "5 years", label: "earlier is how much sooner men in Germany die than women, on average" },
     { value: "No. 1", label: "prostate cancer is the most common cancer in men" },
@@ -176,7 +179,7 @@ const en: MovemberCopy = {
   dealsTitle: "The tests for [[Movember]]",
   dealsText: "Sorted by topic, all 20% off with the code. Not sure where to start? The all-round check above covers the key values.",
   groups: {
-    vorsorge: { title: "Prostate & bowel", text: "The two cancers where early detection demonstrably saves lives. PSA from blood, bowel cancer screening from a stool sample." },
+    vorsorge: { title: "Prostate & bowel", text: "The two cancers where early detection demonstrably saves lives. PSA from blood, bowel cancer screening from a stool sample, plus two genetic tests that estimate your personal cancer risk." },
     herz: { title: "Heart & metabolism", text: "Cardiovascular disease is the number one cause of death. Lipids, blood sugar and liver values show the risk long before." },
     hormone: { title: "Hormones & drive", text: "Less energy, less desire, poorer sleep: testosterone and the hormone axis give answers." },
     kopf: { title: "Mind & stress", text: "Chronic stress leaves traces in your values. Cortisol and the burnout stress check make them visible." },
@@ -191,17 +194,17 @@ const en: MovemberCopy = {
   talkPhoneNote: "or 0800 111 0 222, around the clock, free of charge",
   howTitle: "How to redeem the [[discount]]",
   steps: [
-    { title: "Pick a test", text: "Add one or more home tests to your cart." },
+    { title: "Pick a test", text: "Add one or more tests from this page to your cart." },
     { title: "Enter the code", text: "Tap “Enter a discount code” in the cart and enter MOVEMBER26." },
     { title: "Save 20%", text: "The discount is deducted right away. Shipped in neutral packaging as always." },
   ],
   endedTitle: "Movember is over, prevention is not",
   endedText: "The campaign has ended. The tests are still here, and Mira helps you choose.",
   endedCta: "See all home tests",
-  finePrint: "Valid 1 to 30 November 2026, 23:59, on all DoctorBox home tests; cannot be combined with other codes or subscription discounts. One code per order.",
-  allTitle: "Applies to [[every home test]]",
-  allText: "Not only the selection above: with MOVEMBER26 every DoctorBox home test is 20% off, including the all-round checks for women.",
-  allCta: "See all home tests",
+  finePrint: "Valid 1 to 30 November 2026, 23:59, on the home tests shown on this page; cannot be combined with other codes or subscription discounts. One code per order.",
+  allTitle: "Applies to [[the tests on this page]]",
+  allText: "MOVEMBER26 applies to the all-round check and every test in the topics above. It does not apply to other home tests or supplements.",
+  allCta: "See the campaign tests",
 };
 
 export const movemberCopy = (locale: Locale): MovemberCopy => (locale === "en" ? en : de);

@@ -218,7 +218,7 @@ export default async function MovemberPage({ params }: Props) {
               <Highlight text={t.allTitle} />
             </h2>
             <p className="mt-3 text-ink-muted">{t.allText}</p>
-            <Link href={href("/collections")} className="btn btn-secondary mt-5">
+            <Link href="#deals" className="btn btn-secondary mt-5">
               {t.allCta} <ArrowRight width={16} height={16} />
             </Link>
           </div>
