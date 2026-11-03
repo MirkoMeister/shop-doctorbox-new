@@ -55,7 +55,7 @@ Im Shop umgesetzt: „nahezu schmerzfrei“ (Herstellerformulierung) statt „ko
 
 - [ ] **Trusted Shops Bewertungen:** `ETRUSTED_CLIENT_ID`, `ETRUSTED_CLIENT_SECRET`, `ETRUSTED_CHANNEL_ID=chl-2cbd51e9-0164-4b34-a260-c813d0007e3f` in Scalingo setzen (lokal bereits aktiv). Ohne sie fällt der Shop auf die Shopify-Sterne zurück.
 
-- [ ] Alle Werte aus `.env.example` gesetzt, insbesondere `ANTHROPIC_API_KEY` (Workspace-Key), `RESEND_API_KEY`, `CONTACT_TO`, `NEXT_PUBLIC_SITE_URL=https://shop.doctorbox.de`.
+- [ ] Alle Werte aus `.env.example` gesetzt, insbesondere `ANTHROPIC_API_KEY` (Workspace-Key), `BREVO_API_KEY`, `CONTACT_TO`, `NEXT_PUBLIC_SITE_URL=https://shop.doctorbox.de`.
 - [ ] **Newsletter (Klaviyo):** `KLAVIYO_LIST_ID` in Scalingo und `.env.local` setzen (Klaviyo → Listen → Liste → Einstellungen, ID im Pfad). Auf der Liste Double Opt-in aktivieren und die Bestätigungsmail auf Deutsch prüfen. Bis dahin sind Newsletter-Formulare auf Startseite und Footer sichtbar, melden bei Absenden aber einen Fehler.
 - [ ] Noch leer: Trusted-Shops-Widget-ID. (Tracking-IDs stehen als Standardwerte im Code, siehe `src/lib/tracking/config.ts`; Env-Variablen überschreiben sie.)
 
