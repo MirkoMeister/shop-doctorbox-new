@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { email, honeypot, invalidResponse, line, rateLimitedResponse, requiredLine } from "@/lib/form-fields";
+import { sendMail } from "@/lib/mail";
 import { clientIp, rateLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -17,12 +18,12 @@ const Payload = z.object({
   locale: line(10).optional(),
 });
 
-/** Each inquiry lands in the inbox and uses Resend quota */
+/** Each inquiry lands in the inbox and uses mail quota */
 const limited = rateLimiter({ windowMs: 60 * 60 * 1000, perKey: 5, global: 100 });
 
 /**
- * B2B inquiry endpoint. Sends the request by e-mail through Resend when
- * RESEND_API_KEY is configured; otherwise it is logged on the server so the
+ * B2B inquiry endpoint. Sends the request by e-mail (Brevo or Resend, see lib/mail.ts) when
+ * a key is configured; otherwise it is logged on the server so the
  * form still works in development. Recipient: B2B_INQUIRY_TO (default heimtest@doctorbox.eu).
  */
 export async function POST(req: NextRequest) {
@@ -45,25 +46,16 @@ export async function POST(req: NextRequest) {
     body.message ?? "",
   ].join("\n");
 
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    console.info("[b2b inquiry] (no RESEND_API_KEY configured, logging only)\n" + text);
-    return NextResponse.json({ ok: true, delivered: false });
-  }
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: process.env.B2B_INQUIRY_FROM ?? "DoctorBox Shop <shop@doctorbox.de>",
-      to: [to],
-      reply_to: body.email,
-      subject: `B2B-Anfrage: ${body.company} (${body.interest})`,
-      text,
-    }),
-  });
-  if (!res.ok) {
-    console.error("[b2b inquiry] resend failed", res.status, await res.text());
+  let sent: boolean;
+  try {
+    sent = await sendMail({ to, replyTo: body.email, subject: `B2B-Anfrage: ${body.company} (${body.interest})`, text });
+  } catch (err) {
+    console.error("[b2b inquiry] delivery failed", err);
     return NextResponse.json({ ok: false, error: "delivery" }, { status: 502 });
+  }
+  if (!sent) {
+    console.info("[b2b inquiry] (no BREVO_API_KEY or RESEND_API_KEY configured, logging only)\n" + text);
+    return NextResponse.json({ ok: true, delivered: false });
   }
   return NextResponse.json({ ok: true, delivered: true });
 }
