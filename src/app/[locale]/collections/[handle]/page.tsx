@@ -82,6 +82,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         intro={collection.seo.description || firstSentence(collection.descriptionHtml)}
         descriptionHtml={collection.descriptionHtml}
         handle={collection.handle}
+        heroImage={collection.heroImage?.url ?? null}
         products={collection.products}
         sort={sort}
         searchParams={sp}

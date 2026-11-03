@@ -155,6 +155,15 @@ const COLLECTION_QUERY = /* GraphQL */ `
   query Collection($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, ${CTX_VARS}) ${CTX} {
     collection(handle: $handle) {
       ...CollectionFields
+      heroImage: metafield(namespace: "custom", key: "hero_image") {
+        reference {
+          ... on MediaImage {
+            image {
+              ...ImageFields
+            }
+          }
+        }
+      }
       products(first: 100, sortKey: $sortKey, reverse: $reverse) {
         edges {
           node {
@@ -185,17 +194,19 @@ export async function getCollection(
   handle: string,
   locale: Locale,
   sort?: ProductSort,
-): Promise<(Collection & { products: ProductCard[] }) | null> {
+): Promise<(Collection & { heroImage: Image | null; products: ProductCard[] }) | null> {
   if (EXCLUDED_COLLECTIONS.includes(handle)) return null;
   const data = await shopifyFetch<{
-    collection: (Collection & { products: { edges: { node: RawProductCard }[] } }) | null;
+    collection:
+      | (Collection & { heroImage: { reference: { image?: Image | null } | null } | null; products: { edges: { node: RawProductCard }[] } })
+      | null;
   }>(COLLECTION_QUERY, {
     variables: { handle, ...collectionSortArgs(sort) },
     locale,
     tags: ["collections", `collection:${handle}`],
   });
   if (!data.collection) return null;
-  const { products, ...rest } = data.collection;
+  const { products, heroImage, ...rest } = data.collection;
   let cards = nodes(products).filter(isVisibleProduct).map(reshapeProductCard);
   // Supplements arrive via Shopify Collective and are not always assigned to the collection:
   // every product of that type belongs here.
@@ -204,7 +215,13 @@ export async function getCollection(
     const seen = new Set(cards.map((p) => p.id));
     cards = [...cards, ...all.filter((p) => !seen.has(p.id))];
   }
-  return { ...rest, title: collectionTitle(rest.handle, rest.title), products: await applyReviewSummaries(cards) };
+  return {
+    ...rest,
+    title: collectionTitle(rest.handle, rest.title),
+    // custom.hero_image (file) on the collection: the team swaps the hero photo in the Shopify admin
+    heroImage: heroImage?.reference?.image ?? null,
+    products: await applyReviewSummaries(cards),
+  };
 }
 
 export const SUPPLEMENTS_COLLECTION = "nahrungserganzungsmittel";

@@ -55,6 +55,7 @@ export function CollectionView({
   intro,
   descriptionHtml,
   handle,
+  heroImage: shopifyHero = null,
   products,
   sort,
   searchParams,
@@ -69,6 +70,8 @@ export function CollectionView({
   intro: string | null;
   descriptionHtml?: string | null;
   handle: string | null;
+  /** hero photo from the collection's custom.hero_image metafield; wins over the bundled photo */
+  heroImage?: string | null;
   products: ProductCard[];
   sort: ProductSort;
   searchParams: SearchParamsLike;
@@ -90,7 +93,8 @@ export function CollectionView({
   const sti = handle === STI_COLLECTION ? stiCopy(locale) : null;
   const supplements = products.length > 0 && products.every(isSupplement);
   const heroImage =
-    handle &&
+    shopifyHero ||
+    (handle &&
     existsSync(
       path.join(
         process.cwd(),
@@ -101,7 +105,7 @@ export function CollectionView({
       ),
     )
       ? `/hero/collections/${handle}.jpg`
-      : null;
+      : null);
 
   const trust = [
     { icon: LabIcon, text: dict.collection.trustLab },
