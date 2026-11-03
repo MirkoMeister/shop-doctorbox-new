@@ -76,3 +76,35 @@ const en: SupplementsCopy = {
 };
 
 export const supplementsCopy = (locale: Locale): SupplementsCopy => (locale === "en" ? en : de);
+
+/**
+ * Home tests shown first under "Passt dazu" on a supplement page: tests that measure what the
+ * supplement's goal is about. By group key, single products override. Editorial, change freely.
+ */
+const GROUP_TESTS: Record<string, string[]> = {
+  schlaf: ["cortisol-check", "burnout-stess-check"],
+  energie: ["mudigkeits-check", "fitness-check-pro"],
+  immun: ["vitamin-d-test", "nahrstoff-rundum-check"],
+  herz: ["lipid-check", "blutzucker-hba1c"],
+  gelenke: ["enzundungscheck", "osteotest-home"],
+  longevity: ["bio-age-kit", "enzundungscheck"],
+  basis: ["nahrstoff-rundum-check", "vitamin-d-test"],
+};
+const PRODUCT_TESTS: Record<string, string[]> = {
+  "men-formula": ["hormon-check-fur-manner", "nahrstoff-rundum-check"],
+  "fem-formula": ["hormon-check-fur-frauen", "nahrstoff-rundum-check"],
+  "focus-formula": ["neuro-vital-check", "mudigkeits-check"],
+  "kreatin-pulver": ["fitness-check-pro", "aminosaeuren-test"],
+  "taurin-kapseln": ["aminosaeuren-test", "fitness-check-pro"],
+  "recovery-formula": ["fitness-check-pro", "enzundungscheck"],
+  ...Object.fromEntries(VITAMIN_D_HANDLES.map((h) => [h, ["vitamin-d-test", "nahrstoff-rundum-check"]])),
+};
+
+export function testsForSupplement(handle: string): string[] {
+  if (PRODUCT_TESTS[handle]) return PRODUCT_TESTS[handle];
+  const group = de.groups.find((g) => g.handles.includes(handle));
+  return (group && GROUP_TESTS[group.key]) ?? MEASURE_FIRST_HANDLES;
+}
+
+/** The other products of the supplement's goal group (empty when it is in no group) */
+export const sameGoalSupplements = (handle: string): string[] => de.groups.find((g) => g.handles.includes(handle))?.handles ?? [];

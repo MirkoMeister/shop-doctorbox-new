@@ -14,13 +14,14 @@ import { BiomarkerChips } from "@/components/ui/Chips";
 import { CheckIcon, DropIcon } from "@/components/ui/Icons";
 import { Rating } from "@/components/ui/Rating";
 import { Highlight } from "@/components/ui/Highlight";
-import { absoluteUrl, localeHref } from "@/lib/i18n/config";
+import { absoluteUrl, localeHref, type Locale } from "@/lib/i18n/config";
 import { fill } from "@/lib/i18n/dictionaries";
 import { resolveLocale } from "@/lib/locale-params";
 import { breadcrumbJsonLd, faqJsonLd, JsonLd, pageMetadata, productJsonLd } from "@/lib/seo";
 import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import { isYoungle, SupplementTrust } from "@/components/supplements/SupplementTrust";
 import { SupplementDetails } from "@/components/supplements/SupplementDetails";
+import { sameGoalSupplements, testsForSupplement } from "@/content/supplements";
 import { youngleContent } from "@/content/youngle-content";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
@@ -57,6 +58,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/** Product cards for the given handles, in that order; sold-out ones are left out */
+async function testsByHandle(handles: string[], locale: Locale) {
+  const byHandle = new Map((await getAllProducts(locale).catch(() => [])).map((p) => [p.handle, p]));
+  return handles.map((h) => byHandle.get(h)).filter((p): p is NonNullable<typeof p> => Boolean(p?.availableForSale));
+}
+
 export default async function ProductPage({ params }: Props) {
   const { locale, dict, params: p } = await resolveLocale(params);
   const handle = decodeURIComponent(p.handle);
@@ -66,13 +73,20 @@ export default async function ProductPage({ params }: Props) {
   // Trusted Shops product reviews are matched by variant SKU (empty without API credentials)
   const reviews = await getProductReviews(reviewSkusFor(product.handle, product.variants.map((v) => v.sku)));
   const reviewSummary = summarize(reviews);
-  // Shopify's recommendations are tests; supplements relate to the other supplements
+  // Shopify's recommendations are tests; supplements get the tests for their goal first, then other supplements
   const supplementsCollection = supplement ? await getCollection(SUPPLEMENTS_COLLECTION, locale).catch(() => null) : null;
+  const pairedTests = supplement ? await testsByHandle(testsForSupplement(product.handle), locale) : [];
+  const sameGoal = new Set(sameGoalSupplements(product.handle));
+  const goalRank = (p: { handle: string }) => Number(sameGoal.has(p.handle));
   const related = supplement
-    ? (supplementsCollection?.products ?? [])
-        .filter((p) => p.id !== product.id && p.availableForSale)
-        .sort((x, y) => Number(y.vendor === product.vendor) - Number(x.vendor === product.vendor))
-        .slice(0, 4)
+    ? [
+        ...pairedTests,
+        ...(supplementsCollection?.products ?? [])
+          .filter((p) => p.id !== product.id && p.availableForSale)
+          // same goal first (sleep → glycine, apigenin), then same brand
+          .sort((x, y) => goalRank(y) - goalRank(x) || Number(y.vendor === product.vendor) - Number(x.vendor === product.vendor))
+          .slice(0, 4 - pairedTests.length),
+      ]
     : await getProductRecommendations(product.id, locale);
 
   const primaryCollection =
@@ -132,7 +146,7 @@ export default async function ProductPage({ params }: Props) {
       : []),
   ];
   // supplements relate to supplements, tests to tests
-  const relatedShown = related.filter((p) => isSupplement(p) === supplement);
+  const relatedShown = supplement ? related : related.filter((p) => !isSupplement(p));
   const youngle = supplement && isYoungle(product.vendor) ? youngleContent(product.handle, locale) : null;
 
   return (
