@@ -189,7 +189,7 @@ function UpsellCard({ upsell, locale, pending, onAdd, onNavigate }: { upsell: Ca
       <p className="text-sm font-semibold text-green">{upsell.kicker}</p>
       <div className="mt-2 flex gap-3">
         <Link href={localeHref(locale, `/products/${upsell.handle}`)} onClick={onNavigate} className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
-          {upsell.image && <Image src={shopifyImage(upsell.image, 200)} alt={upsell.title} fill sizes="56px" className="object-cover" />}
+          {upsell.image && <Image src={shopifyImage(upsell.image, 200)} alt={upsell.title} fill sizes="56px" loading="eager" className="object-cover" />}
         </Link>
         <div className="min-w-0 flex-1">
           <Link href={localeHref(locale, `/products/${upsell.handle}`)} onClick={onNavigate} className="font-medium leading-snug hover:text-green">
@@ -197,7 +197,14 @@ function UpsellCard({ upsell, locale, pending, onAdd, onNavigate }: { upsell: Ca
           </Link>
           <p className="mt-0.5 text-sm leading-snug text-ink-muted">{upsell.text}</p>
           <div className="mt-2 flex items-center justify-between gap-3">
-            <span className="font-semibold tabular-nums">{formatMoney(upsell.price, locale)}</span>
+            <span className="flex flex-col tabular-nums leading-tight">
+              <span className="font-semibold">{formatMoney(upsell.offerPrice ?? upsell.price, locale)}</span>
+              {upsell.offerPrice && (
+                <span className="text-xs text-ink-muted">
+                  {upsell.instead} <s>{formatMoney(upsell.price, locale)}</s>
+                </span>
+              )}
+            </span>
             <button
               type="button"
               disabled={pending || added}
