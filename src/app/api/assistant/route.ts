@@ -5,6 +5,7 @@ import { COLLECTION_HEROES } from "@/content/collection-heroes";
 import { buildKnowledge } from "@/lib/assistant/knowledge";
 import { systemPrompt } from "@/lib/assistant/prompt";
 import { isLocale, type Locale } from "@/lib/i18n/config";
+import { clientIp, rateLimiter } from "@/lib/rate-limit";
 import { predictiveSearch } from "@/lib/shopify/queries";
 import type { ProductCard } from "@/lib/shopify/types";
 
@@ -31,45 +32,12 @@ const KNOWN_TOPICS = new Set(
 );
 
 /* ------------------------------------------------------------- rate limit */
-const WINDOW_MS = 10 * 60 * 1000;
-const PER_IP = 30;
-/** Backstop per container across all visitors, so rotating addresses cannot run up the API bill */
-const GLOBAL = Number(process.env.ASSISTANT_GLOBAL_LIMIT) || 300;
-const MAX_TRACKED = 10_000;
-
-const hits = new Map<string, number[]>();
-let globalHits: number[] = [];
-
-function limited(ip: string): boolean {
-  const now = Date.now();
-  const fresh = (ts: number[]) => ts.filter((t) => now - t < WINDOW_MS);
-  globalHits = fresh(globalHits);
-  if (globalHits.length >= GLOBAL) return true;
-  const arr = fresh(hits.get(ip) ?? []);
-  if (arr.length >= PER_IP) return true;
-  arr.push(now);
-  globalHits.push(now);
-  hits.delete(ip); // re-insert so the map stays ordered by last activity
-  hits.set(ip, arr);
-  if (hits.size > MAX_TRACKED) {
-    // drop expired addresses, then the least recently active ones; never reset everyone's count
-    for (const [k, ts] of hits) if (!fresh(ts).length) hits.delete(k);
-    for (const k of hits.keys()) {
-      if (hits.size <= MAX_TRACKED) break;
-      hits.delete(k);
-    }
-  }
-  return false;
-}
-
-/**
- * Client address as seen by the Scalingo router. The router adds its own entry to X-Forwarded-For,
- * so the last entry is the one it saw; earlier entries come from the client and can be forged.
- */
-function clientIp(req: NextRequest): string {
-  const chain = req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean);
-  return chain?.[chain.length - 1] ?? "local";
-}
+const limited = rateLimiter({
+  windowMs: 10 * 60 * 1000,
+  perKey: 30,
+  // backstop across all visitors, so rotating addresses cannot run up the API bill
+  global: Number(process.env.ASSISTANT_GLOBAL_LIMIT) || 300,
+});
 
 /* ----------------------------------------------------------------- tools */
 const RecommendInput = z.object({
@@ -149,7 +117,7 @@ export async function POST(req: NextRequest) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid" }, { status: 400 });
   // after validation, so malformed requests don't use up the budget
-  if (limited(clientIp(req))) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  if (limited(clientIp(req.headers) ?? "local")) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   const locale: Locale = parsed.data.locale && isLocale(parsed.data.locale) ? parsed.data.locale : "de";
   const requested = parsed.data.topic?.trim();
   const topic = requested && KNOWN_TOPICS.has(requested) ? requested : null;

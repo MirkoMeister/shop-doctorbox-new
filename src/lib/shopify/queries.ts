@@ -706,11 +706,12 @@ const CART_QUERY = /* GraphQL */ `
   ${CART_FRAGMENT}
 `;
 
-export async function fetchCart(id: string, locale: Locale): Promise<Cart | null> {
+export async function fetchCart(id: string, locale: Locale, buyerIp?: string | null): Promise<Cart | null> {
   const data = await shopifyFetch<{ cart: RawCart | null }>(CART_QUERY, {
     variables: { id },
     locale,
     cache: "no-store",
+    buyerIp,
   });
   return reshapeCart(data.cart);
 }
@@ -801,20 +802,22 @@ function unwrap(result: CartMutation): Cart {
   return cart;
 }
 
-export async function createCart(lines: CartLineInput[], locale: Locale): Promise<Cart> {
+export async function createCart(lines: CartLineInput[], locale: Locale, buyerIp?: string | null): Promise<Cart> {
   const data = await shopifyFetch<{ cartCreate: CartMutation }>(CART_CREATE, {
     variables: { lines },
     locale,
     cache: "no-store",
+    buyerIp,
   });
   return unwrap(data.cartCreate);
 }
 
-export async function addCartLines(cartId: string, lines: CartLineInput[], locale: Locale): Promise<Cart> {
+export async function addCartLines(cartId: string, lines: CartLineInput[], locale: Locale, buyerIp?: string | null): Promise<Cart> {
   const data = await shopifyFetch<{ cartLinesAdd: CartMutation }>(CART_LINES_ADD, {
     variables: { cartId, lines },
     locale,
     cache: "no-store",
+    buyerIp,
   });
   return unwrap(data.cartLinesAdd);
 }
@@ -823,30 +826,34 @@ export async function updateCartLines(
   cartId: string,
   lines: { id: string; quantity: number }[],
   locale: Locale,
+  buyerIp?: string | null,
 ): Promise<Cart> {
   const data = await shopifyFetch<{ cartLinesUpdate: CartMutation }>(CART_LINES_UPDATE, {
     variables: { cartId, lines },
     locale,
     cache: "no-store",
+    buyerIp,
   });
   return unwrap(data.cartLinesUpdate);
 }
 
 /** Replaces the discount codes on the cart (empty array removes them). */
-export async function updateCartDiscountCodes(cartId: string, discountCodes: string[], locale: Locale): Promise<Cart> {
+export async function updateCartDiscountCodes(cartId: string, discountCodes: string[], locale: Locale, buyerIp?: string | null): Promise<Cart> {
   const data = await shopifyFetch<{ cartDiscountCodesUpdate: CartMutation }>(CART_DISCOUNT_CODES_UPDATE, {
     variables: { cartId, discountCodes },
     locale,
     cache: "no-store",
+    buyerIp,
   });
   return unwrap(data.cartDiscountCodesUpdate);
 }
 
-export async function removeCartLines(cartId: string, lineIds: string[], locale: Locale): Promise<Cart> {
+export async function removeCartLines(cartId: string, lineIds: string[], locale: Locale, buyerIp?: string | null): Promise<Cart> {
   const data = await shopifyFetch<{ cartLinesRemove: CartMutation }>(CART_LINES_REMOVE, {
     variables: { cartId, lineIds },
     locale,
     cache: "no-store",
+    buyerIp,
   });
   return unwrap(data.cartLinesRemove);
 }

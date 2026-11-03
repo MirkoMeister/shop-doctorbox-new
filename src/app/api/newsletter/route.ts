@@ -1,6 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
+import { email, honeypot, invalidResponse, line, rateLimitedResponse } from "@/lib/form-fields";
+import { clientIp, rateLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
+
+const Payload = z.object({
+  email,
+  locale: line(10).optional(),
+  source: line(100).optional(),
+  website: honeypot, // honeypot
+});
+
+/** Every sign-up sends a double opt-in mail, so this also limits mails to addresses that are not the sender's */
+const limited = rateLimiter({ windowMs: 60 * 60 * 1000, perKey: 5, global: 300 });
 
 /**
  * Newsletter sign-up → Klaviyo list (double opt-in is configured on the list in
@@ -9,15 +22,11 @@ export const runtime = "nodejs";
  * Env: NEXT_PUBLIC_KLAVIYO_COMPANY_ID (public key), KLAVIYO_LIST_ID
  */
 export async function POST(req: NextRequest) {
-  let body: { email?: string; locale?: string; source?: string; website?: string };
-  try {
-    body = (await req.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ ok: false, error: "invalid" }, { status: 400 });
-  }
+  const parsed = Payload.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return invalidResponse(parsed.error);
+  const body = parsed.data;
   if (body.website) return NextResponse.json({ ok: true }); // honeypot
-  const email = String(body.email ?? "").trim();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return NextResponse.json({ ok: false, error: "email" }, { status: 400 });
+  if (limited(clientIp(req.headers) ?? "local")) return rateLimitedResponse();
 
   const company = process.env.NEXT_PUBLIC_KLAVIYO_COMPANY_ID;
   const list = process.env.KLAVIYO_LIST_ID ?? process.env.NEXT_PUBLIC_KLAVIYO_LIST_ID;
@@ -38,7 +47,7 @@ export async function POST(req: NextRequest) {
             data: {
               type: "profile",
               attributes: {
-                email,
+                email: body.email,
                 properties: { locale: body.locale ?? "de", shop: "shop.doctorbox.de" },
                 subscriptions: { email: { marketing: { consent: "SUBSCRIBED" } } },
               },
