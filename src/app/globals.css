@@ -561,3 +561,8 @@ body {
   }
 }
 }
+
+/* Klaviyo's form teaser ("15 % Rabatt sichern") is fixed above everything and covers Mira's panel; its class is kl-teaser-<form id> */
+html[data-assistant-open] [class*="kl-teaser-"] {
+  display: none !important;
+}

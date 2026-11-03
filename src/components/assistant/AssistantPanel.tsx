@@ -27,6 +27,8 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
     const gutter = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = "hidden";
     if (gutter > 0) document.body.style.paddingRight = `${gutter}px`;
+    // hides third-party overlays (Klaviyo teaser) that sit on top of the panel, see globals.css
+    document.documentElement.dataset.assistantOpen = "";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", onKey);
     // focus after the slide-in so the browser does not fight the transform
@@ -34,6 +36,7 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
     return () => {
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
+      delete document.documentElement.dataset.assistantOpen;
       document.removeEventListener("keydown", onKey);
       window.clearTimeout(id);
     };
