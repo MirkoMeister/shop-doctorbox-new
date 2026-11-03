@@ -9,6 +9,7 @@
 - [ ] **Scalingo, Domain:** App → Settings → Domains → `shop.doctorbox.de` hinzufügen. Ziel für den DNS-Eintrag ist `doctorbox-shop.osc-fr1.scalingo.io` (CNAME). Keine „Canonical domain“ setzen.
 - [ ] **Rabattcode `MOVEMBER26`** in Shopify anlegen (20 % auf alle Heimtests, 1.–30.11.). Die Seite bewirbt ihn an 20 Stellen, Shopify meldet ihn heute als nicht anwendbar.
 - [ ] **Weiterleitungs-Theme vorbereiten:** Das live Theme duplizieren und im Duplikat in `layout/theme.liquid` direkt nach `<head>` den Block aus Abschnitt D einfügen. Noch **nicht** veröffentlichen (erst nach dem DNS-Wechsel, Schritt B3).
+- [ ] **Widerrufsformular** im neuen Shop verfügbar machen (fehlt heute, siehe `GO-LIVE-APPS-TRACKING.md` Punkt 1.1).
 - [ ] **Shopify-URL-Weiterleitungen** exportieren (Onlineshop → Navigation → URL-Weiterleitungen → Exportieren) und in den Shop übernehmen lassen.
 
 ## B. Umschalten (direkt hintereinander, ruhige Uhrzeit)
