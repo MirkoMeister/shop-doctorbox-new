@@ -52,7 +52,7 @@ export function CartProvider({ locale, children }: { locale: Locale; children: R
             const added = res.cart.lines.find(
               (l) => l.merchandise.id === line.merchandiseId && (l.sellingPlanAllocation?.sellingPlan.id ?? undefined) === line.sellingPlanId,
             );
-            if (added) trackAddToCart(itemFromLine(added, line.quantity));
+            if (added) trackAddToCart(itemFromLine(added, line.quantity), res.cart);
             resolve(true);
           } else {
             setError(res.error ?? "error");

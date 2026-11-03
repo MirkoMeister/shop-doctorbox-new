@@ -1,15 +1,19 @@
 "use client";
 
+import { siteUrl } from "@/lib/i18n/config";
 import type { Cart, CartLine, Product, Variant } from "@/lib/shopify/types";
 
 /**
  * E-commerce events for GTM (GA4 format, same shape as the old Shopify theme pushed),
  * the Meta pixel (PageView, ViewContent, AddToCart, never Purchase: the Shopify app tracks
- * checkout) and the Reddit pixel.
+ * checkout), the Reddit pixel and Klaviyo ("Viewed Product", "Added to Cart" in the payload
+ * of Klaviyo's Shopify integration, which only tracks these on a Shopify theme; they trigger
+ * the browse and cart abandonment flows).
  *
  * dataLayer pushes are only processed once GTM runs, which iubenda allows after consent.
  * Meta and Reddit calls wait in a queue until their pixel was activated after consent
- * (see Analytics.tsx), so nothing leaves the browser without consent.
+ * (see Analytics.tsx); Klaviyo calls wait in klaviyo.js's own queue until the script is
+ * activated after consent. Nothing leaves the browser without consent.
  */
 
 export type TrackItem = {
@@ -24,6 +28,8 @@ export type TrackItem = {
   compareAt: number | null;
   quantity: number;
   currency: string;
+  handle?: string;
+  image?: string | null;
 };
 
 type Call = unknown[];
@@ -35,6 +41,8 @@ type TrackingWindow = Window & {
   __dbxMetaQ?: Call[];
   __dbxReddit?: boolean;
   __dbxRedditQ?: Call[];
+  klaviyo?: { push: (call: Call) => void };
+  _klOnsite?: Call[];
 };
 
 const COUNTRY = "DE";
@@ -82,6 +90,29 @@ function pixel(kind: "Meta" | "Reddit", ...args: Call) {
   else (w[`__dbx${kind}Q`] = w[`__dbx${kind}Q`] || []).push(args);
 }
 
+/** klaviyo.js takes over the _klOnsite queue when it loads (after consent) */
+function klaviyo(...args: Call) {
+  const w = window as TrackingWindow;
+  if (w.klaviyo) w.klaviyo.push(args);
+  else (w._klOnsite = w._klOnsite || []).push(args);
+}
+
+const productUrl = (i: TrackItem) => (i.handle ? `${siteUrl}/products/${i.handle}` : siteUrl);
+
+function klaviyoItem(i: TrackItem) {
+  return {
+    ProductID: numericId(i.productId),
+    SKU: i.sku,
+    ProductName: i.name,
+    Quantity: i.quantity,
+    ItemPrice: round(i.price),
+    RowTotal: round(i.price * i.quantity),
+    ProductURL: productUrl(i),
+    ImageURL: i.image ?? null,
+    ProductCategories: i.category ? [i.category] : [],
+  };
+}
+
 function metaParams(items: TrackItem[]) {
   return {
     content_ids: items.map((i) => catalogId(i.productId, i.variantId)),
@@ -104,10 +135,12 @@ function redditParams(items: TrackItem[]) {
 
 /* ------------------------------------------------------------------ */
 
-export function itemFromVariant(product: Pick<Product, "id" | "title" | "vendor" | "productType">, variant: Variant): TrackItem {
+export function itemFromVariant(product: Pick<Product, "id" | "handle" | "title" | "vendor" | "productType" | "featuredImage">, variant: Variant): TrackItem {
   return {
     productId: product.id,
     variantId: variant.id,
+    handle: product.handle,
+    image: variant.image?.url ?? product.featuredImage?.url ?? null,
     name: product.title,
     variant: variantName(variant.title),
     brand: product.vendor,
@@ -126,6 +159,8 @@ export function itemFromLine(line: CartLine, quantity = line.quantity): TrackIte
   return {
     productId: m.product.id,
     variantId: m.id,
+    handle: m.product.handle,
+    image: m.image?.url ?? m.product.featuredImage?.url ?? null,
     name: m.product.title,
     variant: variantName(m.title),
     brand: m.product.vendor,
@@ -142,16 +177,58 @@ export function trackViewItem(item: TrackItem) {
   pushEcommerce("view_item", [item]);
   pixel("Meta", "track", "ViewContent", metaParams([item]));
   pixel("Reddit", "track", "ViewContent", redditParams([item]));
+  const k = klaviyoItem(item);
+  klaviyo("track", "Viewed Product", {
+    ProductName: k.ProductName,
+    ProductID: k.ProductID,
+    SKU: k.SKU,
+    Categories: k.ProductCategories,
+    ImageURL: k.ImageURL,
+    URL: k.ProductURL,
+    Brand: item.brand,
+    Price: k.ItemPrice,
+    CompareAtPrice: item.compareAt != null ? round(item.compareAt) : null,
+  });
+  // "Recently viewed" blocks in Klaviyo emails
+  klaviyo("trackViewedItem", {
+    Title: k.ProductName,
+    ItemId: k.ProductID,
+    Categories: k.ProductCategories,
+    ImageUrl: k.ImageURL,
+    Url: k.ProductURL,
+    Metadata: { Brand: item.brand, Price: k.ItemPrice, CompareAtPrice: item.compareAt != null ? round(item.compareAt) : null },
+  });
 }
 
-export function trackAddToCart(item: TrackItem) {
+export function trackAddToCart(item: TrackItem, cart: Cart) {
   pushEcommerce("add_to_cart", [item]);
   pixel("Meta", "track", "AddToCart", metaParams([item]));
   pixel("Reddit", "track", "AddToCart", redditParams([item]));
+  const k = klaviyoItem(item);
+  const lines = cart.lines.map((l) => itemFromLine(l));
+  klaviyo("track", "Added to Cart", {
+    $value: round(Number(cart.cost.totalAmount.amount)),
+    AddedItemProductName: k.ProductName,
+    AddedItemProductID: k.ProductID,
+    AddedItemSKU: k.SKU,
+    AddedItemCategories: k.ProductCategories,
+    AddedItemImageURL: k.ImageURL,
+    AddedItemURL: k.ProductURL,
+    AddedItemPrice: k.ItemPrice,
+    AddedItemQuantity: k.Quantity,
+    ItemNames: lines.map((l) => l.name),
+    CheckoutURL: cart.checkoutUrl,
+    Items: lines.map(klaviyoItem),
+  });
 }
 
 export function trackViewCart(cart: Cart) {
   pushEcommerce("view_cart", cart.lines.map((l) => itemFromLine(l)));
+}
+
+/** After a newsletter signup: lets klaviyo.js attribute this browser's events to the profile (only once consent loaded it) */
+export function identifyKlaviyo(email: string) {
+  klaviyo("identify", { email });
 }
 
 /** Client-side navigation; the first page view comes from the pixel snippets themselves */

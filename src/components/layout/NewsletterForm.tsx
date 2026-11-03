@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckIcon } from "@/components/ui/Icons";
 import { localeHref, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { identifyKlaviyo } from "@/lib/tracking/events";
 
 const CONFIGURED = Boolean(process.env.NEXT_PUBLIC_KLAVIYO_COMPANY_ID);
 
@@ -27,8 +28,10 @@ export function NewsletterForm({ dict, locale, tone = "dark", source = "Shop Foo
         body: JSON.stringify({ email, locale, source, website: data.get("website") }),
       });
       const json = (await res.json()) as { ok: boolean; error?: string };
-      if (json.ok) setState("ok");
-      else {
+      if (json.ok) {
+        setState("ok");
+        identifyKlaviyo(email);
+      } else {
         setState("err");
         setError(json.error === "email" ? t.newsletterErrorEmail : t.newsletterError);
       }
