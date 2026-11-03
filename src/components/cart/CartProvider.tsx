@@ -1,11 +1,11 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, useTransition } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { addToCart, getCart, removeLine, setDiscountCode, updateLine } from "@/lib/cart/actions";
 import type { Cart } from "@/lib/shopify/types";
 import type { CartLineInput } from "@/lib/shopify/queries";
-import { itemFromLine, trackAddToCart } from "@/lib/tracking/events";
+import { itemFromLine, trackAddToCart, trackRemoveFromCart } from "@/lib/tracking/events";
 
 type CartContextValue = {
   cart: Cart | null;
@@ -29,6 +29,11 @@ export function CartProvider({ locale, children }: { locale: Locale; children: R
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // the cart before a change, for remove_from_cart (the callbacks stay stable)
+  const cartRef = useRef<Cart | null>(null);
+  useEffect(() => {
+    cartRef.current = cart;
+  }, [cart]);
 
   useEffect(() => {
     let alive = true;
@@ -67,8 +72,13 @@ export function CartProvider({ locale, children }: { locale: Locale; children: R
     (lineId: string, quantity: number) =>
       new Promise<void>((resolve) => {
         startTransition(async () => {
+          const before = cartRef.current?.lines.find((l) => l.id === lineId);
           const res = await updateLine(lineId, quantity, locale);
-          if (res.cart) setCart(res.cart);
+          if (res.cart) {
+            setCart(res.cart);
+            if (before && quantity < before.quantity) trackRemoveFromCart(itemFromLine(before, before.quantity - quantity));
+            if (before && quantity > before.quantity) trackAddToCart(itemFromLine(before, quantity - before.quantity), res.cart);
+          }
           else if (res.error) setError(res.error);
           resolve();
         });
@@ -80,8 +90,12 @@ export function CartProvider({ locale, children }: { locale: Locale; children: R
     (lineId: string) =>
       new Promise<void>((resolve) => {
         startTransition(async () => {
+          const before = cartRef.current?.lines.find((l) => l.id === lineId);
           const res = await removeLine(lineId, locale);
-          if (res.cart) setCart(res.cart);
+          if (res.cart) {
+            setCart(res.cart);
+            if (before) trackRemoveFromCart(itemFromLine(before));
+          }
           else if (res.error) setError(res.error);
           resolve();
         });

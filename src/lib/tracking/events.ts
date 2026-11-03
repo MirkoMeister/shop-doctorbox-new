@@ -73,13 +73,13 @@ function ga4Item(i: TrackItem, index: number) {
   };
 }
 
-function pushEcommerce(event: string, items: TrackItem[]) {
+function pushEcommerce(event: string, items: TrackItem[], extra: Record<string, string> = {}) {
   if (!items.length) return;
   const w = window as TrackingWindow;
   w.dataLayer = w.dataLayer || [];
   // Clear the previous ecommerce object first (Google's recommendation for GA4 pushes)
   w.dataLayer.push({ ecommerce: null });
-  w.dataLayer.push({ event, ecommerce: { currency: items[0].currency, value: value(items), items: items.map(ga4Item) } });
+  w.dataLayer.push({ event, ecommerce: { currency: items[0].currency, value: value(items), ...extra, items: items.map((i, n) => ({ ...ga4Item(i, n), ...extra })) } });
 }
 
 /** Calls the pixel when it is active, otherwise queues the call for its activation after consent */
@@ -224,6 +224,19 @@ export function trackAddToCart(item: TrackItem, cart: Cart) {
 
 export function trackViewCart(cart: Cart) {
   pushEcommerce("view_cart", cart.lines.map((l) => itemFromLine(l)));
+}
+
+export function trackViewItemList(items: TrackItem[], listId: string, listName: string) {
+  pushEcommerce("view_item_list", items, { item_list_id: listId, item_list_name: listName });
+}
+
+export function trackRemoveFromCart(item: TrackItem) {
+  pushEcommerce("remove_from_cart", [item]);
+}
+
+/** "Zur Kasse": GTM only. InitiateCheckout etc. come from the Shopify app pixels inside the checkout */
+export function trackBeginCheckout(cart: Cart) {
+  pushEcommerce("begin_checkout", cart.lines.map((l) => itemFromLine(l)));
 }
 
 /** After a newsletter signup: lets klaviyo.js attribute this browser's events to the profile (only once consent loaded it) */

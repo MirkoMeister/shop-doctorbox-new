@@ -10,6 +10,7 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney, shopifyImage } from "@/lib/format";
 import { CloseIcon, MinusIcon, PinIcon, PlusIcon } from "@/components/ui/Icons";
+import { trackBeginCheckout } from "@/lib/tracking/events";
 
 export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const { cart, open, setOpen, update, remove, pending } = useCart();
@@ -158,7 +159,7 @@ export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary 
               <PinIcon width={16} height={16} className="mt-0.5 shrink-0 text-green" />
               {dict.cart.pickupNote}
             </p>
-            <a href={cart.checkoutUrl} className="btn btn-primary btn-lg mt-4 w-full">
+            <a href={cart.checkoutUrl} onClick={() => trackBeginCheckout(cart)} className="btn btn-primary btn-lg mt-4 w-full">
               {dict.cart.checkout}
             </a>
             <Link

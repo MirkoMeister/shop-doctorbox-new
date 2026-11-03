@@ -67,6 +67,14 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
       name
       values
     }
+    firstVariant: variants(first: 1) {
+      edges {
+        node {
+          id
+          sku
+        }
+      }
+    }
     subscriptionPlans: sellingPlanGroups(first: 1) {
       edges {
         node {

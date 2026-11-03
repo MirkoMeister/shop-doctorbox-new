@@ -66,6 +66,8 @@ export type ProductCard = {
   tags: string[];
   createdAt: string;
   featuredImage: Image | null;
+  /** first variant, for list tracking (shopify_DE_<product>_<variant>) */
+  firstVariant: { id: string; sku: string | null } | null;
   priceRange: { minVariantPrice: Money; maxVariantPrice: Money };
   compareAtPriceRange: { minVariantPrice: Money };
   biomarkers: string[];

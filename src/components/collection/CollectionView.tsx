@@ -16,6 +16,8 @@ import { miraDemo } from "@/content/mira-demo";
 import { FilterBar } from "@/components/collection/FilterBar";
 import { RichText } from "@/components/content/RichText";
 import { ProductGrid } from "@/components/product/ProductCard";
+import { TrackViewItemList } from "@/components/analytics/TrackViewItemList";
+import { itemFromCard } from "@/lib/tracking/items";
 import { InlineSearch } from "@/components/search/InlineSearch";
 import { Accordion } from "@/components/ui/Accordion";
 import { Breadcrumbs, type Crumb } from "@/components/ui/Breadcrumbs";
@@ -110,6 +112,7 @@ export function CollectionView({
 
   return (
     <>
+      <TrackViewItemList listId={handle ?? "all"} listName={title} items={products.map(itemFromCard)} />
       {hero && (
         <CollectionHero
           locale={locale}

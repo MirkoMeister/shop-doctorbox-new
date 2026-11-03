@@ -7,8 +7,9 @@ type Edges<T> = { edges: { node: T }[] } | null | undefined;
 
 export type RawProductCard = Omit<
   ProductCard,
-  "biomarkers" | "sampleMaterial" | "targetGroup" | "rating" | "ratingCount" | "hasSubscription" | "subscriptionPercent" | "tasso" | "ingredients" | "dosage"
+  "biomarkers" | "sampleMaterial" | "targetGroup" | "rating" | "ratingCount" | "hasSubscription" | "subscriptionPercent" | "tasso" | "ingredients" | "dosage" | "firstVariant"
 > & {
+  firstVariant?: Edges<{ id: string; sku: string | null }>;
   ingredientsText: RawMeta;
   dosageText: RawMeta;
   options: { name: string; values: string[] }[];
@@ -130,6 +131,7 @@ export function reshapeProductCard(raw: RawProductCard): ProductCard {
     tags: raw.tags,
     createdAt: raw.createdAt,
     featuredImage: raw.featuredImage,
+    firstVariant: raw.firstVariant ? (edgesToArray(raw.firstVariant)[0] ?? null) : null,
     priceRange: raw.priceRange,
     compareAtPriceRange: raw.compareAtPriceRange,
     biomarkers: parseBiomarkers(raw.biomarkers?.value),
