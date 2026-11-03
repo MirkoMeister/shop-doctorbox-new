@@ -38,19 +38,62 @@ Regeln
 - Antworte auf Deutsch.`;
 }
 
+/**
+ * Starter questions for the empty Mira panel: a pool, of which the panel shows a few at random
+ * ("Andere Vorschläge" shows the next ones). Topic pages bring their own chips instead.
+ * Only questions Mira can answer from the catalogue and the facts above (no lab turnaround times).
+ */
 export const SUGGESTIONS: Record<Locale, string[]> = {
   de: [
     "Ich bin ständig müde. Welcher Test passt?",
     "Welcher STI-Test ist der richtige für mich?",
-    "Was bedeutet Ferritin?",
+    "Was sagt der Ferritin-Wert aus?",
     "Ich möchte meine Hormone checken.",
     "Welche Tests gehen ohne Blutabnahme?",
+    "Wie funktioniert die Blutabnahme mit Tasso+?",
+    "Lohnt sich ein Vitamin-D-Test im Winter?",
+    "Was wird beim Rundum Check gemessen?",
+    "Wir wünschen uns ein Kind. Welche Tests sind sinnvoll?",
+    "Wie läuft ein Heimtest ab?",
+    "Ich ernähre mich vegan. Was sollte ich prüfen lassen?",
+    "Wie kann ich meine Schilddrüse testen?",
+    "Was ist der Unterschied zwischen HbA1c und Blutzucker?",
+    "Ab wann ist ein PSA-Test sinnvoll?",
+    "Ich hatte ungeschützten Kontakt. Wann sollte ich testen?",
+    "Wie kann ich meine Cholesterinwerte prüfen?",
+    "Ich bin oft gestresst. Kann man das messen?",
+    "Welcher Test passt zur Darmkrebsvorsorge?",
+    "Wie diskret ist der Versand?",
+    "Ich mache viel Sport. Welche Werte sind interessant?",
+    "Was bringt ein Allergietest von zu Hause?",
+    "Wie funktioniert das Test-Abo?",
+    "Ich bin in den Wechseljahren. Welche Werte sind sinnvoll?",
+    "Kann ich meinen Test in Berlin abholen?",
   ],
   en: [
     "I'm tired all the time. Which test fits?",
     "Which STI test is right for me?",
-    "What does ferritin mean?",
+    "What does the ferritin value tell me?",
     "I want to check my hormones.",
     "Which tests work without a blood sample?",
+    "How does blood collection with Tasso+ work?",
+    "Is a vitamin D test worth it in winter?",
+    "What does the all-round check measure?",
+    "We're trying for a baby. Which tests make sense?",
+    "How does a home test work?",
+    "I eat vegan. What should I have checked?",
+    "How can I test my thyroid?",
+    "What's the difference between HbA1c and blood sugar?",
+    "When does a PSA test make sense?",
+    "I had unprotected sex. When should I test?",
+    "How can I check my cholesterol?",
+    "I'm often stressed. Can that be measured?",
+    "Which test fits bowel cancer screening?",
+    "How discreet is the shipping?",
+    "I do a lot of sport. Which values are interesting?",
+    "What does an at-home allergy test tell me?",
+    "How does the test subscription work?",
+    "I'm going through menopause. Which values make sense?",
+    "Can I pick up my test in Berlin?",
   ],
 };

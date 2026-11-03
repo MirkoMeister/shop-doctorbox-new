@@ -15,8 +15,12 @@ import { MiraAvatar } from "./MiraAvatar";
 export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; dict: Dictionary; suggestions: string[] }) {
   const { open, setOpen, turns, busy, unavailable, send, pageContext, consent, giveConsent } = useAssistant();
   const welcome = pageContext?.greeting ?? dict.assistant.welcome;
-  // starters only open the conversation; after the first question they no longer fit what was asked
-  const starters = pageContext?.suggestions ?? suggestions;
+  // starters only open the conversation; after the first question they no longer fit what was asked.
+  // Topic pages bring their own chips; otherwise a few from the shuffled pool, "more" shows the next ones.
+  const [pool] = useState(() => shuffle(suggestions));
+  const [offset, setOffset] = useState(0);
+  const starters = pageContext?.suggestions ?? Array.from({ length: Math.min(STARTERS_SHOWN, pool.length) }, (_, i) => pool[(offset + i) % pool.length]);
+  const canRotate = !pageContext?.suggestions && pool.length > STARTERS_SHOWN;
   const [input, setInput] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -96,6 +100,15 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
                   </li>
                 ))}
               </ul>
+              {canRotate && (
+                <button
+                  type="button"
+                  onClick={() => setOffset((o) => (o + STARTERS_SHOWN) % pool.length)}
+                  className="mt-3 text-sm text-ink-muted underline underline-offset-4 hover:text-green"
+                >
+                  {t.moreSuggestions}
+                </button>
+              )}
             </div>
           )}
           {consent && <Thread turns={turns} locale={locale} dict={dict} onNavigate={() => setOpen(false)} />}
@@ -136,6 +149,18 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
       </div>
     </div>
   );
+}
+
+const STARTERS_SHOWN = 4;
+
+/** Fisher-Yates copy; runs once per page load (the starters render only after consent, on the client) */
+function shuffle<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
 
 /** One-time, informed opt-in before the first message: what Mira does, where the text goes, what is not stored */
