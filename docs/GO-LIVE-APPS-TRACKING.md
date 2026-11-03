@@ -8,24 +8,20 @@ Grundregel: Alles, was im **Theme** läuft (App-Einbettungen, Snippets, Skripte 
 
 | # | Punkt | Wer | Status |
 |---|---|---|---|
-| 1 | **Widerrufsformular fehlt.** `/pages/widerruf-formular` zeigt im neuen Shop nur den Einleitungstext. Das Formular kommt aus der App „EU Widerruf Button“ als Theme-Block. Die elektronische Widerrufsfunktion ist seit 19.06.2026 Pflicht. | Entscheidung offen, siehe unten | offen |
+| 1 | **Widerrufsformular** (§ 356a BGB): Die App „EU Widerruf Button“ bleibt. Footer-Link „Vertrag widerrufen“ auf jeder Seite, `/pages/widerruf-formular` leitet auf die App-Seite der Shopify-Domain, das Weiterleitungs-Theme nimmt die Seite aus (per CLI ins Duplikat gepusht). | Code + Theme | erledigt (ac53ea8) |
 | 2 | Google- und Meta-Bestätigungs-Tags (Merchant Center, Search Console, Meta-Domain) | Code | erledigt, live auf Scalingo |
 | 3 | Merchant Center: Attributregel `link` = `checkout.doctorbox.de` → `shop.doctorbox.de` (Feed nimmt die primäre Domain) | Marketing | direkt nach dem Umschalten |
 | 4 | Testbestellung mit einem Bundle (z. B. STI Complete Trio): Bestellung im Admin zeigt die Komponenten? Simple Bundles v2 ist als Theme-Einbettung aktiv. | Mirko | offen |
 | 5 | Weiterleitungs-Theme mit App-Proxy-Ausnahme (`/apps/`, `/tools/`) | Mirko | erledigt (per CLI geprüft) |
 
-Lösungswege für Punkt 1:
-- **Schnell:** Der neue Shop leitet `/pages/widerruf-formular` auf `checkout.doctorbox.de/pages/widerruf-formular`. Das Weiterleitungs-Theme nimmt diese Seite von der Weiterleitung aus. Dort zeigt das alte Theme das App-Formular, inklusive Bestellsuche und Bestätigungsmail.
-- **Sauber, später:** ein eigenes Formular im neuen Shop. Es muss eine Bestätigung auf einem dauerhaften Datenträger senden, also per E-Mail.
-
 ## 2. Theme-Apps: was wegfällt
 
 | App-Einbettung / Snippet | Im Headless-Shop | Empfehlung |
 |---|---|---|
-| EU Widerruf Button | **fehlt** | siehe 1.1 |
+| EU Widerruf Button | Formular über die Shopify-Domain | erledigt, siehe 1.1 |
 | Simple Bundles v2 | Theme-Skript fehlt, Bundles über die Storefront-API | mit Testbestellung prüfen (1.4) |
 | Shopify Inbox (Chat) | **fehlt** | Chat gewünscht? Sonst übernimmt Mira |
-| Lucky Orange (Heatmaps) | fehlt im Shop, Pixel im Checkout läuft | bei Bedarf mit Einwilligung einbauen |
+| Lucky Orange (Heatmaps) | fehlt | wird nicht genutzt: deinstallieren |
 | Google & YouTube „Store widget“ | fehlt | optional (Shop-Bewertungsbadge) |
 | Microsoft Clarity (App-Einbettung) | über GTM weiter vorhanden | nichts |
 | Klaviyo Onsite (Formulare, Tracking) | klaviyo.js wird nach Einwilligung geladen, Formulare erscheinen; „Viewed Product“/„Added to Cart“ nachgebaut (c4d2fba) | nichts |
@@ -37,7 +33,7 @@ Lösungswege für Punkt 1:
 | fraud0, idsync (contentabc), Tracify | fehlen | Tracify bewusst entfallen; fraud0/idsync bei Bedarf |
 | Microsoft-UET-Platzhalterblock | entfallen (war fehlerhaft) | nichts |
 
-Deaktiviert und damit ohne Auswirkung: Pumper Bundles, Table of Contents, Recurpay-Widget, Clarity Brand Agents, EU-Widerruf schwebender Button.
+Nicht genutzt (laut Mirko, 03.11.2026): Judge.me, Bloggle, Lucky Orange. Deaktiviert und damit ohne Auswirkung: Pumper Bundles, Table of Contents, Recurpay-Widget, Clarity Brand Agents, EU-Widerruf schwebender Button.
 
 ## 3. Tracking
 
