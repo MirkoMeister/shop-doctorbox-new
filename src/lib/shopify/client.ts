@@ -5,6 +5,12 @@ import { shopifyLanguage } from "@/lib/i18n/config";
 const domain = process.env.SHOPIFY_STORE_DOMAIN ?? "shop.doctorbox.de";
 const apiVersion = process.env.SHOPIFY_API_VERSION ?? "2025-07";
 const token = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN ?? process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+/**
+ * Private (server) token from the Headless channel. Only with it does Shopify honour the buyer IP,
+ * so its bot protection and throttling see each visitor instead of this server's one address.
+ * The public token stays in use for the browser (Customer Privacy API in Analytics.tsx).
+ */
+const privateToken = process.env.SHOPIFY_STOREFRONT_PRIVATE_TOKEN;
 
 const endpoint = `https://${domain}/api/${apiVersion}/graphql.json`;
 
@@ -39,6 +45,8 @@ type FetchOptions = {
   revalidate?: number | false;
   tags?: string[];
   cache?: RequestCache;
+  /** Visitor's address for requests made on their behalf (cart); needs the private token */
+  buyerIp?: string | null;
 };
 
 /**
@@ -81,16 +89,18 @@ export function dedupeFragments(query: string): string {
  * declaring $language/$country variables that every query can accept.
  */
 export async function shopifyFetch<T>(query: string, options: FetchOptions = {}): Promise<T> {
-  if (!token) {
+  if (!token && !privateToken) {
     throw new ShopifyError("Missing SHOPIFY_STOREFRONT_ACCESS_TOKEN");
   }
-  const { variables = {}, locale = "de", revalidate = 300, tags, cache } = options;
+  const { variables = {}, locale = "de", revalidate = 300, tags, cache, buyerIp } = options;
 
   const init: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": token,
+      ...(privateToken
+        ? { "Shopify-Storefront-Private-Token": privateToken, ...(buyerIp ? { "Shopify-Storefront-Buyer-IP": buyerIp } : {}) }
+        : { "X-Shopify-Storefront-Access-Token": token! }),
     },
     body: JSON.stringify({
       query: dedupeFragments(sellingPlansDenied ? stripSellingPlans(query) : query),

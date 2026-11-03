@@ -2,7 +2,7 @@ import type { Locale } from "@/lib/i18n/config";
 
 /**
  * Collections with a full hero and an inline Mira chat focused on the topic.
- * `topic` is sent to the assistant API as a focus hint; `greeting` and `chips`
+ * `topic` is sent to the assistant API as a focus hint (the API only accepts these exact texts); `greeting` and `chips`
  * are what the visitor sees first. Copy is deliberately calm and non-judgemental.
  */
 export type CollectionHero = {

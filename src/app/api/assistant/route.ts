@@ -1,9 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import { COLLECTION_HEROES } from "@/content/collection-heroes";
 import { buildKnowledge } from "@/lib/assistant/knowledge";
 import { systemPrompt } from "@/lib/assistant/prompt";
 import { isLocale, type Locale } from "@/lib/i18n/config";
+import { clientIp, rateLimiter } from "@/lib/rate-limit";
 import { predictiveSearch } from "@/lib/shopify/queries";
 import type { ProductCard } from "@/lib/shopify/types";
 
@@ -15,24 +17,27 @@ const MODEL = process.env.ASSISTANT_MODEL ?? "claude-opus-5-5";
 /* ------------------------------------------------------------------ input */
 const Body = z.object({
   locale: z.string().optional(),
-  /** Page context (e.g. a collection) that focuses the advice; trusted copy from our own config only */
+  /** Page context (e.g. a collection) that focuses the advice; only used if it is one of KNOWN_TOPICS */
   topic: z.string().max(1200).optional(),
   messages: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(2000) }))
     .min(1)
-    .max(24),
+    .max(24)
+    .refine((m) => m[m.length - 1].role === "user"),
 });
 
+/** The topic goes into the system prompt, so it must be our own copy, never text from the request */
+const KNOWN_TOPICS = new Set(
+  Object.values(COLLECTION_HEROES).flatMap((byLocale) => Object.values(byLocale).map((h) => h.chat.topic.trim())),
+);
+
 /* ------------------------------------------------------------- rate limit */
-const hits = new Map<string, number[]>();
-function limited(ip: string, max = 30, windowMs = 10 * 60 * 1000): boolean {
-  const now = Date.now();
-  const arr = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
-  arr.push(now);
-  hits.set(ip, arr);
-  if (hits.size > 5000) hits.clear();
-  return arr.length > max;
-}
+const limited = rateLimiter({
+  windowMs: 10 * 60 * 1000,
+  perKey: 30,
+  // backstop across all visitors, so rotating addresses cannot run up the API bill
+  global: Number(process.env.ASSISTANT_GLOBAL_LIMIT) || 300,
+});
 
 /* ----------------------------------------------------------------- tools */
 const RecommendInput = z.object({
@@ -109,13 +114,13 @@ export async function POST(req: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
   }
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  if (limited(ip)) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid" }, { status: 400 });
+  // after validation, so malformed requests don't use up the budget
+  if (limited(clientIp(req.headers) ?? "local")) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   const locale: Locale = parsed.data.locale && isLocale(parsed.data.locale) ? parsed.data.locale : "de";
-  const topic = parsed.data.topic?.trim() || null;
+  const requested = parsed.data.topic?.trim();
+  const topic = requested && KNOWN_TOPICS.has(requested) ? requested : null;
 
   // Org-level keys (not scoped to a workspace) must name the workspace per request
   const workspace = process.env.ANTHROPIC_WORKSPACE_ID;

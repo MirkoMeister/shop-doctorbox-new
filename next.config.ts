@@ -26,6 +26,11 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // Browsers ignore it over plain http, so local and LAN dev are unaffected
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          // Baseline only: no script-src, because a nonce policy would force every page to render dynamically
+          // and GTM, iubenda and the pixels load scripts from changing hosts
+          { key: "Content-Security-Policy", value: "base-uri 'self'; object-src 'none'; frame-ancestors 'self'" },
           // UCP discovery for AI shopping agents (same header Shopify storefronts send)
           { key: "Link", value: '</.well-known/ucp>; rel="ucp"' },
         ],

@@ -1,18 +1,24 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { z } from "zod";
+import { email, honeypot, invalidResponse, line, rateLimitedResponse, requiredLine } from "@/lib/form-fields";
+import { clientIp, rateLimiter } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
-type Payload = {
-  company: string;
-  name: string;
-  email: string;
-  phone?: string;
-  interest: string;
-  volume?: string;
-  message?: string;
-  website?: string; // honeypot
-  locale?: string;
-};
+const Payload = z.object({
+  company: requiredLine(200),
+  name: requiredLine(200),
+  email,
+  phone: line(50).optional(),
+  interest: requiredLine(200),
+  volume: line(100).optional(),
+  message: z.string().trim().max(5000).optional(),
+  website: honeypot, // honeypot
+  locale: line(10).optional(),
+});
+
+/** Each inquiry lands in the inbox and uses Resend quota */
+const limited = rateLimiter({ windowMs: 60 * 60 * 1000, perKey: 5, global: 100 });
 
 /**
  * B2B inquiry endpoint. Sends the request by e-mail through Resend when
@@ -20,25 +26,20 @@ type Payload = {
  * form still works in development. Recipient: B2B_INQUIRY_TO (default heimtest@doctorbox.eu).
  */
 export async function POST(req: NextRequest) {
-  let body: Payload;
-  try {
-    body = (await req.json()) as Payload;
-  } catch {
-    return NextResponse.json({ ok: false, error: "invalid" }, { status: 400 });
-  }
+  const parsed = Payload.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return invalidResponse(parsed.error);
+  const body = parsed.data;
   if (body.website) return NextResponse.json({ ok: true }); // bot filled the honeypot
-  const required = ["company", "name", "email", "interest"] as const;
-  for (const k of required) if (!body[k] || String(body[k]).trim().length < 2) return NextResponse.json({ ok: false, error: "missing", field: k }, { status: 400 });
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email)) return NextResponse.json({ ok: false, error: "email" }, { status: 400 });
+  if (limited(clientIp(req.headers) ?? "local")) return rateLimitedResponse();
 
   const to = process.env.B2B_INQUIRY_TO ?? "heimtest@doctorbox.eu";
   const text = [
     `Unternehmen: ${body.company}`,
     `Name: ${body.name}`,
     `E-Mail: ${body.email}`,
-    `Telefon: ${body.phone ?? "–"}`,
+    `Telefon: ${body.phone || "–"}`,
     `Interesse: ${body.interest}`,
-    `Volumen: ${body.volume ?? "–"}`,
+    `Volumen: ${body.volume || "–"}`,
     `Sprache: ${body.locale ?? "de"}`,
     "",
     body.message ?? "",

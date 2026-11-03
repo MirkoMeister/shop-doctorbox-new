@@ -1,7 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { Locale } from "@/lib/i18n/config";
+import { clientIp, rateLimiter } from "@/lib/rate-limit";
 import {
   addCartLines,
   createCart,
@@ -21,6 +22,14 @@ async function readCartId(): Promise<string | undefined> {
   return store.get(COOKIE)?.value;
 }
 
+/** Passed to Shopify so its bot protection sees the visitor, not this server */
+async function buyerIp(): Promise<string | null> {
+  return clientIp(await headers());
+}
+
+/** Discount codes can be guessed through the cart: a person needs a handful of tries, a script thousands */
+const discountLimited = rateLimiter({ windowMs: 10 * 60 * 1000, perKey: 10 });
+
 async function writeCartId(id: string) {
   const store = await cookies();
   store.set(COOKIE, id, {
@@ -36,7 +45,7 @@ export async function getCart(locale: Locale): Promise<Cart | null> {
   const id = await readCartId();
   if (!id) return null;
   try {
-    return await fetchCart(id, locale);
+    return await fetchCart(id, locale, await buyerIp());
   } catch {
     return null;
   }
@@ -47,17 +56,18 @@ export type CartActionResult = { cart: Cart | null; error?: string };
 export async function addToCart(line: CartLineInput, locale: Locale): Promise<CartActionResult> {
   try {
     const id = await readCartId();
+    const ip = await buyerIp();
     let cart: Cart;
     if (id) {
       try {
-        cart = await addCartLines(id, [line], locale);
+        cart = await addCartLines(id, [line], locale, ip);
       } catch {
         // stale/expired cart → start a new one
-        cart = await createCart([line], locale);
+        cart = await createCart([line], locale, ip);
         await writeCartId(cart.id);
       }
     } else {
-      cart = await createCart([line], locale);
+      cart = await createCart([line], locale, ip);
       await writeCartId(cart.id);
     }
     return { cart };
@@ -69,9 +79,10 @@ export async function addToCart(line: CartLineInput, locale: Locale): Promise<Ca
 export async function updateLine(lineId: string, quantity: number, locale: Locale): Promise<CartActionResult> {
   const id = await readCartId();
   if (!id) return { cart: null };
+  const ip = await buyerIp();
   try {
     const cart =
-      quantity <= 0 ? await removeCartLines(id, [lineId], locale) : await updateCartLines(id, [{ id: lineId, quantity }], locale);
+      quantity <= 0 ? await removeCartLines(id, [lineId], locale, ip) : await updateCartLines(id, [{ id: lineId, quantity }], locale, ip);
     return { cart };
   } catch (e) {
     return { cart: null, error: e instanceof Error ? e.message : "Unknown error" };
@@ -86,8 +97,11 @@ export async function removeLine(lineId: string, locale: Locale): Promise<CartAc
 export async function setDiscountCode(code: string | null, locale: Locale): Promise<CartActionResult> {
   const id = await readCartId();
   if (!id) return { cart: null };
+  const ip = await buyerIp();
+  // over the limit the code counts as not applicable; removing a code is never limited
+  if (code && discountLimited(ip ?? "local")) return { cart: null };
   try {
-    const cart = await updateCartDiscountCodes(id, code ? [code.trim().toUpperCase()] : [], locale);
+    const cart = await updateCartDiscountCodes(id, code ? [code.trim().toUpperCase()] : [], locale, ip);
     return { cart };
   } catch (e) {
     return { cart: null, error: e instanceof Error ? e.message : "Unknown error" };
