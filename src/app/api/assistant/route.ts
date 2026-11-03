@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import { COLLECTION_HEROES } from "@/content/collection-heroes";
 import { buildKnowledge } from "@/lib/assistant/knowledge";
 import { systemPrompt } from "@/lib/assistant/prompt";
 import { isLocale, type Locale } from "@/lib/i18n/config";
@@ -15,23 +16,59 @@ const MODEL = process.env.ASSISTANT_MODEL ?? "claude-opus-5-5";
 /* ------------------------------------------------------------------ input */
 const Body = z.object({
   locale: z.string().optional(),
-  /** Page context (e.g. a collection) that focuses the advice; trusted copy from our own config only */
+  /** Page context (e.g. a collection) that focuses the advice; only used if it is one of KNOWN_TOPICS */
   topic: z.string().max(1200).optional(),
   messages: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(2000) }))
     .min(1)
-    .max(24),
+    .max(24)
+    .refine((m) => m[m.length - 1].role === "user"),
 });
 
+/** The topic goes into the system prompt, so it must be our own copy, never text from the request */
+const KNOWN_TOPICS = new Set(
+  Object.values(COLLECTION_HEROES).flatMap((byLocale) => Object.values(byLocale).map((h) => h.chat.topic.trim())),
+);
+
 /* ------------------------------------------------------------- rate limit */
+const WINDOW_MS = 10 * 60 * 1000;
+const PER_IP = 30;
+/** Backstop per container across all visitors, so rotating addresses cannot run up the API bill */
+const GLOBAL = Number(process.env.ASSISTANT_GLOBAL_LIMIT) || 300;
+const MAX_TRACKED = 10_000;
+
 const hits = new Map<string, number[]>();
-function limited(ip: string, max = 30, windowMs = 10 * 60 * 1000): boolean {
+let globalHits: number[] = [];
+
+function limited(ip: string): boolean {
   const now = Date.now();
-  const arr = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
+  const fresh = (ts: number[]) => ts.filter((t) => now - t < WINDOW_MS);
+  globalHits = fresh(globalHits);
+  if (globalHits.length >= GLOBAL) return true;
+  const arr = fresh(hits.get(ip) ?? []);
+  if (arr.length >= PER_IP) return true;
   arr.push(now);
+  globalHits.push(now);
+  hits.delete(ip); // re-insert so the map stays ordered by last activity
   hits.set(ip, arr);
-  if (hits.size > 5000) hits.clear();
-  return arr.length > max;
+  if (hits.size > MAX_TRACKED) {
+    // drop expired addresses, then the least recently active ones; never reset everyone's count
+    for (const [k, ts] of hits) if (!fresh(ts).length) hits.delete(k);
+    for (const k of hits.keys()) {
+      if (hits.size <= MAX_TRACKED) break;
+      hits.delete(k);
+    }
+  }
+  return false;
+}
+
+/**
+ * Client address as seen by the Scalingo router. The router adds its own entry to X-Forwarded-For,
+ * so the last entry is the one it saw; earlier entries come from the client and can be forged.
+ */
+function clientIp(req: NextRequest): string {
+  const chain = req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean);
+  return chain?.[chain.length - 1] ?? "local";
 }
 
 /* ----------------------------------------------------------------- tools */
@@ -109,13 +146,13 @@ export async function POST(req: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
   }
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  if (limited(ip)) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid" }, { status: 400 });
+  // after validation, so malformed requests don't use up the budget
+  if (limited(clientIp(req))) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   const locale: Locale = parsed.data.locale && isLocale(parsed.data.locale) ? parsed.data.locale : "de";
-  const topic = parsed.data.topic?.trim() || null;
+  const requested = parsed.data.topic?.trim();
+  const topic = requested && KNOWN_TOPICS.has(requested) ? requested : null;
 
   // Org-level keys (not scoped to a workspace) must name the workspace per request
   const workspace = process.env.ANTHROPIC_WORKSPACE_ID;
