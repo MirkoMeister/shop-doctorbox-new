@@ -11,6 +11,7 @@ import type { Collection } from "@/lib/shopify/types";
 import { SearchResults } from "./SearchResults";
 import { SearchStart } from "./SearchStart";
 import { useSearch } from "./useSearch";
+import { lockScroll } from "@/lib/scroll-lock";
 
 /** Compact header search: opens a full-width overlay with the same live results. */
 export function HeaderSearch({ locale, dict, collections = [], children }: { locale: Locale; dict: Dictionary; collections?: Collection[]; children: React.ReactNode }) {
@@ -27,10 +28,10 @@ export function HeaderSearch({ locale, dict, collections = [], children }: { loc
     inputRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
+    const unlock = lockScroll();
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      unlock();
     };
   }, [open]);
 
@@ -55,7 +56,7 @@ export function HeaderSearch({ locale, dict, collections = [], children }: { loc
         {children}
       </button>
       {open && (
-        <div className="fixed inset-0 z-[90] overflow-y-auto bg-moss/95 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[90] overflow-y-auto overscroll-contain bg-moss/95 backdrop-blur-sm">
           <div className="mx-auto max-w-3xl px-4 pb-10 pt-6 sm:pt-16">
             <div className="flex items-center justify-between text-soft">
               <p className="text-sm text-soft/70">{dict.nav.search}</p>

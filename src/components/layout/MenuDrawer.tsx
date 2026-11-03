@@ -14,6 +14,7 @@ import { APP_STORE_URL, PLAY_STORE_URL, REGISTER_TEST_URL, SOCIAL_LINKS } from "
 import type { Collection } from "@/lib/shopify/types";
 import { ArrowRight, SearchIcon } from "@/components/ui/Icons";
 import { Burger } from "./Burger";
+import { lockScroll } from "@/lib/scroll-lock";
 
 export type FeaturedTeaser = { handle: string; title: string; image: string | null; subtitle?: string | null };
 
@@ -38,11 +39,11 @@ export function MenuDrawer({ locale, dict, collections, featured, campaign = nul
   const setOpen = (v: boolean) => setState({ path: pathname, open: v });
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    const unlock = open ? lockScroll() : null;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setState((s) => ({ ...s, open: false }));
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "";
+      unlock?.();
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
@@ -95,7 +96,7 @@ export function MenuDrawer({ locale, dict, collections, featured, campaign = nul
           role="dialog"
           aria-modal="true"
           aria-label={dict.nav.menu}
-          className={`absolute inset-0 flex w-full flex-col overflow-y-auto bg-white pt-[var(--promo-h,0px)] transition-[transform,visibility] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? "translate-x-0" : "invisible -translate-x-full"}`}
+          className={`absolute inset-0 flex w-full flex-col overflow-y-auto overscroll-contain bg-white pt-[var(--promo-h,0px)] transition-[transform,visibility] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? "translate-x-0" : "invisible -translate-x-full"}`}
         >
           {/* Top row: same grid and height as the header, so the "x" sits where the burger was */}
           <div className="mx-auto grid h-[72px] w-full max-w-7xl shrink-0 grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:h-[88px] lg:px-8">

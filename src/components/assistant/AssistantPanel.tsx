@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAssistant } from "./AssistantProvider";
+import { lockScroll } from "@/lib/scroll-lock";
 import { Thread } from "./Thread";
 import { localeHref, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -23,10 +24,7 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
 
   useEffect(() => {
     if (!open) return;
-    // lock the page without a layout jump: keep the space of the vanishing scrollbar
-    const gutter = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = "hidden";
-    if (gutter > 0) document.body.style.paddingRight = `${gutter}px`;
+    const unlock = lockScroll();
     // hides third-party overlays (Klaviyo teaser) that sit on top of the panel, see globals.css
     document.documentElement.dataset.assistantOpen = "";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -34,8 +32,7 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
     // focus after the slide-in so the browser does not fight the transform
     const id = window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 400);
     return () => {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
+      unlock();
       delete document.documentElement.dataset.assistantOpen;
       document.removeEventListener("keydown", onKey);
       window.clearTimeout(id);
@@ -82,7 +79,7 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
           </button>
         </header>
 
-        <div ref={listRef} className="flex-1 overflow-y-auto px-5 py-5">
+        <div ref={listRef} className="flex-1 overflow-y-auto overscroll-contain px-5 py-5">
           {consent === false && (
             <ConsentCard locale={locale} dict={dict} onAccept={giveConsent} onDecline={() => setOpen(false)} />
           )}

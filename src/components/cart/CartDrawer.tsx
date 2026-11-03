@@ -11,6 +11,7 @@ import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney, shopifyImage } from "@/lib/format";
 import { CloseIcon, MinusIcon, PinIcon, PlusIcon } from "@/components/ui/Icons";
 import { trackBeginCheckout } from "@/lib/tracking/events";
+import { lockScroll } from "@/lib/scroll-lock";
 
 export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const { cart, open, setOpen, update, remove, pending } = useCart();
@@ -20,11 +21,11 @@ export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary 
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
+    const unlock = lockScroll();
     panelRef.current?.focus();
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      unlock();
     };
   }, [open, setOpen]);
 
@@ -67,7 +68,7 @@ export function CartDrawer({ locale, dict }: { locale: Locale; dict: Dictionary 
           </button>
         </header>
 
-        <div className={`flex-1 overflow-y-auto px-5 py-4 ${pending ? "opacity-60" : ""}`} aria-busy={pending}>
+        <div className={`flex-1 overflow-y-auto overscroll-contain px-5 py-4 ${pending ? "opacity-60" : ""}`} aria-busy={pending}>
           {lines.length === 0 ? (
             <div className="flex h-full flex-col items-start justify-center gap-3">
               <p className="h4">{dict.cart.empty}</p>

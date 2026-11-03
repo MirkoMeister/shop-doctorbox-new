@@ -9,6 +9,7 @@ import { fill } from "@/lib/i18n/dictionaries";
 import type { CatalogFilters, Facets, PriceBand } from "@/lib/catalog/filters";
 import { activeFilterCount } from "@/lib/catalog/filters";
 import { CheckIcon, ChevronDown, CloseIcon } from "@/components/ui/Icons";
+import { lockScroll } from "@/lib/scroll-lock";
 
 type Group = {
   key: "sample" | "price" | "value";
@@ -44,10 +45,8 @@ export function FilterBar({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
   useEffect(() => {
-    document.body.style.overflow = sheet ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (!sheet) return;
+    return lockScroll();
   }, [sheet]);
 
   function hrefWith(changes: Record<string, string | null>) {
@@ -238,7 +237,7 @@ export function FilterBar({
             role="dialog"
             aria-modal="true"
             aria-label={dict.collection.filter}
-            className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-[var(--radius-panel)] bg-white pb-6 shadow-float"
+            className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto overscroll-contain rounded-t-[var(--radius-panel)] bg-white pb-6 shadow-float"
           >
             <div className="sticky top-0 flex items-center justify-between border-b border-line bg-white px-5 py-4">
               <h2 className="h4">{dict.collection.filter}</h2>
