@@ -20,7 +20,7 @@ export function TassoBanner({ locale, dict, products }: { locale: Locale; dict: 
   return (
     <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8" aria-labelledby="tasso-title">
       <div className="relative overflow-hidden rounded-[var(--radius-panel)] bg-moss text-soft">
-        <div className="grid lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)]">
+        <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)]">
           {/* Video */}
           <div className="relative aspect-[4/3] sm:aspect-video lg:aspect-auto lg:min-h-[520px]">
             <video

@@ -36,7 +36,7 @@ export function StiSituations({ products, locale, dict }: { products: ProductCar
         <p className="mt-3 text-lg text-ink-muted">{t.pickerText}</p>
       </div>
 
-      <ul className="mt-8 grid gap-4 md:grid-cols-2">
+      <ul className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         {situations.map((s) => (
           <li key={s.key} className="flex flex-col rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
             <h3 className="h4">{s.title}</h3>

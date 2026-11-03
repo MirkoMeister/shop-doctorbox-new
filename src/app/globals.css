@@ -178,6 +178,8 @@ body {
   /* inline-block: the phrase moves to the next line as a unit; if it still has to wrap,
      the words wrap inside one rounded box instead of leaving overlapping fragments */
   display: inline-block;
+  /* Highlight wraps phrase + trailing punctuation in a nowrap span; the words inside may still wrap */
+  white-space: normal;
   background: var(--color-lind);
   color: inherit;
   /* blob: uneven corners and a hair of tilt, like a brush dab */

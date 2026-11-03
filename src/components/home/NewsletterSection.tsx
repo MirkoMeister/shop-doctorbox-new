@@ -10,7 +10,7 @@ export function NewsletterSection({ locale, dict }: { locale: Locale; dict: Dict
   const t = dict.home.newsletter;
   return (
     <section className="mx-auto mt-24 max-w-7xl px-4 sm:px-6 lg:px-8" aria-labelledby="newsletter-title">
-      <div className="grid gap-8 rounded-[var(--radius-panel)] bg-soft p-6 sm:p-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:items-center lg:gap-14">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 rounded-[var(--radius-panel)] bg-soft p-6 sm:p-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:items-center lg:gap-14">
         <div>
           <p className="text-sm font-medium text-green">{t.kicker}</p>
           <h2 id="newsletter-title" className="h2 mt-2 text-balance">
