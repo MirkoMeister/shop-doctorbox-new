@@ -14,9 +14,8 @@ import { MiraAvatar } from "./MiraAvatar";
 export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; dict: Dictionary; suggestions: string[] }) {
   const { open, setOpen, turns, busy, unavailable, send, pageContext, consent, giveConsent } = useAssistant();
   const welcome = pageContext?.greeting ?? dict.assistant.welcome;
+  // starters only open the conversation; after the first question they no longer fit what was asked
   const starters = pageContext?.suggestions ?? suggestions;
-  const asked = new Set(turns.filter((x) => x.role === "user").map((x) => x.text));
-  const remaining = starters.filter((s) => !asked.has(s));
   const [input, setInput] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -100,17 +99,6 @@ export function AssistantPanel({ locale, dict, suggestions }: { locale: Locale; 
             </div>
           )}
           {consent && <Thread turns={turns} locale={locale} dict={dict} onNavigate={() => setOpen(false)} />}
-          {consent && turns.length > 0 && !busy && remaining.length > 0 && (
-            <ul className="mt-4 flex flex-wrap justify-end gap-2">
-              {remaining.map((s) => (
-                <li key={s}>
-                  <button type="button" onClick={() => void send(s)} className="rounded-full border border-green/60 bg-white px-3.5 py-1.5 text-left text-[0.85rem] font-medium text-green transition-colors hover:bg-green hover:text-white">
-                    {s}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
 
         {consent && (
