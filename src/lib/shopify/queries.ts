@@ -804,7 +804,7 @@ const CART_LINES_UPDATE = /* GraphQL */ `
 `;
 
 const CART_DISCOUNT_CODES_UPDATE = /* GraphQL */ `
-  mutation CartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!], ${CTX_VARS}) ${CTX} {
+  mutation CartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!, ${CTX_VARS}) ${CTX} {
     cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
       cart {
         ...CartFields

@@ -13,8 +13,9 @@ import {
   type CartLineInput,
 } from "@/lib/shopify/queries";
 import type { Cart } from "@/lib/shopify/types";
+import { CART_COOKIE, DISCOUNT_COOKIE } from "@/lib/cart/discount-link";
 
-const COOKIE = "dbx_cart";
+const COOKIE = CART_COOKIE;
 const ONE_WEEK = 60 * 60 * 24 * 7;
 
 async function readCartId(): Promise<string | undefined> {
@@ -41,6 +42,13 @@ async function writeCartId(id: string) {
   });
 }
 
+/** A new cart picks up the code from a discount link (/discount/CODE) the visitor opened before */
+async function withLinkDiscount(cart: Cart, locale: Locale, ip: string | null): Promise<Cart> {
+  const code = (await cookies()).get(DISCOUNT_COOKIE)?.value;
+  if (!code) return cart;
+  return updateCartDiscountCodes(cart.id, [code], locale, ip).catch(() => cart);
+}
+
 export async function getCart(locale: Locale): Promise<Cart | null> {
   const id = await readCartId();
   if (!id) return null;
@@ -63,11 +71,11 @@ export async function addToCart(line: CartLineInput, locale: Locale): Promise<Ca
         cart = await addCartLines(id, [line], locale, ip);
       } catch {
         // stale/expired cart → start a new one
-        cart = await createCart([line], locale, ip);
+        cart = await withLinkDiscount(await createCart([line], locale, ip), locale, ip);
         await writeCartId(cart.id);
       }
     } else {
-      cart = await createCart([line], locale, ip);
+      cart = await withLinkDiscount(await createCart([line], locale, ip), locale, ip);
       await writeCartId(cart.id);
     }
     return { cart };
@@ -100,6 +108,8 @@ export async function setDiscountCode(code: string | null, locale: Locale): Prom
   const ip = await buyerIp();
   // over the limit the code counts as not applicable; removing a code is never limited
   if (code && discountLimited(ip ?? "local")) return { cart: null };
+  // a code removed (or replaced) by hand must not come back from an earlier discount link
+  (await cookies()).delete(DISCOUNT_COOKIE);
   try {
     const cart = await updateCartDiscountCodes(id, code ? [code.trim().toUpperCase()] : [], locale, ip);
     return { cart };
