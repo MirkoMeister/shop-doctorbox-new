@@ -40,7 +40,6 @@ export function Footer({
         { label: dict.nav.registerTest, href: REGISTER_TEST_URL, external: true },
         { label: dict.footer.payment, href: href("/pages/zahlung") },
         { label: dict.footer.shipping, href: href("/policies/shipping-policy") },
-        { label: dict.footer.disposal, href: href("/pages/disposal") },
         { label: dict.nav.contact, href: href("/pages/kontakt") },
       ],
     },
