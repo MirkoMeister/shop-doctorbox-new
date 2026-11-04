@@ -268,6 +268,9 @@ export const CART_FRAGMENT = /* GraphQL */ `
           id
           quantity
           cost {
+            subtotalAmount {
+              ...MoneyFields
+            }
             totalAmount {
               ...MoneyFields
             }

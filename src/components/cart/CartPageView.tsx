@@ -16,6 +16,7 @@ import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import type { Cart, CartLine, ProductCard as ProductCardType } from "@/lib/shopify/types";
 import { trackViewCart, trackBeginCheckout } from "@/lib/tracking/events";
+import { activeCode, cartSavings, lineOriginal } from "@/lib/cart/savings";
 
 const PREVIEW = 8;
 
@@ -109,7 +110,12 @@ function LineCard({ line, locale, dict, pending, update, remove }: { line: CartL
               {line.sellingPlanAllocation && <p className="mt-1 text-sm text-green">{fill(dict.cart.subscriptionLine, { plan: line.sellingPlanAllocation.sellingPlan.name })}</p>}
             </div>
             <span className="shrink-0 text-right">
-              <span className="block text-lg font-semibold tabular-nums">{formatMoney(line.cost.totalAmount, locale)}</span>
+              {lineOriginal(line) > Number(line.cost.totalAmount.amount) && (
+                <s className="block text-sm text-ink-muted tabular-nums">{formatMoney(line.cost.subtotalAmount, locale)}</s>
+              )}
+              <span className={`block text-lg font-semibold tabular-nums ${lineOriginal(line) > Number(line.cost.totalAmount.amount) ? "text-green" : ""}`}>
+                {formatMoney(line.cost.totalAmount, locale)}
+              </span>
               {line.quantity > 1 && <span className="block text-xs text-ink-muted tabular-nums">{fill(dict.cart.perUnit, { n: line.quantity, price: formatMoney(unit, locale) })}</span>}
             </span>
           </div>
@@ -140,10 +146,11 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
   const [codeOpen, setCodeOpen] = useState(false);
   const [code, setCode] = useState("");
   const [invalid, setInvalid] = useState(false);
-  const applied = cart.discountCodes.find((d) => d.applicable);
-  const subtotal = parseFloat(cart.cost.subtotalAmount.amount);
-  const total = parseFloat(cart.cost.totalAmount.amount);
-  const discount = Math.max(0, subtotal - total);
+  const activeCodeName = activeCode(cart);
+  const applied = activeCodeName ? { code: activeCodeName } : null;
+  // product discounts (MOVEMBER26) already sit in Shopify's subtotal, so show the price before all discounts
+  const discount = cartSavings(cart);
+  const money = (n: number) => formatMoney({ amount: String(n), currencyCode: cart.cost.totalAmount.currencyCode }, locale);
   const campaign = activeCampaign(locale);
   // only suggest the code when it will apply to something in the cart
   const eligible = campaign && (campaign.handles ? cart.lines.some((l) => campaign.handles!.includes(l.merchandise.product.handle)) : hasTests);
@@ -163,7 +170,7 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
       <dl className="space-y-2 text-[0.95rem]">
         <div className="flex items-baseline justify-between">
           <dt className="text-ink-muted">{dict.cart.subtotal}</dt>
-          <dd className="tabular-nums">{formatMoney(cart.cost.subtotalAmount, locale)}</dd>
+          <dd className="tabular-nums">{money(Number(cart.cost.totalAmount.amount) + discount)}</dd>
         </div>
         {discount > 0 && (
           <div className="flex items-baseline justify-between text-green">
@@ -171,7 +178,7 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
               {dict.cart.discount}
               {applied && <span className="ml-1.5 rounded-full bg-lind px-2 py-0.5 text-xs font-semibold tracking-wide text-moss">{applied.code}</span>}
             </dt>
-            <dd className="tabular-nums">−{formatMoney({ amount: String(discount), currencyCode: cart.cost.totalAmount.currencyCode }, locale)}</dd>
+            <dd className="tabular-nums">−{money(discount)}</dd>
           </div>
         )}
         <div className="flex items-baseline justify-between border-t border-line pt-3">
@@ -193,9 +200,15 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
 
       <div className="mt-4">
         {applied ? (
-          <button type="button" onClick={() => applyDiscount(null)} disabled={pending} className="text-sm text-ink-muted underline underline-offset-4 hover:text-ink">
-            {dict.cart.discountRemove}
-          </button>
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-2xl bg-lind px-4 py-3 text-sm text-moss">
+            <span className="inline-flex items-center gap-2 font-semibold">
+              <CheckIcon width={16} height={16} className="shrink-0" />
+              {fill(dict.cart.codeActive, { code: applied.code })}
+            </span>
+            <button type="button" onClick={() => applyDiscount(null)} disabled={pending} className="text-moss/80 underline underline-offset-4 hover:text-moss">
+              {dict.cart.discountRemove}
+            </button>
+          </div>
         ) : codeOpen ? (
           <form
             onSubmit={(e) => {

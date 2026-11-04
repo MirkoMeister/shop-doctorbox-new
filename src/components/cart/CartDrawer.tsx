@@ -9,6 +9,7 @@ import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney, shopifyImage } from "@/lib/format";
+import { activeCode, cartSavings, lineOriginal } from "@/lib/cart/savings";
 import { CheckIcon, CloseIcon, MinusIcon, PinIcon, PlusIcon } from "@/components/ui/Icons";
 import { trackBeginCheckout } from "@/lib/tracking/events";
 import { lockScroll } from "@/lib/scroll-lock";
@@ -133,7 +134,14 @@ export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; di
                             <PlusIcon width={16} height={16} />
                           </button>
                         </div>
-                        <span className="font-semibold tabular-nums">{formatMoney(line.cost.totalAmount, locale)}</span>
+                        <span className="text-right tabular-nums">
+                          {lineOriginal(line) > Number(line.cost.totalAmount.amount) && (
+                            <s className="mr-1.5 text-sm text-ink-muted">{formatMoney(line.cost.subtotalAmount, locale)}</s>
+                          )}
+                          <span className={`font-semibold ${lineOriginal(line) > Number(line.cost.totalAmount.amount) ? "text-green" : ""}`}>
+                            {formatMoney(line.cost.totalAmount, locale)}
+                          </span>
+                        </span>
                       </div>
                       <button
                         type="button"
@@ -167,6 +175,19 @@ export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; di
               <span className="text-ink-muted">{dict.cart.subtotal}</span>
               <span className="text-xl font-semibold tabular-nums">{formatMoney(cart.cost.subtotalAmount, locale)}</span>
             </div>
+            {activeCode(cart) && (
+              <p className="mt-2 flex flex-wrap items-center justify-between gap-x-3 rounded-xl bg-lind px-3 py-2 text-sm text-moss">
+                <span className="inline-flex items-center gap-1.5 font-semibold">
+                  <CheckIcon width={15} height={15} className="shrink-0" />
+                  {fill(dict.cart.codeActive, { code: activeCode(cart)! })}
+                </span>
+                {cartSavings(cart) > 0 && (
+                  <span className="tabular-nums">
+                    {fill(dict.cart.youSave, { amount: formatMoney({ amount: String(cartSavings(cart)), currencyCode: cart.cost.totalAmount.currencyCode }, locale) })}
+                  </span>
+                )}
+              </p>
+            )}
             <p className="mt-1 flex items-start gap-2 text-sm text-ink-muted">
               <PinIcon width={16} height={16} className="mt-0.5 shrink-0 text-green" />
               {dict.cart.pickupNote}
