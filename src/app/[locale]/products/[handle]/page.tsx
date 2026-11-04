@@ -21,7 +21,7 @@ import { breadcrumbJsonLd, faqJsonLd, JsonLd, pageMetadata, productJsonLd } from
 import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import { isYoungle, SupplementTrust } from "@/components/supplements/SupplementTrust";
 import { SupplementDetails } from "@/components/supplements/SupplementDetails";
-import { sameGoalSupplements, testsForSupplement } from "@/content/supplements";
+import { sameGoalSupplements, supplementsForTest, testsForSupplement } from "@/content/supplements";
 import { youngleContent } from "@/content/youngle-content";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /** Product cards for the given handles, in that order; sold-out ones are left out */
-async function testsByHandle(handles: string[], locale: Locale) {
+async function cardsByHandle(handles: string[], locale: Locale) {
   const byHandle = new Map((await getAllProducts(locale).catch(() => [])).map((p) => [p.handle, p]));
   return handles.map((h) => byHandle.get(h)).filter((p): p is NonNullable<typeof p> => Boolean(p?.availableForSale));
 }
@@ -75,7 +75,9 @@ export default async function ProductPage({ params }: Props) {
   const reviewSummary = summarize(reviews);
   // Shopify's recommendations are tests; supplements get the tests for their goal first, then other supplements
   const supplementsCollection = supplement ? await getCollection(SUPPLEMENTS_COLLECTION, locale).catch(() => null) : null;
-  const pairedTests = supplement ? await testsByHandle(testsForSupplement(product.handle), locale) : [];
+  const pairedTests = supplement ? await cardsByHandle(testsForSupplement(product.handle), locale) : [];
+  // tests: an editorial supplement pick (e.g. omega-3 for blood lipids) goes first
+  const pairedSupplements = supplement ? [] : await cardsByHandle(supplementsForTest(product.handle), locale);
   const sameGoal = new Set(sameGoalSupplements(product.handle));
   const goalRank = (p: { handle: string }) => Number(sameGoal.has(p.handle));
   const related = supplement
@@ -145,8 +147,10 @@ export default async function ProductPage({ params }: Props) {
         ]
       : []),
   ];
-  // supplements relate to supplements, tests to tests
-  const relatedShown = supplement ? related : related.filter((p) => !isSupplement(p));
+  // supplements relate to supplements, tests to tests (plus the editorial supplement pick)
+  const relatedShown = supplement
+    ? related
+    : [...pairedSupplements, ...related.filter((p) => !isSupplement(p) && p.id !== product.id)].slice(0, Math.max(4, related.length));
   const youngle = supplement && isYoungle(product.vendor) ? youngleContent(product.handle, locale) : null;
 
   return (

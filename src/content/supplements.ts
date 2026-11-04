@@ -106,5 +106,15 @@ export function testsForSupplement(handle: string): string[] {
   return (group && GROUP_TESTS[group.key]) ?? MEASURE_FIRST_HANDLES;
 }
 
+/**
+ * Supplements shown first under "Passt dazu" on a home-test page (test handle → supplement handles).
+ * Editorial, change freely; tests without an entry show only Shopify's test recommendations.
+ */
+const TEST_SUPPLEMENTS: Record<string, string[]> = {
+  "heimtest-fettstoffwechsel": ["omega-3-kapseln"],
+};
+
+export const supplementsForTest = (handle: string): string[] => TEST_SUPPLEMENTS[handle] ?? [];
+
 /** The other products of the supplement's goal group (empty when it is in no group) */
 export const sameGoalSupplements = (handle: string): string[] => de.groups.find((g) => g.handles.includes(handle))?.handles ?? [];
