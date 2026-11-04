@@ -28,6 +28,7 @@ export default async function IfuPage({ params }: Props) {
   const ifu = ifuBySlug(p.slug);
   if (!ifu) notFound();
   const t = IFU_COPY[locale];
+  const photos = ifu.components.some((c) => c.image);
   const href = (path: string) => localeHref(locale, path);
   const updated = new Date(ifu.updated).toLocaleDateString(locale === "en" ? "en-GB" : "de-DE", { day: "numeric", month: "long", year: "numeric" });
 
@@ -56,14 +57,16 @@ export default async function IfuPage({ params }: Props) {
 
       <section className="mt-12" aria-labelledby="components">
         <h2 id="components" className="h3">{t.componentsTitle}</h2>
-        {/* table from md, cards below */}
+        {/* table from md, cards below; the photo column only when there are photos */}
         <div className="mt-5 hidden overflow-hidden rounded-[var(--radius-card)] border border-line md:block">
           <table className="w-full text-left text-[0.95rem]">
             <thead className="bg-surface text-sm text-ink-muted">
               <tr>
-                <th scope="col" className="w-20 px-4 py-3">
-                  <span className="sr-only">{t.photo}</span>
-                </th>
+                {photos && (
+                  <th scope="col" className="w-20 px-4 py-3">
+                    <span className="sr-only">{t.photo}</span>
+                  </th>
+                )}
                 <th scope="col" className="px-4 py-3 font-medium">{t.component}</th>
                 <th scope="col" className="px-4 py-3 font-medium">{t.manufacturer}</th>
                 <th scope="col" className="px-4 py-3 font-medium">{t.marking}</th>
@@ -73,9 +76,11 @@ export default async function IfuPage({ params }: Props) {
             <tbody className="divide-y divide-line bg-white">
               {ifu.components.map((c) => (
                 <tr key={c.name} className="align-top">
-                  <td className="px-4 py-3">
-                    <Thumb c={c} />
-                  </td>
+                  {photos && (
+                    <td className="px-4 py-3">
+                      <Thumb c={c} />
+                    </td>
+                  )}
                   <th scope="row" className="px-4 py-3 font-semibold">
                     {c.name}
                     {c.usage && <span className="mt-1 block text-sm font-normal text-ink-muted">{c.usage}</span>}
@@ -92,7 +97,7 @@ export default async function IfuPage({ params }: Props) {
           {ifu.components.map((c) => (
             <li key={c.name} className="rounded-[var(--radius-card)] border border-line bg-white p-4">
               <div className="flex gap-3">
-                <Thumb c={c} />
+                {photos && <Thumb c={c} />}
                 <div className="min-w-0">
                   <p className="font-semibold">{c.name}</p>
                   {c.usage && <p className="mt-1 text-sm text-ink-muted">{c.usage}</p>}

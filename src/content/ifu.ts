@@ -55,7 +55,6 @@ export const IFUS: Ifu[] = [
         name: "Tasso+ Blutentnahmehilfe",
         manufacturer: "Tasso, Inc., Seattle, USA; EU-Bev.: Emergo Europe BV; Importeur: MedEnvoy",
         marking: "MD, CE 2797, steril",
-        image: "/ifu/tasso/tasso-plus.webp",
         usage: "Ermöglicht die Selbstentnahme einer Kapillarblutprobe in Verbindung mit einem kompatiblen Probenentnahmegefäß.",
         // translations: https://www.tassoinc.com/eu/tassoplus-kit-ifu
         ifu: { required: true, href: "/ifu/tasso/tasso-plus-gebrauchsanweisung-de.pdf", version: "PN0762-01, Rev. 03" },
@@ -64,7 +63,6 @@ export const IFUS: Ifu[] = [
         name: "BD Microtainer® Serumröhrchen (rote Kappe)",
         manufacturer: "Becton, Dickinson and Company, USA; EU-Bev.: Becton Dickinson Ireland Ltd.",
         marking: "IVD, CE",
-        image: "/ifu/tasso/bd-microtainer-serum.jpg",
         usage: "BD Microtainer® Röhrchen werden verwendet, um kapilläre Blutproben zu sammeln, zu transportieren und aufzubewahren.",
         // BD IFU for the chemistry tubes (serum, SST, lithium heparin, PST, fluoride)
         ifu: { required: true, href: "/ifu/tasso/bd-microtainer-serum-gebrauchsanweisung-de.pdf", version: "Version 01, 2022-02" },
@@ -73,7 +71,6 @@ export const IFUS: Ifu[] = [
         name: "BD Microtainer® K2EDTA-Röhrchen (lila Kappe)",
         manufacturer: "Becton, Dickinson and Company, USA; EU-Bev.: Becton Dickinson Ireland Ltd.",
         marking: "IVD, CE",
-        image: "/ifu/tasso/bd-microtainer-edta.jpg",
         usage: "BD Microtainer® Röhrchen werden verwendet, um kapilläre Blutproben zu sammeln, zu transportieren und aufzubewahren.",
         // separate BD IFU for the EDTA tube, not yet available
         ifu: { required: true },
@@ -82,7 +79,6 @@ export const IFUS: Ifu[] = [
         name: "Soft-Zellin® Alkoholtupfer",
         manufacturer: "Paul Hartmann AG, Heidenheim",
         marking: "MD, CE",
-        image: "/ifu/tasso/soft-zellin.jpg",
         usage: "Der gebrauchsfertige Alkoholtupfer zur Hautreinigung vor subkutanen Injektionen und vor der Entnahme von Kapillarblutproben.",
         // only an EU declaration of conformity (Kingstar Medical, OEM), no IFU: instructions on the box
         ifu: { required: false, onPack: true },
@@ -91,7 +87,6 @@ export const IFUS: Ifu[] = [
         name: "DermaPlast® Pflaster",
         manufacturer: "Paul Hartmann AG, Heidenheim",
         marking: "MD, CE",
-        image: "/ifu/tasso/dermaplast.jpg",
         usage:
           "Zur Versorgung kleinerer Verletzungen bei empfindlicher Haut bzw. besonders sensibler Körperpartien. Bei der Applikation auf trockene und saubere Haut achten.",
         // Hartmann declaration for DermaPlast water-resistant (REF 535151/535152), valid until 2030-10-31
@@ -102,7 +97,6 @@ export const IFUS: Ifu[] = [
         name: "Einweg-Wärmebeutel",
         manufacturer: "Dispotech Srl, Gordona, Italien",
         marking: "MD, CE 1936",
-        image: "/ifu/tasso/waermekompresse.jpg",
         usage: "Selbstwärmende Kompresse.",
         // instructions, warnings and indications printed on the pack
         ifu: { required: false, onPack: true },
@@ -111,7 +105,6 @@ export const IFUS: Ifu[] = [
         name: "Sicherheitsbeutel mit Saugeinlage",
         manufacturer: "Süsse Labortechnik GmbH & Co. KG, Gudensberg",
         marking: "sonstiges Produkt",
-        image: "/ifu/tasso/sicherheitsbeutel.jpg",
         usage: "Für den sicheren Versand von Probenmaterial.",
         // use instructions printed on the bag (5 steps, UN 3373)
         ifu: { required: false, onPack: true },
