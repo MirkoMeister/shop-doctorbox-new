@@ -41,6 +41,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const h of APP_PAGES) if (!pageHandles.has(h)) pageHandles.set(h, "");
   // redirects to the withdrawal app on the Shopify domain (next.config.ts)
   pageHandles.delete("widerruf-formular");
+  // retired, redirects to the home page (lib/legacy-urls.ts)
+  pageHandles.delete("disposal");
 
   return [
     ...entry("/", undefined, 1, "daily"),

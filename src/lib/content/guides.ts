@@ -23,7 +23,6 @@ export const UTILITY_PAGES = new Set([
   "compare",
   "das-sagen-unsere-kunden",
   "uber-uns",
-  "disposal",
   "ablauf-uber-die-feiertage",
   "buche-einen-bluttest",
   "gewinnspiel",
