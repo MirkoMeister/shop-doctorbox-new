@@ -18,11 +18,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const home = locale === "en" ? "/en" : "/";
   const target = safeRedirect(request.nextUrl.searchParams.get("redirect"), home);
 
-  const url = request.nextUrl.clone();
-  const [path, qs] = target.split("?");
-  url.pathname = path;
-  url.search = qs ? `?${qs}` : "";
-  const res = NextResponse.redirect(url, 302);
+  // relative Location: behind the Scalingo router the request URL carries the internal host
+  const res = new NextResponse(null, { status: 302, headers: { Location: target } });
   if (!isLinkCode(code)) return res;
 
   res.cookies.set(DISCOUNT_COOKIE, code, {
