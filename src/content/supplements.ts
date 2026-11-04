@@ -112,6 +112,8 @@ export function testsForSupplement(handle: string): string[] {
  */
 const TEST_SUPPLEMENTS: Record<string, string[]> = {
   "heimtest-fettstoffwechsel": ["omega-3-kapseln"],
+  "vitamin-d-test": ["vitamin-d3-biomo®-2-000-i-e"],
+  "vitamin-d-test-winteraktion": ["vitamin-d3-biomo®-2-000-i-e"],
 };
 
 export const supplementsForTest = (handle: string): string[] => TEST_SUPPLEMENTS[handle] ?? [];
