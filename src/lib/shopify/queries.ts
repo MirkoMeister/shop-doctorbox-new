@@ -280,6 +280,24 @@ export const NAV_COLLECTIONS = [
   "nahrungserganzungsmittel",
 ] as const;
 
+/** product handle → the given collections it is in (for grouping the all-products page) */
+export async function getCollectionMembership(handles: string[], locale: Locale): Promise<Map<string, string[]>> {
+  const query = /* GraphQL */ `
+    query Membership(${CTX_VARS}) ${CTX} {
+      ${handles.map((h, i) => `c${i}: collection(handle: ${JSON.stringify(h)}) { products(first: 250) { edges { node { handle } } } }`).join("\n      ")}
+    }
+  `;
+  const data = await shopifyFetch<Record<string, { products: { edges: { node: { handle: string } }[] } } | null>>(query, {
+    locale,
+    tags: ["collections", "products"],
+  });
+  const out = new Map<string, string[]>();
+  handles.forEach((h, i) => {
+    for (const { node } of data[`c${i}`]?.products.edges ?? []) out.set(node.handle, [...(out.get(node.handle) ?? []), h]);
+  });
+  return out;
+}
+
 export const TOP_PICKS_COLLECTION = "unsere-top-picks";
 
 export async function getNavCollections(locale: Locale): Promise<Collection[]> {

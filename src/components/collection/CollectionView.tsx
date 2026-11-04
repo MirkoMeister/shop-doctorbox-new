@@ -32,6 +32,7 @@ import {
 import { Highlight } from "@/components/ui/Highlight";
 import {
   COLLECTION_GUIDES,
+  activeFilterCount,
   applyFilters,
   computeFacets,
   parseFilters,
@@ -39,7 +40,8 @@ import {
 } from "@/lib/catalog/filters";
 import { stripHtml, truncate } from "@/lib/format";
 import { localeHref, type Locale } from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
+import type { CatalogGroup } from "@/content/catalog-groups";
 import type { Collection, ProductCard } from "@/lib/shopify/types";
 import type { ProductSort } from "@/lib/shopify/queries";
 
@@ -63,6 +65,7 @@ export function CollectionView({
   otherCollections,
   guideTitle,
   measureTests = [],
+  groups,
 }: {
   locale: Locale;
   dict: Dictionary;
@@ -80,10 +83,13 @@ export function CollectionView({
   guideTitle?: string | null;
   /** supplements page: the tests shown in the measure-first block */
   measureTests?: ProductCard[];
+  /** all-products page: sections by topic, used while no filter or sort is active */
+  groups?: CatalogGroup[];
 }) {
   const filters = parseFilters(searchParams);
   const facets = computeFacets(products);
   const filtered = applyFilters(products, filters);
+  const grouped = groups && groups.length > 1 && sort === "relevance" && activeFilterCount(filters) === 0 ? groups : null;
   const bestsellers = new Set(
     sort === "relevance" ? products.slice(0, 2).map((p) => p.id) : [],
   );
@@ -198,7 +204,54 @@ export function CollectionView({
           />
         </Suspense>
 
-        {filtered.length ? (
+        {grouped ? (
+          <>
+            <nav aria-label={dict.collection.groupsJump} className="mb-10 mt-2">
+              <p className="mb-2 text-sm font-medium text-ink">{dict.collection.groupsJump}</p>
+              <ul className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+                {grouped.map((g) => (
+                  <li key={g.key} className="shrink-0">
+                    <a href={`#${g.key}`} className="chip whitespace-nowrap hover:bg-lind-deep">
+                      {g.title} <span className="text-ink-muted">{g.products.length}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            {grouped.map((g, gi) => (
+              <section key={g.key} id={g.key} aria-labelledby={`${g.key}-title`} className={`scroll-mt-28 ${gi > 0 ? "mt-14" : ""}`}>
+                <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+                  <div>
+                    <h2 id={`${g.key}-title`} className="h3">{g.title}</h2>
+                    <p className="mt-1 text-ink-muted">
+                      {g.text} <span className="whitespace-nowrap">· {fill(dict.collection.groupCount, { n: g.products.length })}</span>
+                    </p>
+                  </div>
+                  {g.href && (
+                    <Link href={href(g.href)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-green underline underline-offset-4">
+                      {dict.collection.groupAll} <ArrowRight width={14} height={14} />
+                    </Link>
+                  )}
+                </div>
+                <ProductGrid
+                  products={g.products}
+                  locale={locale}
+                  dict={dict}
+                  priorityCount={gi === 0 ? 4 : 0}
+                  bestsellerIds={bestsellers}
+                  insert={
+                    gi === 0
+                      ? {
+                          index: Math.min(2, g.products.length),
+                          node: <AssistantCard title={dict.collection.miraTitle} cta={dict.collection.miraCta} online={dict.assistant.online} demo={miraDemo(handle, locale)} />,
+                        }
+                      : undefined
+                  }
+                />
+              </section>
+            ))}
+          </>
+        ) : filtered.length ? (
           <ProductGrid
             products={filtered}
             locale={locale}
