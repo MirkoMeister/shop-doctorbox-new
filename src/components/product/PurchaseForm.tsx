@@ -184,7 +184,7 @@ export function PurchaseForm({
             </label>
             <label
               className={`flex cursor-pointer flex-col gap-0.5 rounded-2xl border p-3.5 transition-colors ${
-                mode === "subscription" ? "border-green bg-white" : "border-line bg-surface hover:border-ink/50"
+                mode === "subscription" ? "border-green bg-white" : "abo-pulse border-line bg-surface hover:border-ink/50"
               }`}
             >
               <input

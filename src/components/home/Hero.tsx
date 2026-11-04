@@ -37,7 +37,7 @@ export function Hero({
               fill
               priority
               sizes="100vw"
-              className="object-cover object-[72%_center] lg:object-[center_35%]"
+              className="hero-photo-mirror object-cover object-[72%_center] lg:object-[center_35%]"
             />
             {/* no colour tint: only a neutral scrim where the copy sits so white text stays legible */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/30 to-black/50 lg:bg-gradient-to-r lg:from-black/55 lg:via-black/25 lg:to-transparent" />

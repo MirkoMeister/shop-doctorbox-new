@@ -568,3 +568,34 @@ body {
 html[data-assistant-open] [class*="kl-teaser-"] {
   display: none !important;
 }
+
+/* Home hero photo on wide screens: mirrored and moved right, so the person stands beside the copy, not behind the title */
+@media (min-width: 1024px) {
+  .hero-photo-mirror {
+    transform: translateX(12.5%) scaleX(-1) scale(1.25);
+  }
+}
+
+/* Subscription option on the product page: a soft green ring pulses while one-time purchase is selected */
+@keyframes abo-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(14 131 75 / 0.45);
+    border-color: var(--color-green);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgb(14 131 75 / 0);
+    border-color: var(--color-green);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(14 131 75 / 0);
+  }
+}
+.abo-pulse {
+  animation: abo-pulse 2.2s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .abo-pulse {
+    animation: none;
+    border-color: var(--color-green);
+  }
+}
