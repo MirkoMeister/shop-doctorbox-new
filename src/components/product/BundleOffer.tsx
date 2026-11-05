@@ -86,7 +86,7 @@ export function BundleOffer({
   return (
     <aside
       className={`rounded-2xl border transition-colors ${open ? "border-green/50 bg-lind/30" : "border-line bg-surface"}`}
-      aria-label={t.bundleKicker}
+      aria-label={fill(t.bundleKicker, { percent })}
     >
       <button
         type="button"
@@ -95,12 +95,7 @@ export function BundleOffer({
         aria-controls="couple-offer"
         className="flex w-full items-center justify-between gap-3 px-3.5 py-3 text-left"
       >
-        <span className="flex flex-wrap items-center gap-2 font-semibold">
-          {t.bundleKicker}
-          <span className="rounded-full bg-okker px-2 py-0.5 text-xs font-semibold text-moss">
-            {fill(t.bundleBadge, { percent })}
-          </span>
-        </span>
+        <span className="font-semibold">{fill(t.bundleKicker, { percent })}</span>
         <ChevronDown
           width={18}
           height={18}
