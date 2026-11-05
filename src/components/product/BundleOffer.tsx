@@ -84,7 +84,7 @@ export function BundleOffer({
   return (
     <aside
       className={`rounded-2xl border transition-colors ${open ? "border-green/50 bg-lind/30" : "border-line bg-surface"}`}
-      aria-label={fill(t.bundleKicker, { percent })}
+      aria-label={fill(t.bundleKicker, { percent }).replace(/\[\[|\]\]/g, "")}
     >
       <button
         type="button"
@@ -93,7 +93,20 @@ export function BundleOffer({
         aria-controls="couple-offer"
         className="flex w-full items-center justify-between gap-3 px-3.5 py-3 text-left"
       >
-        <span className="font-semibold">{fill(t.bundleKicker, { percent })}</span>
+        <span className="font-semibold">
+          {/* the saving in the okker pill used for discounts elsewhere (Abo −20 %) */}
+          {fill(t.bundleKicker, { percent })
+            .split(/\[\[(.+?)\]\]/)
+            .map((part, i) =>
+              i % 2 ? (
+                <span key={i} className="mx-0.5 rounded-full bg-okker px-2 py-0.5 text-moss">
+                  {part}
+                </span>
+              ) : (
+                part
+              ),
+            )}
+        </span>
         <ChevronDown
           width={18}
           height={18}
