@@ -175,12 +175,15 @@ export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; di
               <span className="text-ink-muted">{dict.cart.subtotal}</span>
               <span className="text-xl font-semibold tabular-nums">{formatMoney(cart.cost.subtotalAmount, locale)}</span>
             </div>
-            {activeCode(cart) && (
+            {(activeCode(cart) || cartSavings(cart) > 0) && (
               <p className="mt-2 flex flex-wrap items-center justify-between gap-x-3 rounded-xl bg-lind px-3 py-2 text-sm text-moss">
-                <span className="inline-flex items-center gap-1.5 font-semibold">
-                  <CheckIcon width={15} height={15} className="shrink-0" />
-                  {fill(dict.cart.codeActive, { code: activeCode(cart)! })}
-                </span>
+                {activeCode(cart) && (
+                  <span className="inline-flex items-center gap-1.5 font-semibold">
+                    <CheckIcon width={15} height={15} className="shrink-0" />
+                    {fill(dict.cart.codeActive, { code: activeCode(cart)! })}
+                  </span>
+                )}
+                {/* automatic discounts (e.g. STI Pro zu zweit) show the saving without a code */}
                 {cartSavings(cart) > 0 && (
                   <span className="tabular-nums">
                     {fill(dict.cart.youSave, { amount: formatMoney({ amount: String(cartSavings(cart)), currencyCode: cart.cost.totalAmount.currencyCode }, locale) })}

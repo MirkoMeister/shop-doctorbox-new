@@ -6,7 +6,6 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { Product, Variant } from "@/lib/shopify/types";
 import { defaultVariant, isTassoVariant } from "./default-variant";
 import { Gallery } from "./Gallery";
-import type { Bundle } from "./BundleOffer";
 import { PurchaseForm } from "./PurchaseForm";
 import { TassoNote } from "./TassoNote";
 import { useUrlVariant } from "./use-url-variant";
@@ -21,13 +20,13 @@ export function ProductBuyBox({
   locale,
   dict,
   children,
-  bundle = null,
+  multiBuy = null,
 }: {
   product: Product;
   locale: Locale;
   dict: Dictionary;
   children: React.ReactNode;
-  bundle?: Bundle | null;
+  multiBuy?: { percent: number } | null;
 }) {
   const [variant, setVariant] = useState<Variant | null>(null);
   const urlVariant = useUrlVariant(product);
@@ -43,7 +42,7 @@ export function ProductBuyBox({
       />
       <div>
         {children}
-        <PurchaseForm product={product} locale={locale} dict={dict} onVariantChange={setVariant} bundle={bundle} />
+        <PurchaseForm product={product} locale={locale} dict={dict} onVariantChange={setVariant} multiBuy={multiBuy} />
       </div>
     </div>
   );

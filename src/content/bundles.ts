@@ -1,11 +1,14 @@
 /**
- * Bundle offers on product pages: product handle → bundle handle. The box under the add-to-cart
- * button shows the bundle with its saving against buying the single test twice. Bundles stay
- * reachable by link but are left out of the overview, search, recommendations and the sitemap.
+ * Multi-buy offers on product pages: from two of this test on, the automatic Shopify discount named
+ * here takes `percent` off every kit. The box under the add-to-cart button adds a second kit
+ * (any variant, so a couple can mix urine and vaginal swab). Keep `percent` in step with Shopify.
  */
-export const BUNDLE_OFFERS: Record<string, string> = {
-  "sti-pro-10": "sti-pro-paar-bundle",
+export const MULTI_BUY: Record<string, { percent: number; discount: string }> = {
+  "sti-pro-10": { percent: 20, discount: "STI Pro zu zweit" },
 };
 
-/** sold only through the offer box (and their own link), not listed anywhere else */
-export const UNLISTED_HANDLES = Object.values(BUNDLE_OFFERS);
+/**
+ * Sold only by link, left out of the overview, collections, search, recommendations and the sitemap.
+ * The Paar-Bundle product is replaced by the multi-buy discount; delete it here once it is gone in Shopify.
+ */
+export const UNLISTED_HANDLES = ["sti-pro-paar-bundle"];

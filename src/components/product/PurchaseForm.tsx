@@ -10,7 +10,7 @@ import { formatMoney } from "@/lib/format";
 import type { Money, Product, Variant } from "@/lib/shopify/types";
 import { CheckIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
 import { defaultVariant, isTasso } from "@/components/product/default-variant";
-import { BundleOffer, type Bundle } from "@/components/product/BundleOffer";
+import { BundleOffer } from "@/components/product/BundleOffer";
 import { isYoungle } from "@/components/supplements/SupplementTrust";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { unitPriceOf, type UnitPrice } from "@/lib/unit-price";
@@ -23,14 +23,14 @@ export function PurchaseForm({
   locale,
   dict,
   onVariantChange,
-  bundle,
+  multiBuy,
 }: {
   product: Product;
   locale: Locale;
   dict: Dictionary;
   onVariantChange?: (v: Variant) => void;
-  /** offered under the add-to-cart button (content/bundles.ts) */
-  bundle?: Bundle | null;
+  /** multi-buy discount offered under the add-to-cart button (content/bundles.ts) */
+  multiBuy?: { percent: number } | null;
 }) {
   const { add, pending } = useCart();
   const firstAvailable = defaultVariant(product);
@@ -285,7 +285,9 @@ export function PurchaseForm({
         </button>
       </div>
 
-      {bundle && mode === "once" && <BundleOffer bundle={bundle} variant={variant} locale={locale} dict={dict} />}
+      {multiBuy && mode === "once" && variant.availableForSale && (
+        <BundleOffer percent={multiBuy.percent} variant={variant} variants={product.variants} locale={locale} dict={dict} />
+      )}
 
       {/* Delivery & pickup (Youngle ships its products itself, no pickup) */}
       <ul className="space-y-2 text-sm text-ink-muted">

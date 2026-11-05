@@ -1,65 +1,70 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { CheckIcon } from "@/components/ui/Icons";
 import { formatMoney } from "@/lib/format";
-import { localeHref, type Locale } from "@/lib/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
-import type { Money, Variant } from "@/lib/shopify/types";
-
-export type Bundle = {
-  handle: string;
-  title: string;
-  variants: { id: string; title: string; price: Money; availableForSale: boolean }[];
-};
+import type { Variant } from "@/lib/shopify/types";
 
 /**
- * Box under the add-to-cart button: the bundle of this test (content/bundles.ts) with its saving
- * against buying the selected variant twice. Picks the bundle variant with the same sample material.
+ * Box under the add-to-cart button for tests with a multi-buy discount (content/bundles.ts):
+ * from two kits on every kit costs `percent` less. One tap puts the selected kit and a second
+ * one (same or other variant) into the cart; the automatic Shopify discount does the rest.
  */
-export function BundleOffer({ bundle, variant, locale, dict }: { bundle: Bundle; variant: Variant; locale: Locale; dict: Dictionary }) {
+export function BundleOffer({
+  percent,
+  variant,
+  variants,
+  locale,
+  dict,
+}: {
+  percent: number;
+  variant: Variant;
+  variants: Variant[];
+  locale: Locale;
+  dict: Dictionary;
+}) {
   const { add, pending } = useCart();
-  const [added, setAdded] = useState(false);
-  const available = bundle.variants.filter((v) => v.availableForSale);
-  const match = available.find((v) => v.title === variant.title) ?? available[0];
-  if (!match) return null;
-
-  const price = Number(match.price.amount);
-  const double = Number(variant.price.amount) * 2;
-  const saving = Math.round((double - price) * 100) / 100;
-  const money = (n: number) => formatMoney({ amount: String(n), currencyCode: match.price.currencyCode }, locale);
+  const [added, setAdded] = useState<string | null>(null);
   const t = dict.product;
+  const unit = Number(variant.price.amount);
+  // Shopify takes the discount off per kit and rounds it down to the cent
+  const offer = (Math.round(unit * 100) - Math.floor(unit * percent)) / 100;
+  const money = (n: number) => formatMoney({ amount: String(n), currencyCode: variant.price.currencyCode }, locale);
+  const seconds = variants.filter((v) => v.availableForSale);
 
-  async function addBundle() {
-    if (await add({ merchandiseId: match!.id, quantity: 1 })) {
-      setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
+  async function addPair(second: Variant) {
+    const lines = second.id === variant.id ? [{ merchandiseId: variant.id, quantity: 2 }] : [{ merchandiseId: variant.id, quantity: 1 }, { merchandiseId: second.id, quantity: 1 }];
+    let ok = true;
+    for (const line of lines) ok = (await add(line)) && ok;
+    if (ok) {
+      setAdded(second.id);
+      setTimeout(() => setAdded(null), 2000);
     }
   }
 
   return (
-    <aside className="rounded-2xl border border-green/40 bg-lind/30 p-4" aria-label={bundle.title}>
+    <aside className="rounded-2xl border border-green/40 bg-lind/30 p-4" aria-label={t.bundleKicker}>
       <p className="font-semibold text-moss">{t.bundleKicker}</p>
       <p className="mt-1 text-sm leading-snug text-ink">
-        {saving > 0
-          ? fill(t.bundleSave, { title: bundle.title, price: money(price), double: money(double), saving: money(saving) })
-          : fill(t.bundlePlain, { title: bundle.title, price: money(price) })}
+        {fill(t.bundleSave, { percent, price: money(offer * 2), double: money(unit * 2), saving: money(unit * 2 - offer * 2) })}
       </p>
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-        <button type="button" onClick={addBundle} disabled={pending} className="btn btn-secondary btn-sm">
-          {added ? (
-            <>
-              <CheckIcon width={16} height={16} /> {t.added}
-            </>
-          ) : (
-            t.bundleAdd
-          )}
-        </button>
-        <Link href={localeHref(locale, `/products/${bundle.handle}`)} className="text-sm font-medium text-green underline underline-offset-4">
-          {t.bundleMore}
-        </Link>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {seconds.map((v) => (
+          <button key={v.id} type="button" onClick={() => addPair(v)} disabled={pending} className="btn btn-secondary btn-sm">
+            {added === v.id ? (
+              <>
+                <CheckIcon width={16} height={16} /> {t.added}
+              </>
+            ) : seconds.length > 1 ? (
+              fill(t.bundleAddSecond, { variant: v.title })
+            ) : (
+              t.bundleAdd
+            )}
+          </button>
+        ))}
       </div>
     </aside>
   );
