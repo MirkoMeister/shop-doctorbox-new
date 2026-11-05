@@ -12,13 +12,25 @@ const VIDEO = "/videos/banner-tasso-web.mp4";
 const POSTER = "/videos/banner-tasso-poster.jpg";
 
 /**
- * Home banner for the Tasso+ upper-arm blood collection: the product video runs muted
- * on a loop next to three plain steps and the two all-round checks that ship with it.
+ * Banner for the Tasso+ upper-arm blood collection: the product video runs muted on a loop next to
+ * three plain steps. On the home page it lists the all-round checks that ship with it; on a product
+ * page with a Tasso+ variant it comes without that list (products omitted).
  */
-export function TassoBanner({ locale, dict, products }: { locale: Locale; dict: Dictionary; products: ProductCard[] }) {
+export function TassoBanner({
+  locale,
+  dict,
+  products = [],
+}: {
+  locale: Locale;
+  dict: Dictionary;
+  products?: ProductCard[];
+}) {
   const t = dict.home.tasso;
   return (
-    <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8" aria-labelledby="tasso-title">
+    <section
+      className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8"
+      aria-labelledby="tasso-title"
+    >
       <div className="relative overflow-hidden rounded-[var(--radius-panel)] bg-moss text-soft">
         <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)]">
           {/* Video */}
@@ -50,49 +62,93 @@ export function TassoBanner({ locale, dict, products }: { locale: Locale; dict: 
               aria-hidden
               className="pointer-events-none absolute -right-24 -top-24 w-[320px] opacity-[0.12]"
             />
-            <p className="relative text-sm font-medium text-turquoise">{t.kicker}</p>
+            <p className="relative text-sm font-medium text-turquoise">
+              {t.kicker}
+            </p>
             <h2 id="tasso-title" className="h2 relative mt-3 text-balance">
               <Highlight text={t.title} tone="dark" />
             </h2>
-            <p className="relative mt-4 max-w-xl text-lg leading-relaxed text-soft/85">{t.text}</p>
+            <p className="relative mt-4 max-w-xl text-lg leading-relaxed text-soft/85">
+              {t.text}
+            </p>
 
             <ol className="relative mt-6 grid gap-2.5 sm:grid-cols-3">
               {t.steps.map((s, i) => (
-                <li key={s} className="flex items-start gap-2.5 text-[0.95rem] leading-snug">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-turquoise/25 text-xs font-semibold text-turquoise">{i + 1}</span>
+                <li
+                  key={s}
+                  className="flex items-start gap-2.5 text-[0.95rem] leading-snug"
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-turquoise/25 text-xs font-semibold text-turquoise">
+                    {i + 1}
+                  </span>
                   {s}
                 </li>
               ))}
             </ol>
 
-            <p className="relative mt-8 text-xs font-medium uppercase tracking-[0.16em] text-soft/70">{t.productsTitle}</p>
-            <ul className="relative mt-3 grid gap-3">
-              {products.map((p) => (
-                <li key={p.id}>
-                  <Link
-                    href={localeHref(locale, `/products/${p.handle}`)}
-                    className="group flex items-center gap-3 rounded-2xl bg-white/10 p-3 transition-colors hover:bg-white/15"
-                  >
-                    <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white/10">
-                      {p.featuredImage && <Image src={shopifyImage(p.featuredImage.url, 160)} alt="" fill sizes="56px" className="object-cover" />}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-semibold leading-snug">{p.title}</span>
-                      <span className="mt-0.5 flex items-center gap-1.5 text-xs text-soft/75">
-                        <CheckIcon width={12} height={12} className="text-turquoise" />
-                        {fill(dict.product.valuesCount, { n: p.biomarkers.length })} · {dict.product.sampleMaterial}: {p.sampleMaterial?.split("|")[0]?.trim()}
-                      </span>
-                    </span>
-                    <span className="flex shrink-0 flex-col items-end">
-                      <span className="font-semibold tabular-nums">{formatMoney(p.priceRange.minVariantPrice, locale)}</span>
-                      <ArrowRight width={16} height={16} className="mt-1 text-turquoise transition-transform group-hover:translate-x-0.5" />
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <p className="relative mt-4 text-xs leading-snug text-soft/60">{t.note}</p>
-            <Link href={localeHref(locale, TASSO_PAGE)} className="btn btn-on-dark relative mt-6 self-start">
+            {products.length > 0 && (
+              <>
+                <p className="relative mt-8 text-xs font-medium uppercase tracking-[0.16em] text-soft/70">
+                  {t.productsTitle}
+                </p>
+                <ul className="relative mt-3 grid gap-3">
+                  {products.map((p) => (
+                    <li key={p.id}>
+                      <Link
+                        href={localeHref(locale, `/products/${p.handle}`)}
+                        className="group flex items-center gap-3 rounded-2xl bg-white/10 p-3 transition-colors hover:bg-white/15"
+                      >
+                        <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white/10">
+                          {p.featuredImage && (
+                            <Image
+                              src={shopifyImage(p.featuredImage.url, 160)}
+                              alt=""
+                              fill
+                              sizes="56px"
+                              className="object-cover"
+                            />
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-semibold leading-snug">
+                            {p.title}
+                          </span>
+                          <span className="mt-0.5 flex items-center gap-1.5 text-xs text-soft/75">
+                            <CheckIcon
+                              width={12}
+                              height={12}
+                              className="text-turquoise"
+                            />
+                            {fill(dict.product.valuesCount, {
+                              n: p.biomarkers.length,
+                            })}{" "}
+                            · {dict.product.sampleMaterial}:{" "}
+                            {p.sampleMaterial?.split("|")[0]?.trim()}
+                          </span>
+                        </span>
+                        <span className="flex shrink-0 flex-col items-end">
+                          <span className="font-semibold tabular-nums">
+                            {formatMoney(p.priceRange.minVariantPrice, locale)}
+                          </span>
+                          <ArrowRight
+                            width={16}
+                            height={16}
+                            className="mt-1 text-turquoise transition-transform group-hover:translate-x-0.5"
+                          />
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <p className="relative mt-4 text-xs leading-snug text-soft/60">
+                  {t.note}
+                </p>
+              </>
+            )}
+            <Link
+              href={localeHref(locale, TASSO_PAGE)}
+              className="btn btn-on-dark relative mt-6 self-start"
+            >
               {t.cta} <ArrowRight width={16} height={16} />
             </Link>
           </div>

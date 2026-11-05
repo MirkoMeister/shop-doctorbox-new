@@ -23,6 +23,8 @@ import { isYoungle, SupplementTrust } from "@/components/supplements/SupplementT
 import { SupplementDetails } from "@/components/supplements/SupplementDetails";
 import { sameGoalSupplements, supplementsForTest, testsForSupplement } from "@/content/supplements";
 import { youngleContent } from "@/content/youngle-content";
+import { TassoBanner } from "@/components/home/TassoBanner";
+import { isTassoVariant } from "@/components/product/default-variant";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
 import { ProductReviews } from "@/components/reviews/ProductReviews";
@@ -232,6 +234,9 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       {youngle && <SupplementDetails content={youngle} locale={locale} productTitle={product.title} />}
+
+      {/* tests with a Tasso+ variant: the upper-arm collection video right after the details */}
+      {product.variants.some(isTassoVariant) && <TassoBanner locale={locale} dict={dict} />}
 
       {infoItems.length > 0 && <BiomarkerInfo items={infoItems} topic={topic} />}
 
