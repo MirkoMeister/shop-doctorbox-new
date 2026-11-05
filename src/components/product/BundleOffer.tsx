@@ -11,7 +11,7 @@ import type { Variant } from "@/lib/shopify/types";
 /**
  * Box under the add-to-cart button for tests with a multi-buy discount (content/bundles.ts):
  * from two kits on every kit costs `percent` less. A collapsed bar "Als Paar testen" above the purchase
- * option opens every pair of variants (2 × A, A + B, 2 × B); one tap puts the chosen pair into the
+ * option opens every pair of variants (A + B first, then 2 × A, 2 × B); one tap puts the chosen pair into the
  * cart and the automatic Shopify discount does the rest.
  */
 export function BundleOffer({
@@ -32,17 +32,15 @@ export function BundleOffer({
   const [open, setOpen] = useState(false);
   const t = dict.product;
   const available = variants.filter((v) => v.availableForSale);
-  // every pair of kits: 2 × A, A + B, 2 × B … (order does not matter)
-  const pairs = available.flatMap((a, i) =>
-    available.slice(i).map((b) => [a, b] as const),
-  );
+  // every pair of kits: A + B, 2 × A, 2 × B … (order does not matter); mixed pairs first, the common
+  // case for a heterosexual couple (urine for him, vaginal swab for her)
+  const pairs = available
+    .flatMap((a, i) => available.slice(i).map((b) => [a, b] as const))
+    .sort((x, y) => Number(x[0].id === x[1].id) - Number(y[0].id === y[1].id));
   const [pick, setPick] = useState<string | null>(null);
   const key = (p: readonly [Variant, Variant]) => `${p[0].id}|${p[1].id}`;
-  // start with two of the variant selected above
-  const chosen =
-    pairs.find((p) => key(p) === pick) ??
-    pairs.find((p) => p[0].id === variant.id && p[1].id === variant.id) ??
-    pairs[0];
+  // start with the first pair (the mixed one)
+  const chosen = pairs.find((p) => key(p) === pick) ?? pairs[0];
   if (!chosen) return null;
 
   // Shopify takes the discount off per kit and rounds it down to the cent
