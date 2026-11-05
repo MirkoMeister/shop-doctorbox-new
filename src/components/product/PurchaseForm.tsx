@@ -182,6 +182,11 @@ export function PurchaseForm({
       ))}
 
 
+      {/* Couple offer: collapsed bar above the purchase option, opens the kit pairs */}
+      {multiBuy && variant.availableForSale && (
+        <BundleOffer percent={multiBuy.percent} variant={variant} variants={product.variants} locale={locale} dict={dict} />
+      )}
+
       {/* Purchase option */}
       {hasPlans && (
         <fieldset>
@@ -284,10 +289,6 @@ export function PurchaseForm({
           )}
         </button>
       </div>
-
-      {multiBuy && mode === "once" && variant.availableForSale && (
-        <BundleOffer percent={multiBuy.percent} variant={variant} variants={product.variants} locale={locale} dict={dict} />
-      )}
 
       {/* Delivery & pickup (Youngle ships its products itself, no pickup) */}
       <ul className="space-y-2 text-sm text-ink-muted">
