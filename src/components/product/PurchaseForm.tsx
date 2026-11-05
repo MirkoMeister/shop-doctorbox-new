@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { isMiraPick, MIRA_LINE_ATTRIBUTE } from "@/lib/assistant/attribution";
 import type { Locale } from "@/lib/i18n/config";
@@ -40,6 +40,25 @@ export function PurchaseForm({
   const [mode, setMode] = useState<Mode>("once");
   const [planId, setPlanId] = useState<string>(plans[0]?.id ?? "");
   const [justAdded, setJustAdded] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const ctaRef = useRef<HTMLButtonElement>(null);
+  // sticky bar on phones: shown while the real button is out of view and the footer is not on screen
+  const [ctaInView, setCtaInView] = useState(true);
+  const [footerInView, setFooterInView] = useState(false);
+  useEffect(() => {
+    const cta = ctaRef.current;
+    const footer = document.getElementById("site-footer");
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.target === cta) setCtaInView(e.isIntersecting);
+        else setFooterInView(e.isIntersecting);
+      }
+    });
+    if (cta) io.observe(cta);
+    if (footer) io.observe(footer);
+    return () => io.disconnect();
+  }, []);
+  const stickyVisible = !ctaInView && !footerInView;
 
   const variant = useMemo(() => {
     const match = product.variants.find((v) => v.selectedOptions.every((o) => selected[o.name] === o.value));
@@ -85,7 +104,7 @@ export function PurchaseForm({
   }
 
   return (
-    <form onSubmit={submit} className="mt-6 flex flex-col gap-6">
+    <form ref={formRef} onSubmit={submit} className="mt-6 flex flex-col gap-6">
       {/* Price */}
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="text-[1.75rem] font-semibold tabular-nums text-green">{formatMoney(activePrice, locale)}</span>
@@ -245,7 +264,7 @@ export function PurchaseForm({
             <PlusIcon />
           </button>
         </div>
-        <button type="submit" className="btn btn-primary btn-lg flex-1" disabled={!variant.availableForSale || pending}>
+        <button ref={ctaRef} type="submit" className="btn btn-primary btn-lg flex-1" disabled={!variant.availableForSale || pending}>
           {justAdded ? (
             <>
               <CheckIcon width={18} height={18} /> {dict.product.added}
@@ -280,6 +299,38 @@ export function PurchaseForm({
           </li>
         )}
       </ul>
+
+      {/* Phone: price and add-to-cart stay within reach while the button above is out of view */}
+      <div
+        className={`fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur transition-transform duration-300 lg:hidden ${
+          stickyVisible ? "translate-y-0" : "translate-y-full"
+        }`}
+        aria-hidden={!stickyVisible}
+      >
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
+          <span className="min-w-0">
+            <span className="block truncate text-xs text-ink-muted">{product.title.replace(/\s+[-|–]\s+.*$/, "")}</span>
+            <span className="block text-lg font-semibold tabular-nums">{formatMoney(total, locale)}</span>
+          </span>
+          <button
+            type="button"
+            tabIndex={stickyVisible ? 0 : -1}
+            onClick={() => formRef.current?.requestSubmit()}
+            disabled={!variant.availableForSale || pending}
+            className="btn btn-primary shrink-0"
+          >
+            {justAdded ? (
+              <>
+                <CheckIcon width={18} height={18} /> {dict.product.added}
+              </>
+            ) : !variant.availableForSale ? (
+              dict.product.soldOut
+            ) : (
+              dict.product.addToCart
+            )}
+          </button>
+        </div>
+      </div>
     </form>
   );
 }

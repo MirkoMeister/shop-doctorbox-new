@@ -69,7 +69,7 @@ export function Footer({
   ];
 
   return (
-    <footer className="mt-24 bg-moss text-soft">
+    <footer id="site-footer" className="mt-24 bg-moss text-soft">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
           <div>
