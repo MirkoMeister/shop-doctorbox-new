@@ -568,6 +568,12 @@ body {
 html[data-assistant-open] [class*="kl-teaser-"] {
   display: none !important;
 }
+/* On phones the teaser sits over the sticky add-to-cart bar and content; the newsletter stays reachable in the footer */
+@media (max-width: 1023px) {
+  [class*="kl-teaser-"] {
+    display: none !important;
+  }
+}
 
 /* Home hero photo on wide screens: mirrored and moved right, so the person stands beside the copy, not behind the title */
 @media (min-width: 1024px) {
