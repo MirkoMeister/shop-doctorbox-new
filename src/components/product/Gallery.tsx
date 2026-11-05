@@ -6,7 +6,18 @@ import { shopifyImage } from "@/lib/format";
 import type { Image as ShopImage } from "@/lib/shopify/types";
 import { ChevronRight } from "@/components/ui/Icons";
 
-export function Gallery({ images, title, activeImageUrl }: { images: ShopImage[]; title: string; activeImageUrl?: string | null }) {
+export function Gallery({
+  images,
+  title,
+  activeImageUrl,
+  firstSlideOverlay,
+}: {
+  images: ShopImage[];
+  title: string;
+  activeImageUrl?: string | null;
+  /** shown on the lower edge of the first photo only (scrolls away with it) */
+  firstSlideOverlay?: React.ReactNode;
+}) {
   const [index, setIndex] = useState(0);
   const [seenUrl, setSeenUrl] = useState(activeImageUrl);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -66,6 +77,7 @@ export function Gallery({ images, title, activeImageUrl }: { images: ShopImage[]
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-contain p-4 sm:p-8"
               />
+              {i === 0 && firstSlideOverlay && <div className="absolute inset-x-3 bottom-8 z-10 sm:inset-x-4 sm:bottom-4">{firstSlideOverlay}</div>}
             </div>
           ))}
         </div>
@@ -96,7 +108,8 @@ export function Gallery({ images, title, activeImageUrl }: { images: ShopImage[]
         )}
       </div>
       {images.length > 1 && (
-        <ul className="no-scrollbar mt-3 hidden gap-2 overflow-x-auto sm:flex">
+        // p-1: the scroll box clips everything outside it, the ring of the active thumbnail included
+        <ul className="no-scrollbar mt-2 hidden gap-2 overflow-x-auto p-1 sm:flex">
           {images.map((img, i) => (
             <li key={img.url}>
               <button

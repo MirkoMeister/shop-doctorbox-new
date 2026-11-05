@@ -9,7 +9,7 @@ import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney } from "@/lib/format";
 import type { Money, Product, Variant } from "@/lib/shopify/types";
 import { CheckIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
-import { TassoNote } from "@/components/product/TassoNote";
+import { defaultVariant, isTasso } from "@/components/product/default-variant";
 import { isYoungle } from "@/components/supplements/SupplementTrust";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { unitPriceOf, type UnitPrice } from "@/lib/unit-price";
@@ -29,15 +29,7 @@ export function PurchaseForm({
   onVariantChange?: (v: Variant) => void;
 }) {
   const { add, pending } = useCart();
-  // Default: the Tasso+ upper-arm variant when it exists and costs no more than the cheapest available
-  // variant (a dearer option must be chosen actively), else the cheapest available, else the first
-  const available = product.variants.filter((v) => v.availableForSale);
-  const cheapest = available.reduce<Variant | null>((m, v) => (!m || parseFloat(v.price.amount) < parseFloat(m.price.amount) ? v : m), null);
-  const tassoVariant = available.find((v) => v.selectedOptions.some((o) => isTasso(o.value)));
-  const firstAvailable =
-    (tassoVariant && cheapest && parseFloat(tassoVariant.price.amount) <= parseFloat(cheapest.price.amount) ? tassoVariant : null) ??
-    cheapest ??
-    product.variants[0];
+  const firstAvailable = defaultVariant(product);
   // A ?variant= link (Google Shopping) wins over the default until the visitor picks something
   const urlVariant = useUrlVariant(product);
   const [picked, setPicked] = useState<Record<string, string> | null>(null);
@@ -166,7 +158,6 @@ export function PurchaseForm({
         </fieldset>
       ))}
 
-      {variant.selectedOptions.some((o) => isTasso(o.value)) && <TassoNote locale={locale} dict={dict} />}
 
       {/* Purchase option */}
       {hasPlans && (
@@ -294,7 +285,6 @@ export function PurchaseForm({
 }
 
 /** "Alle 3 Monate liefern, 20 % Rabatt" → { value: "3", unit: "Monate" } */
-const isTasso = (value: string) => /tasso/i.test(value);
 
 function planLabel(plan: { name: string; options: { name: string; value: string }[] }, locale: Locale): { value: string; unit: string } {
   const source = plan.options[0]?.value ?? plan.name;
