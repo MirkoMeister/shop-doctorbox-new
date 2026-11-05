@@ -5,6 +5,7 @@
  */
 export const MULTI_BUY: Record<string, { percent: number; discount: string }> = {
   "sti-pro-10": { percent: 20, discount: "STI Pro zu zweit" },
+  "sti-standard-5": { percent: 20, discount: "STI Standard zu zweit" },
 };
 
 /**
