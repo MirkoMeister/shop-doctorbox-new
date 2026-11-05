@@ -7,6 +7,7 @@ import {
   collectionTitle,
   decodeEntities,
   EXCLUDED_COLLECTIONS,
+  isListedProduct,
   isVisibleProduct,
   parseBiomarkers,
   reshapeProduct,
@@ -103,7 +104,7 @@ export async function getAllProducts(
       locale,
       tags: ["products"],
     });
-    out.push(...nodes(data.products).filter(isVisibleProduct).map(reshapeProductCard));
+    out.push(...nodes(data.products).filter(isListedProduct).map(reshapeProductCard));
     after = data.products.pageInfo.hasNextPage ? data.products.pageInfo.endCursor : null;
   } while (after);
   return applyReviewSummaries(out);
@@ -124,7 +125,7 @@ export async function getProductRecommendations(productId: string, locale: Local
       PRODUCT_RECOMMENDATIONS_QUERY,
       { variables: { productId }, locale, tags: ["products"] },
     );
-    return applyReviewSummaries((data.productRecommendations ?? []).filter(isVisibleProduct).map(reshapeProductCard).slice(0, 4));
+    return applyReviewSummaries((data.productRecommendations ?? []).filter(isListedProduct).map(reshapeProductCard).slice(0, 4));
   } catch {
     return [];
   }
@@ -208,7 +209,7 @@ export async function getCollection(
   });
   if (!data.collection) return null;
   const { products, heroImage, ...rest } = data.collection;
-  let cards = nodes(products).filter(isVisibleProduct).map(reshapeProductCard);
+  let cards = nodes(products).filter(isListedProduct).map(reshapeProductCard);
   // Supplements arrive via Shopify Collective and are not always assigned to the collection:
   // every product of that type belongs here.
   if (handle === SUPPLEMENTS_COLLECTION) {
@@ -340,7 +341,7 @@ export async function predictiveSearch(query: string, locale: Locale, limit = 6)
   const r = data.predictiveSearch;
   return {
     // ask for the maximum (10) and keep the best `limit` after our own ranking
-    products: rankSearchResults(query, (r?.products ?? []).filter(isVisibleProduct).map(reshapeProductCard)).slice(0, limit),
+    products: rankSearchResults(query, (r?.products ?? []).filter(isListedProduct).map(reshapeProductCard)).slice(0, limit),
     queries: r?.queries ?? [],
     collections: (r?.collections ?? [])
       .filter((c) => !EXCLUDED_COLLECTIONS.includes(c.handle))
@@ -374,7 +375,7 @@ export async function searchProducts(query: string, locale: Locale): Promise<Pro
       query,
       nodes(data.search)
         .filter((n) => n && "handle" in n)
-        .filter(isVisibleProduct)
+        .filter(isListedProduct)
         .map(reshapeProductCard),
     ),
   );

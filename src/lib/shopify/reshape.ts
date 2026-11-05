@@ -1,4 +1,5 @@
 import { metafieldToHtml, metafieldToLines } from "./metafield-html";
+import { UNLISTED_HANDLES } from "@/content/bundles";
 import type { Product, ProductCard, Variant } from "./types";
 
 /* Raw shapes coming back from GraphQL (only what we touch) */
@@ -186,6 +187,11 @@ export function isSupplement(p: { productType: string }): boolean {
 
 export function isVisibleProduct(p: { tags: string[] }): boolean {
   return !p.tags.some((t) => EXCLUDED_TAGS.includes(t));
+}
+
+/** Visible and meant for lists (overview, collections, search, recommendations); bundles only by link */
+export function isListedProduct(p: { tags: string[]; handle: string }): boolean {
+  return isVisibleProduct(p) && !UNLISTED_HANDLES.includes(p.handle);
 }
 
 /** Sample material metafield may hold "A | B" (one per variant) */

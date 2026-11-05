@@ -24,6 +24,7 @@ import { SupplementDetails } from "@/components/supplements/SupplementDetails";
 import { sameGoalSupplements, supplementsForTest, testsForSupplement } from "@/content/supplements";
 import { youngleContent } from "@/content/youngle-content";
 import { TassoBanner } from "@/components/home/TassoBanner";
+import { BUNDLE_OFFERS } from "@/content/bundles";
 import { isTassoVariant } from "@/components/product/default-variant";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
@@ -72,6 +73,15 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProduct(handle, locale);
   if (!product) notFound();
   const supplement = isSupplement(product);
+  // bundle offered under the add-to-cart button (e.g. STI Pro → Paar-Bundle)
+  const bundleProduct = BUNDLE_OFFERS[product.handle] ? await getProduct(BUNDLE_OFFERS[product.handle], locale).catch(() => null) : null;
+  const bundle = bundleProduct?.availableForSale
+    ? {
+        handle: bundleProduct.handle,
+        title: bundleProduct.title,
+        variants: bundleProduct.variants.map((v) => ({ id: v.id, title: v.title, price: v.price, availableForSale: v.availableForSale })),
+      }
+    : null;
   // Trusted Shops product reviews are matched by variant SKU (empty without API credentials)
   const reviews = await getProductReviews(reviewSkusFor(product.handle, product.variants.map((v) => v.sku)));
   const reviewSummary = summarize(reviews);
@@ -170,7 +180,7 @@ export default async function ProductPage({ params }: Props) {
       <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-8 lg:pt-8">
         <Breadcrumbs items={crumbs} className="mb-5" />
 
-        <ProductBuyBox product={product} locale={locale} dict={dict}>
+        <ProductBuyBox product={product} locale={locale} dict={dict} bundle={bundle}>
           <h1 className="h2 text-balance">
             {titleParts.main}
             {titleParts.sub && <span className="mt-1.5 block text-base font-medium tracking-normal text-ink-muted">{titleParts.sub}</span>}
