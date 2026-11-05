@@ -16,6 +16,8 @@ import { ProductGrid } from "@/components/product/ProductCard";
 import { localeHref } from "@/lib/i18n/config";
 import { resolveLocale } from "@/lib/locale-params";
 import { pageMetadata } from "@/lib/seo";
+import { shopRating } from "@/lib/reviews/shop-rating";
+import { getShopReviewSummary } from "@/lib/reviews/etrusted";
 import {
   getAllProducts,
   getCollection,
@@ -45,18 +47,9 @@ export default async function HomePage({ params }: Props) {
     getLatestArticles(locale, 3),
   ]);
 
-  // Aggregate rating across the catalogue (from the reviews metafields)
-  const rated = allProducts.filter((p) => p.rating && p.ratingCount > 0);
-  const count = rated.reduce((s, p) => s + p.ratingCount, 0);
-  const rating =
-    count > 0
-      ? {
-          value:
-            rated.reduce((s, p) => s + (p.rating ?? 0) * p.ratingCount, 0) /
-            count,
-          count,
-        }
-      : null;
+  // Trusted Shops shop rating as on the profile (same as the footer); product ratings only as fallback
+  const shop = await getShopReviewSummary();
+  const rating = shop ? { value: shop.rating, count: shop.count } : shopRating(allProducts);
 
   // "Most ordered": the curated top picks, ordered by how many customers reviewed them (our best
   // proxy for orders), filled up to two full rows with the most-reviewed other tests

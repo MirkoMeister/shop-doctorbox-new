@@ -87,7 +87,7 @@ export function Hero({
               <span className="stars" style={{ ["--pct" as string]: `${(rating.value / 5) * 100}%` }} aria-hidden />
               <span>
                 <strong className="font-semibold text-soft">
-                  {rating.value.toLocaleString(locale === "en" ? "en-GB" : "de-DE", { maximumFractionDigits: 1 })}
+                  {rating.value.toLocaleString(locale === "en" ? "en-GB" : "de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </strong>
                 {" / 5 "}
                 {locale === "en" ? `from ${rating.count.toLocaleString("en-GB")} reviews` : `aus ${rating.count.toLocaleString("de-DE")} Bewertungen`}

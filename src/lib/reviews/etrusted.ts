@@ -192,3 +192,37 @@ export async function applyReviewSummaries<T extends { handle: string; rating: n
     return s ? { ...c, rating: s.rating, ratingCount: s.count } : c;
   });
 }
+
+/** Public Trusted Shops profile of shop.doctorbox.de */
+export const TRUSTED_SHOPS_PROFILE = "https://www.trustedshops.de/bewertung/info_X2333AE4A2CF25C6293D9C3CD98084EAF.html";
+
+/**
+ * Shop (service) rating as Trusted Shops shows it on the profile: grade of the last 12 months and the
+ * number of all reviews. Cached for an hour; null without API credentials or on errors.
+ */
+export async function getShopReviewSummary(): Promise<{ rating: number; count: number } | null> {
+  if (!etrustedConfigured() || !process.env.ETRUSTED_CHANNEL_ID) return null;
+  try {
+    return await cachedShopReviewSummary();
+  } catch (err) {
+    console.warn("[etrusted] shop rating", err instanceof Error ? err.message : err);
+    return null;
+  }
+}
+
+const cachedShopReviewSummary = unstable_cache(
+  async () => {
+    const bearer = await accessToken();
+    const res = await fetch(`${API}/channels/${process.env.ETRUSTED_CHANNEL_ID}/service-reviews/aggregate-rating`, {
+      headers: { Authorization: `Bearer ${bearer}`, Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error(`eTrusted aggregate ${res.status}`);
+    const json = (await res.json()) as Record<string, { count: number; rating: number } | undefined>;
+    const year = json["365days"];
+    const overall = json.overall;
+    if (!year?.rating || !overall?.count) return null;
+    return { rating: year.rating, count: overall.count };
+  },
+  ["etrusted-shop-rating"],
+  { revalidate: 3600, tags: ["reviews"] },
+);

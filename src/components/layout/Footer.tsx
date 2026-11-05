@@ -3,13 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n/config";
 import { localeHref } from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 import type { Collection } from "@/lib/shopify/types";
 import { NewsletterForm } from "./NewsletterForm";
 import { PinIcon } from "@/components/ui/Icons";
 import { APP_STORE_URL, PLAY_STORE_URL, REGISTER_TEST_URL } from "@/lib/links";
+import { getShopReviewSummary, TRUSTED_SHOPS_PROFILE } from "@/lib/reviews/etrusted";
 
-export function Footer({
+export async function Footer({
   locale,
   dict,
   collections,
@@ -20,6 +21,9 @@ export function Footer({
 }) {
   const href = (p: string) => localeHref(locale, p);
   const year = new Date().getFullYear();
+  // Trusted Shops shop rating as on the profile, fetched by our server (no Trusted Shops script in the browser)
+  const shop = await getShopReviewSummary();
+  const rating = shop ? { value: shop.rating, count: shop.count } : null;
 
   const columns: { title: string; links: { label: string; href: string; external?: boolean; withdraw?: boolean }[] }[] = [
     {
@@ -79,6 +83,23 @@ export function Footer({
               <PinIcon width={18} height={18} className="mt-0.5 shrink-0 text-turquoise" />
               {dict.footer.pickup}
             </p>
+            {rating && (
+              <a
+                href={TRUSTED_SHOPS_PROFILE}
+                target="_blank"
+                rel="noopener"
+                className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-soft/80 hover:text-white"
+              >
+                <span className="stars" style={{ ["--pct" as string]: `${(rating.value / 5) * 100}%` }} aria-hidden />
+                <span>
+                  <strong className="font-semibold text-soft">
+                    {rating.value.toLocaleString(locale === "en" ? "en-GB" : "de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </strong>
+                  {" / 5 · "}
+                  {fill(dict.footer.ratingSource, { n: rating.count.toLocaleString(locale === "en" ? "en-GB" : "de-DE") })}
+                </span>
+              </a>
+            )}
             <div className="mt-8">
               <h3 className="font-semibold">{dict.footer.newsletterTitle}</h3>
               <p className="mt-1 text-sm text-soft/70">{dict.footer.newsletterText}</p>
