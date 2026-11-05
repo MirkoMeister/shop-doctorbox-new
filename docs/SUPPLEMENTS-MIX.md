@@ -12,13 +12,14 @@ Seite `/vitamine` (nur Deutsch, `noindex`, nirgends verlinkt, nicht in der Sitem
 | Einstieg, Demo-Hinweis, Einwilligung (nicht vorausgewählt, Ablehnung → selbst zusammenstellen) | **Demo** |
 | Fragebogen aus `questionnaire.de.json`: 4 Gruppen mit Fortschritt, Pflichtfelder, exklusive Antworten, max. 3 Ziele, Folgefrage „bereits eingenommene Nährstoffe“, Verzweigungs- und Risikoregeln | **Demo** (Logik vollständig nach JSON) |
 | Ergebnis-Zustände `ready` / `insufficient_data` / `not_supported` / `rule_configuration_missing` | **Demo**: `ready` zeigt nur den gekennzeichneten Beispielmix aus dem Briefing (Vitamin D3 20 µg, Magnesium 200 mg), unabhängig von den Antworten |
+| Zutatenkatalog: live aus Riises öffentlichem Katalog (`GET /ingredient/all`, aktiv + B2B, derzeit 32 Zutaten, 1× täglich aktualisiert); Ersatz bei Ausfall: die 7 Nährstoffe des Briefings. Nur eine Form je Nährstoff (Folsäure oder L-5-MTHF). Keine Mengen oder Preise aus dem Katalog | **Live-Daten, nur lesend** |
 | Rezeptur-Editor: Nährstoffe hinzufügen/entfernen, Mengen mit Komma, exakte µg→mg-Umrechnung als Dezimal-String, Omega-3 als eigenes Produkt (Ausschluss bei Fischallergie, vegetarisch, vegan) | **Demo** (nur Formatprüfung, keine Grenzen) |
 | Warenkorb mit Positionsattributen `_db_formula_mg`, `_db_catalog_version`, `_db_mix_ref` | **Simulation**, nichts geht an Shopify |
 | Zahlung, Prüfung, Riise-Übergabe, Versandstatus, Riise-Auftragsdaten (Beispielkunde aus dem Briefing) | **Simulation**, nichts geht an Riise |
 
 Antworten bleiben im Arbeitsspeicher des Browserfensters: keine URL-Parameter, kein Speicher, keine Analytics-Ereignisse, keine Netzwerkaufrufe.
 
-Code: `src/lib/supplement-mix/engine.ts` (Regeln, Mengen, Empfehlungs-Zustände), `src/content/supplement-mix/catalog.ts` (Riise-IDs aus dem Briefing), `src/components/supplement-mix/MixFlow.tsx` (Ablauf).
+Code: `src/lib/supplement-mix/engine.ts` (Regeln, Mengen, Empfehlungs-Zustände), `src/lib/supplement-mix/riise-catalog.ts` (Riise-Katalog), `src/content/supplement-mix/catalog.ts` (Ersatzliste, Omega-3, Beispielmix), `src/components/supplement-mix/MixFlow.tsx` (Ablauf).
 
 ## Nicht gebaut (bewusst)
 

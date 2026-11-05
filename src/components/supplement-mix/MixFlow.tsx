@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { CheckIcon, CloseIcon } from "@/components/ui/Icons";
-import { DEMO_EXAMPLE, MIX_MONTHS, NUTRIENTS, OMEGA3, type Nutrient } from "@/content/supplement-mix/catalog";
+import { DEMO_EXAMPLE, MIX_MONTHS, OMEGA3, type Nutrient } from "@/content/supplement-mix/catalog";
 import {
   applyClears,
   DEMO_CTX,
@@ -24,7 +24,6 @@ type Step = "intro" | "demo" | "consent" | "questions" | "result" | "editor" | "
 type Row = { key: string; input: string };
 
 const ctx = DEMO_CTX;
-const nutrient = (key: string) => NUTRIENTS.find((n) => n.key === key);
 const unitLabel = (u: "mg" | "ug") => (u === "ug" ? "µg" : "mg");
 /** groups after consent, in questionnaire order */
 const GROUPS = Q.groups.filter((g) => g.id !== "start");
@@ -33,7 +32,8 @@ const GROUPS = Q.groups.filter((g) => g.id !== "start");
  * Personalised mix, phase 1: the complete flow as a demo in the browser. Answers live in memory only
  * (no URL, storage, analytics, Shopify or Riise); cart, payment and handover to Riise are simulated.
  */
-export function MixFlow() {
+export function MixFlow({ nutrients, live }: { nutrients: Nutrient[]; live: boolean }) {
+  const nutrient = (key: string) => nutrients.find((n) => n.key === key);
   const [step, setStep] = useState<Step>("intro");
   const [answers, setAnswers] = useState<Answers>({});
   const [groupIndex, setGroupIndex] = useState(0);
@@ -68,7 +68,7 @@ export function MixFlow() {
     const amount = parseAmount(r.input);
     return { n, input: r.input, amount, mg: amount ? toMg(amount, n.unit) : null };
   });
-  const formulaValid = formula.length > 0 && formula.every((f) => f.mg && f.n.riiseId);
+  const formulaValid = formula.length > 0 && formula.every((f) => f.mg);
 
   function startEditor(items: FormulaItem[], suggested: boolean) {
     setRows(items.map((i) => ({ key: i.nutrientKey, input: i.amount.replace(".", ",") })));
@@ -81,7 +81,7 @@ export function MixFlow() {
 
 
   const cartAttributes = [
-    { key: "_db_formula_mg", value: JSON.stringify(formula.filter((f) => f.mg).map((f) => ({ ingredientId: f.n.riiseId, quantity: f.mg }))) },
+    { key: "_db_formula_mg", value: JSON.stringify(formula.filter((f) => f.mg).map((f) => ({ ingredientId: f.n.key, quantity: f.mg }))) },
     { key: "_db_catalog_version", value: "DEMO-ONLY" },
     { key: "_db_mix_ref", value: mixRef },
   ];
@@ -135,7 +135,7 @@ export function MixFlow() {
           <h2 className="h3 mt-6">{group.title}</h2>
           <div className="mt-5 grid gap-6">
             {groupQuestions.map((q) => (
-              <QuestionField key={q.id} q={q} value={answers[q.id]} onChange={(v) => set(q.id, v)} invalid={showMissing && missing.includes(q.id)} />
+              <QuestionField key={q.id} nutrients={nutrients} q={q} value={answers[q.id]} onChange={(v) => set(q.id, v)} invalid={showMissing && missing.includes(q.id)} />
             ))}
           </div>
           {showMissing && missing.length > 0 && (
@@ -233,6 +233,9 @@ export function MixFlow() {
           <p className="mt-1 text-sm text-ink-muted">
             Tagesmengen pro Nährstoff, Laufzeit {MIX_MONTHS} Monate. Grenzen, Schrittweiten und Preise folgen mit den Produktregeln; bis dahin wird nur das Zahlenformat geprüft.
           </p>
+          <p className="mt-1 text-xs text-ink-muted">
+            {live ? `Zutaten: aktueller Riise-Katalog (${nutrients.length} für B2B verfügbare Zutaten).` : "Zutaten: Ersatzliste aus dem Briefing (Riise-Katalog gerade nicht erreichbar)."}
+          </p>
           <ul className="mt-5 grid gap-3">
             {formula.map((f, idx) => (
               <li key={f.n.key} className="rounded-2xl border border-line bg-white p-4">
@@ -257,11 +260,11 @@ export function MixFlow() {
                   <span>{unitLabel(f.n.unit)}</span>
                 </label>
                 {!f.amount && <p className="mt-1 text-sm text-[#b42318]">Bitte eine Zahl größer als 0 eingeben, z. B. 20 oder 0,5.</p>}
-                {f.mg && <p className="mt-1 text-xs text-ink-muted">An Riise: {f.mg} mg (ID {f.n.riiseId})</p>}
+                {f.mg && <p className="mt-1 text-xs text-ink-muted">An Riise: {f.mg} mg (ID {f.n.key})</p>}
               </li>
             ))}
           </ul>
-          <AddNutrient used={rows.map((r) => r.key)} onAdd={(n) => { setRows((r) => [...r, { key: n.key, input: "" }]); setEdited(true); }} />
+          <AddNutrient nutrients={nutrients} used={rows.map((r) => r.key)} onAdd={(n) => { setRows((r) => [...r, { key: n.key, input: "" }]); setEdited(true); }} />
           <label className={`mt-5 flex items-start gap-3 rounded-2xl border p-4 ${omega3Excluded ? "border-line bg-surface opacity-60" : "border-line bg-white"}`}>
             <input type="checkbox" checked={omega3 && !omega3Excluded} disabled={omega3Excluded} onChange={(e) => setOmega3(e.target.checked)} className="mt-1 accent-[var(--color-green)]" />
             <span>
@@ -316,7 +319,7 @@ export function MixFlow() {
       )}
 
       {step === "order" && (
-        <OrderSimulation state={orderState} onNext={() => setOrderState((s) => Math.min(s + 1, ORDER_STATES.length - 1))} formula={formula.map((f) => ({ ingredientId: f.n.riiseId!, quantity: f.mg! }))} omega3={omega3 && !omega3Excluded} mixRef={mixRef} onRestart={() => { setAnswers({}); setRows([]); go("intro"); }} />
+        <OrderSimulation state={orderState} onNext={() => setOrderState((s) => Math.min(s + 1, ORDER_STATES.length - 1))} formula={formula.map((f) => ({ ingredientId: f.n.key, quantity: f.mg! }))} omega3={omega3 && !omega3Excluded} mixRef={mixRef} onRestart={() => { setAnswers({}); setRows([]); go("intro"); }} />
       )}
 
       {/* flags of the current answers, for the demo review */}
@@ -361,11 +364,13 @@ function Consent({ onAccept, onDecline }: { onAccept: () => void; onDecline: () 
 }
 
 function QuestionField({
+  nutrients,
   q,
   value,
   onChange,
   invalid,
 }: {
+  nutrients: Nutrient[];
   q: Question;
   value: Answers[string];
   onChange: (v: Answers[string] | ((prev: Answers[string]) => Answers[string])) => void;
@@ -379,7 +384,7 @@ function QuestionField({
   );
   const pill = (on: boolean) => `rounded-full border px-4 py-2 text-sm font-medium transition-colors ${on ? "border-green bg-green text-white" : "border-line bg-white hover:border-ink"}`;
 
-  if (q.type === "ingredient_intake_repeater") return <IntakeRepeater q={q} rows={(value as IntakeRow[]) ?? []} onChange={onChange} legend={legend} />;
+  if (q.type === "ingredient_intake_repeater") return <IntakeRepeater nutrients={nutrients} q={q} rows={(value as IntakeRow[]) ?? []} onChange={onChange} legend={legend} />;
   return (
     <fieldset className={`rounded-2xl ${invalid ? "ring-2 ring-[#b42318] ring-offset-4" : ""}`}>
       {legend}
@@ -407,7 +412,7 @@ function QuestionField({
   );
 }
 
-function IntakeRepeater({ q, rows, onChange, legend }: { q: Question; rows: IntakeRow[]; onChange: (v: IntakeRow[]) => void; legend: React.ReactNode }) {
+function IntakeRepeater({ nutrients, q, rows, onChange, legend }: { nutrients: Nutrient[]; q: Question; rows: IntakeRow[]; onChange: (v: IntakeRow[]) => void; legend: React.ReactNode }) {
   const [nutrientField, statusField] = q.fields!;
   const update = (i: number, patch: Partial<IntakeRow>) => onChange(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
   const field = "h-10 rounded-xl border border-line bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise/60";
@@ -421,7 +426,7 @@ function IntakeRepeater({ q, rows, onChange, legend }: { q: Question; rows: Inta
             <div className="flex items-center justify-between gap-2">
               <select value={r.ingredientKey ?? ""} onChange={(e) => update(i, { ingredientKey: e.target.value })} className={field} aria-label={nutrientField.label}>
                 <option value="">{nutrientField.label} wählen</option>
-                {NUTRIENTS.map((n) => (
+                {nutrients.map((n) => (
                   <option key={n.key} value={n.key}>
                     {n.label}
                   </option>
@@ -466,17 +471,18 @@ function IntakeRepeater({ q, rows, onChange, legend }: { q: Question; rows: Inta
   );
 }
 
-function AddNutrient({ used, onAdd }: { used: string[]; onAdd: (n: Nutrient) => void }) {
-  const free = NUTRIENTS.filter((n) => !used.includes(n.key));
+function AddNutrient({ nutrients, used, onAdd }: { nutrients: Nutrient[]; used: string[]; onAdd: (n: Nutrient) => void }) {
+  const free = nutrients.filter((n) => !used.includes(n.key));
+  // only one form per nutrient (e.g. folic acid or L-5-MTHF)
+  const usedGroups = new Set(nutrients.filter((n) => used.includes(n.key) && n.group).map((n) => n.group));
   if (!free.length) return null;
   return (
     <div className="mt-4">
       <p className="text-sm font-medium">Nährstoff hinzufügen</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {free.map((n) => (
-          <button key={n.key} type="button" disabled={!n.riiseId} title={n.note} onClick={() => onAdd(n)} className="rounded-full border border-line bg-white px-3.5 py-1.5 text-sm hover:border-ink disabled:cursor-not-allowed disabled:opacity-50">
+          <button key={n.key} type="button" disabled={!!n.group && usedGroups.has(n.group)} title={n.form} onClick={() => onAdd(n)} className="rounded-full border border-line bg-white px-3.5 py-1.5 text-sm hover:border-ink disabled:cursor-not-allowed disabled:opacity-50">
             + {n.label}
-            {!n.riiseId && " (Form offen)"}
           </button>
         ))}
       </div>

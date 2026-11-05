@@ -1,29 +1,32 @@
 import type { FormulaItem } from "@/lib/supplement-mix/engine";
 
 /**
- * Demo catalogue of the personalised mix (Riise), from the briefing (section 6, 05.11.2026).
- * Names, forms, Riise ingredient IDs and display units only: no dose limits, steps or prices,
- * because the product rulebook (product-rules.template.json) is still inactive.
+ * Ingredient catalogue of the personalised mix (Riise). Names, forms and Riise IDs come live from
+ * Riise's public catalogue (lib/supplement-mix/riise-catalog.ts); this file holds the fallback and the
+ * demo pieces. No dose limits, steps or prices: the product rulebook is still inactive.
  */
 export type Nutrient = {
+  /** Riise ingredient ID */
   key: string;
   label: string;
-  /** form that Riise produces; shown so the label matches the product */
+  /** form that Riise produces (scientific name from the catalogue) */
   form: string;
-  /** current Riise ingredient ID; null while the form is undecided (not orderable) */
-  riiseId: string | null;
+  /** display unit; the canonical amount sent to Riise is always mg */
   unit: "mg" | "ug";
-  note?: string;
+  /** forms of the same nutrient that may not be combined (e.g. folic acid and L-5-MTHF) */
+  group?: string;
 };
 
-export const NUTRIENTS: Nutrient[] = [
-  { key: "vitamin-d", label: "Vitamin D3", form: "Cholecalciferol", riiseId: "28", unit: "ug" },
-  { key: "b12", label: "Vitamin B12", form: "Methylcobalamin", riiseId: "34", unit: "ug" },
-  { key: "magnesium", label: "Magnesium", form: "Magnesiumbisglycinat", riiseId: "39", unit: "mg" },
-  { key: "iron", label: "Eisen", form: "Eisengluconat", riiseId: "11", unit: "mg" },
-  { key: "zinc", label: "Zink", form: "Zinkbisglycinat", riiseId: "31", unit: "mg" },
-  { key: "folate", label: "Folat", form: "Folsäure oder L-5-MTHF, Form noch festzulegen", riiseId: null, unit: "ug", note: "Die Form (Riise-ID 26 oder 33) ist noch nicht festgelegt." },
-  { key: "selenium", label: "Selen", form: "Natriumselenit", riiseId: "17", unit: "ug" },
+/** Fallback when Riise's catalogue cannot be loaded: the seven nutrients of the briefing (05.11.2026) */
+export const FALLBACK_NUTRIENTS: Nutrient[] = [
+  { key: "28", label: "Vitamin D3", form: "Vitamin D3 aus Rentierflechte", unit: "ug" },
+  { key: "34", label: "Vitamin B12 (Methylcobalamin)", form: "Methylcobalamin", unit: "ug", group: "b12" },
+  { key: "39", label: "Magnesium (Bisglycinat)", form: "Magnesium bisglycinate", unit: "mg", group: "magnesium" },
+  { key: "11", label: "Eisen", form: "Ferrous gluconate", unit: "mg" },
+  { key: "31", label: "Zink", form: "Zinc bisglycinate", unit: "mg" },
+  { key: "26", label: "Vitamin B9 (Folsäure)", form: "Pteroylmonoglutamic acid", unit: "ug", group: "folate" },
+  { key: "33", label: "Vitamin B9 (L-5-MTHF)", form: "L-5-MTHF", unit: "ug", group: "folate" },
+  { key: "17", label: "Selen", form: "Sodium selenite", unit: "ug" },
 ];
 
 /** Separate, separately priced product: fish oil softgels, 3 months (Riise order.omega3) */
@@ -34,10 +37,10 @@ export const OMEGA3 = {
   tags: ["contains_fish", "non_vegetarian", "non_vegan"],
 };
 
-/** The briefing's example structure (DEMO_EXAMPLE), not a personal recommendation */
+/** The briefing's example structure (DEMO_EXAMPLE), not a personal recommendation: Vitamin D3 and magnesium bisglycinate */
 export const DEMO_EXAMPLE: FormulaItem[] = [
-  { nutrientKey: "vitamin-d", amount: "20", unit: "ug" },
-  { nutrientKey: "magnesium", amount: "200", unit: "mg" },
+  { nutrientKey: "28", amount: "20", unit: "ug" },
+  { nutrientKey: "39", amount: "200", unit: "mg" },
 ];
 
 /** Mix runtime of the MVP: one pack, three months, one-time purchase */
