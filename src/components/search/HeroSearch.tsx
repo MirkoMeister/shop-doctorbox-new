@@ -6,25 +6,40 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import { SearchIcon } from "@/components/ui/Icons";
-import { AssistantHeroButton } from "@/components/assistant/AssistantButtons";
+import { ArrowRight, SearchIcon } from "@/components/ui/Icons";
+import { useAssistant } from "@/components/assistant/AssistantProvider";
+import { MiraAvatar } from "@/components/assistant/MiraAvatar";
 import { SearchResults } from "./SearchResults";
 import { POPULAR_SEARCHES } from "@/content/search-suggestions";
 import { useSearch } from "./useSearch";
 
+type Mode = "mira" | "search";
 
-/** The hero's intelligent search: big pill input with live product suggestions. */
-export function HeroSearch({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+/**
+ * The hero's search with a toggle: "Test suchen" (default) is the search with live product suggestions;
+ * "Mira fragen" sends the text to the assistant, which also understands symptoms and vague questions.
+ */
+export function HeroSearch({
+  locale,
+  dict,
+}: {
+  locale: Locale;
+  dict: Dictionary;
+}) {
+  const [mode, setMode] = useState<Mode>("search");
+  const mira = mode === "mira";
+  const { ask, setOpen: openMira } = useAssistant();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [active, setActive] = useState(-1);
-  const { result, loading } = useSearch(query, locale);
+  // no search requests while the field is talking to Mira
+  const { result, loading } = useSearch(mira ? "" : query, locale);
   const router = useRouter();
   const wrapRef = useRef<HTMLDivElement>(null);
   const id = useId();
 
   const total = result.products.length + Math.min(result.queries.length, 5);
-  const open = focused && query.trim().length >= 2;
+  const open = !mira && focused && query.trim().length >= 2;
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -37,16 +52,28 @@ export function HeroSearch({ locale, dict }: { locale: Locale; dict: Dictionary 
   function submit(e?: React.FormEvent) {
     e?.preventDefault();
     const q = query.trim();
+    if (mira) {
+      if (q) ask(q);
+      else openMira(true);
+      setQuery("");
+      return;
+    }
     if (!q) return;
     if (active >= 0) {
       if (active < result.products.length) {
-        router.push(localeHref(locale, `/products/${result.products[active].handle}`));
+        router.push(
+          localeHref(locale, `/products/${result.products[active].handle}`),
+        );
       } else {
         const s = result.queries[active - result.products.length];
-        router.push(`${localeHref(locale, "/search")}?q=${encodeURIComponent(s.text)}`);
+        router.push(
+          `${localeHref(locale, "/search")}?q=${encodeURIComponent(s.text)}`,
+        );
       }
     } else {
-      router.push(`${localeHref(locale, "/search")}?q=${encodeURIComponent(q)}`);
+      router.push(
+        `${localeHref(locale, "/search")}?q=${encodeURIComponent(q)}`,
+      );
     }
     setFocused(false);
   }
@@ -66,7 +93,41 @@ export function HeroSearch({ locale, dict }: { locale: Locale; dict: Dictionary 
 
   return (
     <div ref={wrapRef} className="relative w-full max-w-2xl">
-      <form onSubmit={submit} role="search" className="relative">
+      <div
+        role="radiogroup"
+        aria-label={dict.hero.modeLabel}
+        className="mb-3 inline-flex rounded-full bg-white/10 p-1 text-sm font-medium"
+      >
+        {(["search", "mira"] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            role="radio"
+            aria-checked={mode === m}
+            onClick={() => {
+              setMode(m);
+              setActive(-1);
+            }}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 transition-colors ${
+              mode === m
+                ? "bg-white text-moss shadow-card"
+                : "text-soft/85 hover:text-soft"
+            }`}
+          >
+            {m === "mira" ? (
+              <MiraAvatar size={22} className="-ml-1.5" />
+            ) : (
+              <SearchIcon width={16} height={16} />
+            )}
+            {m === "mira" ? dict.hero.modeMira : dict.hero.modeSearch}
+          </button>
+        ))}
+      </div>
+      <form
+        onSubmit={submit}
+        role={mira ? undefined : "search"}
+        className="relative"
+      >
         <label htmlFor={id} className="sr-only">
           {dict.nav.search}
         </label>
@@ -75,13 +136,21 @@ export function HeroSearch({ locale, dict }: { locale: Locale; dict: Dictionary 
             focused ? "ring-turquoise" : "ring-transparent"
           }`}
         >
-          <SearchIcon width={22} height={22} className="shrink-0 text-green" />
+          {mira ? (
+            <MiraAvatar size={28} className="-ml-2 shrink-0" />
+          ) : (
+            <SearchIcon
+              width={22}
+              height={22}
+              className="shrink-0 text-green"
+            />
+          )}
           <input
             id={id}
-            type="search"
-            inputMode="search"
+            type={mira ? "text" : "search"}
+            inputMode={mira ? "text" : "search"}
             autoComplete="off"
-            enterKeyHint="search"
+            enterKeyHint={mira ? "send" : "search"}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -89,25 +158,36 @@ export function HeroSearch({ locale, dict }: { locale: Locale; dict: Dictionary 
             }}
             onFocus={() => setFocused(true)}
             onKeyDown={onKey}
-            placeholder={dict.hero.placeholder}
-            role="combobox"
-            aria-autocomplete="list"
-            aria-controls="search-listbox"
-            aria-expanded={open}
+            placeholder={
+              mira ? dict.hero.miraPlaceholder : dict.hero.placeholder
+            }
+            role={mira ? undefined : "combobox"}
+            aria-autocomplete={mira ? undefined : "list"}
+            aria-controls={mira ? undefined : "search-listbox"}
+            aria-expanded={mira ? undefined : open}
             className="h-12 min-w-0 flex-1 bg-transparent text-[1.0625rem] placeholder:text-ink-muted/70 focus:outline-none sm:h-14 sm:text-lg [&::-webkit-search-cancel-button]:appearance-none"
           />
-          <button type="submit" className="btn btn-primary hidden sm:inline-flex">
-            {dict.search.submit}
+          <button
+            type="submit"
+            className="btn btn-primary hidden sm:inline-flex"
+          >
+            {mira ? dict.hero.miraSubmit : dict.search.submit}
           </button>
-          <button type="submit" className="btn btn-primary !px-3 sm:hidden" aria-label={dict.search.submit}>
-            <SearchIcon width={20} height={20} />
+          <button
+            type="submit"
+            className="btn btn-primary !px-3 sm:hidden"
+            aria-label={mira ? dict.hero.miraSubmit : dict.search.submit}
+          >
+            {mira ? <ArrowRight width={20} height={20} /> : <SearchIcon width={20} height={20} />}
           </button>
         </div>
       </form>
 
       <div
         className={`absolute left-0 right-0 top-full z-30 mt-3 origin-top transition-all duration-150 ${
-          open ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0"
+          open
+            ? "visible translate-y-0 opacity-100"
+            : "invisible -translate-y-1 opacity-0"
         }`}
       >
         <SearchResults
@@ -123,17 +203,31 @@ export function HeroSearch({ locale, dict }: { locale: Locale; dict: Dictionary 
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
-        <AssistantHeroButton label={dict.assistant.heroCta} />
-        <span className="ml-2 mr-1 text-soft/70">{dict.hero.popular}</span>
-        {POPULAR_SEARCHES[locale].slice(0, 7).map((p) => (
-          <Link
-            key={p}
-            href={`${localeHref(locale, "/search")}?q=${encodeURIComponent(p)}`}
-            className="rounded-full border border-white/25 px-3 py-1.5 text-soft transition-colors hover:border-white/60 hover:bg-white/10"
-          >
-            {p}
-          </Link>
-        ))}
+        {mira ? (
+          dict.hero.miraExamples.map((q) => (
+            <button
+              key={q}
+              type="button"
+              onClick={() => ask(q)}
+              className="rounded-full border border-white/25 px-3 py-1.5 text-left text-soft transition-colors hover:border-white/60 hover:bg-white/10"
+            >
+              {q}
+            </button>
+          ))
+        ) : (
+          <>
+            <span className="mr-1 text-soft/70">{dict.hero.popular}</span>
+            {POPULAR_SEARCHES[locale].slice(0, 7).map((p) => (
+              <Link
+                key={p}
+                href={`${localeHref(locale, "/search")}?q=${encodeURIComponent(p)}`}
+                className="rounded-full border border-white/25 px-3 py-1.5 text-soft transition-colors hover:border-white/60 hover:bg-white/10"
+              >
+                {p}
+              </Link>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
