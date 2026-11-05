@@ -27,45 +27,78 @@ export function BundleOffer({
   dict: Dictionary;
 }) {
   const { add, pending } = useCart();
-  const [added, setAdded] = useState<string | null>(null);
+  const [added, setAdded] = useState(false);
   const t = dict.product;
-  const unit = Number(variant.price.amount);
-  // Shopify takes the discount off per kit and rounds it down to the cent
-  const offer = (Math.round(unit * 100) - Math.floor(unit * percent)) / 100;
-  const money = (n: number) => formatMoney({ amount: String(n), currencyCode: variant.price.currencyCode }, locale);
   const seconds = variants.filter((v) => v.availableForSale);
+  // the second kit defaults to the same variant; a couple often wants the other one, so both are offered
+  const [secondId, setSecondId] = useState<string | null>(null);
+  const second = seconds.find((v) => v.id === secondId) ?? seconds.find((v) => v.id === variant.id) ?? seconds[0];
+  if (!second) return null;
 
-  async function addPair(second: Variant) {
-    const lines = second.id === variant.id ? [{ merchandiseId: variant.id, quantity: 2 }] : [{ merchandiseId: variant.id, quantity: 1 }, { merchandiseId: second.id, quantity: 1 }];
+  const unit = Number(variant.price.amount);
+  const unit2 = Number(second.price.amount);
+  // Shopify takes the discount off per kit and rounds it down to the cent
+  const off = (n: number) => (Math.round(n * 100) - Math.floor(n * percent)) / 100;
+  const full = unit + unit2;
+  const pair = off(unit) + off(unit2);
+  const money = (n: number) => formatMoney({ amount: String(Math.round(n * 100) / 100), currencyCode: variant.price.currencyCode }, locale);
+
+  async function addPair() {
+    const lines =
+      second!.id === variant.id
+        ? [{ merchandiseId: variant.id, quantity: 2 }]
+        : [
+            { merchandiseId: variant.id, quantity: 1 },
+            { merchandiseId: second!.id, quantity: 1 },
+          ];
     let ok = true;
     for (const line of lines) ok = (await add(line)) && ok;
     if (ok) {
-      setAdded(second.id);
-      setTimeout(() => setAdded(null), 2000);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
     }
   }
 
   return (
-    <aside className="rounded-2xl border border-green/40 bg-lind/30 p-4" aria-label={t.bundleKicker}>
-      <p className="font-semibold text-moss">{t.bundleKicker}</p>
-      <p className="mt-1 text-sm leading-snug text-ink">
-        {fill(t.bundleSave, { percent, price: money(offer * 2), double: money(unit * 2), saving: money(unit * 2 - offer * 2) })}
-      </p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {seconds.map((v) => (
-          <button key={v.id} type="button" onClick={() => addPair(v)} disabled={pending} className="btn btn-secondary btn-sm">
-            {added === v.id ? (
-              <>
-                <CheckIcon width={16} height={16} /> {t.added}
-              </>
-            ) : seconds.length > 1 ? (
-              fill(t.bundleAddSecond, { variant: v.title })
-            ) : (
-              t.bundleAdd
-            )}
-          </button>
-        ))}
-      </div>
+    <aside className="rounded-2xl border border-green/40 bg-lind/30 p-4" aria-label={fill(t.bundleKicker, { percent })}>
+      <p className="font-semibold text-moss">{fill(t.bundleKicker, { percent })}</p>
+      <dl className="mt-3 grid gap-2 text-sm">
+        <div className="flex flex-wrap items-baseline gap-x-2">
+          <dt className="text-ink-muted">{t.bundleYours}:</dt>
+          <dd className="font-medium">{variant.title}</dd>
+        </div>
+        <div>
+          <dt className="text-ink-muted">{t.bundleSecond}:</dt>
+          <dd className="mt-1.5 flex flex-wrap gap-2">
+            {seconds.map((v) => {
+              const on = v.id === second.id;
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setSecondId(v.id)}
+                  aria-pressed={on}
+                  className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${on ? "border-green bg-green text-white" : "border-line bg-white hover:border-ink"}`}
+                >
+                  {v.title}
+                </button>
+              );
+            })}
+          </dd>
+        </div>
+      </dl>
+      <button type="button" onClick={addPair} disabled={pending} className="btn btn-secondary mt-4 w-full sm:w-auto">
+        {added ? (
+          <>
+            <CheckIcon width={16} height={16} /> {t.added}
+          </>
+        ) : (
+          <>
+            {t.bundleAdd} <span className="opacity-80">·</span> {money(pair)} <s className="font-normal opacity-70">{money(full)}</s>
+          </>
+        )}
+      </button>
+      <p className="mt-2 text-xs text-ink-muted">{fill(t.bundleNote, { saving: money(full - pair) })}</p>
     </aside>
   );
 }
