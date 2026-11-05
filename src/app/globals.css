@@ -573,6 +573,12 @@ html[data-assistant-open] [class*="kl-teaser-"] {
   [class*="kl-teaser-"] {
     display: none !important;
   }
+  /* iubenda's floating consent button (lock) covers the sticky cart and checkout bars on phones; consent stays
+     changeable through "Cookie-Einstellungen" in the footer and the menu (class iubenda-cs-preferences-link) */
+  /* iubenda's own rules are !important with long :not() chains, so the selector needs more weight */
+  html body .iubenda-tp-btn.iubenda-tp-btn.iubenda-cs-preferences-link[data-tp-float][data-tp-anchored] {
+    display: none !important;
+  }
 }
 
 /* Home hero photo on wide screens: mirrored and moved right, so the person stands beside the copy, not behind the title */
