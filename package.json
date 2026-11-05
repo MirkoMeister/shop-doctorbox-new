@@ -5,7 +5,7 @@
   "scripts": {
     "predev": "node scripts/build-images.mjs",
     "dev": "next dev -H 0.0.0.0",
-    "prebuild": "node scripts/build-images.mjs",
+    "prebuild": "node scripts/build-images.mjs && node scripts/deployment-id.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

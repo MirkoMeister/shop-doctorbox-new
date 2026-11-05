@@ -1,4 +1,6 @@
+import { existsSync, readFileSync } from "node:fs";
 import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
 /**
  * Shopify keeps serving the agent-commerce endpoints (UCP profile, UCP MCP server)
@@ -75,4 +77,15 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+/**
+ * Version skew protection: the ID comes from scripts/deployment-id.mjs (prebuild) and is the same in
+ * the build and the running server. Tabs opened before a deploy then reload on their next navigation.
+ */
+function deploymentId(phase: string): string | undefined {
+  if (phase === PHASE_DEVELOPMENT_SERVER || !existsSync(".deployment-id")) return undefined;
+  return readFileSync(".deployment-id", "utf8").trim() || undefined;
+}
+
+export default function config(phase: string): NextConfig {
+  return { ...nextConfig, deploymentId: deploymentId(phase) };
+}
