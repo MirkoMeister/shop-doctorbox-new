@@ -120,3 +120,35 @@ export const supplementsForTest = (handle: string): string[] => TEST_SUPPLEMENTS
 
 /** The other products of the supplement's goal group (empty when it is in no group) */
 export const sameGoalSupplements = (handle: string): string[] => de.groups.find((g) => g.handles.includes(handle))?.handles ?? [];
+
+/**
+ * Home section "Erst messen, dann ergänzen": per goal the test that measures it and one supplement for it.
+ * Editorial, change freely; a pair whose test or supplement is not for sale is left out.
+ */
+export const HOME_PAIRS: { goal: string; test: string; supplement: string }[] = [
+  { goal: "immun", test: "vitamin-d-test", supplement: "vitamin-d3-biomo®-2-000-i-e" },
+  { goal: "herz", test: "heimtest-fettstoffwechsel", supplement: "omega-3-kapseln" },
+  { goal: "schlaf", test: "cortisol-check", supplement: "sleep-formula" },
+  { goal: "longevity", test: "bio-age-kit", supplement: "spermidin-kapseln" },
+];
+
+export const homeSupplementsCopy = (locale: Locale) =>
+  locale === "en"
+    ? {
+        kicker: "Supplements",
+        title: "Measure first, [[then supplement]]",
+        text: "A blood test shows where you stand. Then you supplement on purpose instead of on suspicion, with formulas and single actives sorted by goal.",
+        measure: "Measure",
+        supplement: "Supplement",
+        cta: "All supplements",
+        mira: "Ask Mira",
+      }
+    : {
+        kicker: "Supplements",
+        title: "Erst messen, [[dann ergänzen]]",
+        text: "Ein Bluttest zeigt, wo du stehst. Danach ergänzt du gezielt statt auf Verdacht, mit Formeln und Einzelstoffen nach Ziel sortiert.",
+        measure: "Messen",
+        supplement: "Ergänzen",
+        cta: "Alle Supplements",
+        mira: "Mira fragen",
+      };
