@@ -235,10 +235,10 @@ export default async function ProductPage({ params }: Props) {
 
       {youngle && <SupplementDetails content={youngle} locale={locale} productTitle={product.title} />}
 
-      {/* tests with a Tasso+ variant: the upper-arm collection video right after the details */}
-      {product.variants.some(isTassoVariant) && <TassoBanner locale={locale} dict={dict} />}
-
       {infoItems.length > 0 && <BiomarkerInfo items={infoItems} topic={topic} />}
+
+      {/* tests with a Tasso+ variant: the upper-arm collection video after the values explainer */}
+      {product.variants.some(isTassoVariant) && <TassoBanner locale={locale} dict={dict} />}
 
       {supplement ? (
         <section className="mt-20 bg-lind py-14 text-moss">
