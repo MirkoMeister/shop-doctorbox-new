@@ -117,7 +117,7 @@ export function BundleOffer({
         <div id="couple-offer" className="px-3.5 pb-4">
           <fieldset>
             <legend className="text-sm text-ink-muted">{t.bundlePick}</legend>
-            <div className="mt-2 grid gap-2">
+            <div className="mt-2 grid gap-2 lg:grid-cols-2">
               {pairs.map((p) => {
                 const on = key(p) === key(chosen);
                 return (
