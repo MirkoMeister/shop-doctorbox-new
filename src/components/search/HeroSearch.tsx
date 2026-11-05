@@ -12,6 +12,10 @@ import { MiraAvatar } from "@/components/assistant/MiraAvatar";
 import { SearchResults } from "./SearchResults";
 import { POPULAR_SEARCHES } from "@/content/search-suggestions";
 import { useSearch } from "./useSearch";
+import { OPEN_SEARCH_EVENT } from "./HeaderSearch";
+
+/** Phones search in the full-screen overlay of the header search instead of this field */
+const onPhone = () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
 
 type Mode = "mira" | "search";
 
@@ -132,6 +136,16 @@ export function HeroSearch({
           {dict.nav.search}
         </label>
         <div
+          // phone + search mode: a tap opens the full-screen search (with keyboard) instead of typing here
+          onPointerDownCapture={(e) => {
+            if (!mira && onPhone()) e.preventDefault();
+          }}
+          onClickCapture={(e) => {
+            if (mira || !onPhone()) return;
+            e.preventDefault();
+            e.stopPropagation();
+            window.dispatchEvent(new Event(OPEN_SEARCH_EVENT));
+          }}
           className={`flex items-center gap-2 rounded-full bg-white p-1.5 pl-5 text-ink shadow-float ring-2 transition-shadow ${
             focused ? "ring-turquoise" : "ring-transparent"
           }`}

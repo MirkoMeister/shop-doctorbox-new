@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import type { Locale } from "@/lib/i18n/config";
 import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -13,6 +14,9 @@ import { SearchStart } from "./SearchStart";
 import { useSearch } from "./useSearch";
 import { lockScroll } from "@/lib/scroll-lock";
 
+/** Event that opens this overlay from elsewhere (the hero field on phones): window.dispatchEvent(new Event(OPEN_SEARCH_EVENT)) */
+export const OPEN_SEARCH_EVENT = "dbx:open-search";
+
 /** Compact header search: opens a full-width overlay with the same live results. */
 export function HeaderSearch({ locale, dict, collections = [], children }: { locale: Locale; dict: Dictionary; collections?: Collection[]; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -22,6 +26,17 @@ export function HeaderSearch({ locale, dict, collections = [], children }: { loc
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const total = result.products.length + Math.min(result.queries.length, 5);
+
+  // Opened from another place: render synchronously and focus inside the same tap, otherwise
+  // iOS opens the overlay without the keyboard
+  useEffect(() => {
+    const onOpen = () => {
+      flushSync(() => setOpen(true));
+      inputRef.current?.focus();
+    };
+    window.addEventListener(OPEN_SEARCH_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_SEARCH_EVENT, onOpen);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
