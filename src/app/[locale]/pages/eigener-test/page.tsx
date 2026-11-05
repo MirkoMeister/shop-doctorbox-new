@@ -43,18 +43,6 @@ export default async function BuilderPage({ params }: Props) {
         <p className="mt-4 rounded-2xl bg-lind/50 px-4 py-3 text-sm leading-snug text-moss">{t.mvpNote}</p>
       </header>
 
-      <ol className="mt-8 grid gap-4 sm:grid-cols-3">
-        {t.steps.map((s, i) => (
-          <li key={s.title} className="flex gap-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-moss text-sm font-semibold text-soft">{i + 1}</span>
-            <span>
-              <span className="block font-semibold">{s.title}</span>
-              <span className="block text-sm text-ink-muted">{s.text}</span>
-            </span>
-          </li>
-        ))}
-      </ol>
-
       <div className="mt-10">
         <TestBuilder markers={KIT_MARKERS} groups={groups} products={products} placeholder={kitIsPlaceholder} locale={locale} t={t} />
       </div>

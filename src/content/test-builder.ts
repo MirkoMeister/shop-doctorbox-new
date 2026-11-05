@@ -50,6 +50,13 @@ export type BuilderCopy = {
   tooManyTasso: string;
   placeholderNote: string;
   cheaper: string;
+  stepsLabel: string;
+  next: string;
+  toRequest: string;
+  back: string;
+  editValues: string;
+  kitLine: string;
+  pickHint: string;
 };
 
 const de: BuilderCopy = {
@@ -90,7 +97,7 @@ const de: BuilderCopy = {
   mailIntro: "Gewünschte Werte",
   steps: [
     { title: "Werte wählen", text: "Tippe bis zu 15 Werte an. Die Suche hilft bei konkreten Namen." },
-    { title: "Set prüfen", text: "Du siehst Preis, Röhrchen und Tasso-Geräte. Deckt ein fertiger Test alles ab, zeigen wir ihn dir." },
+    { title: "Set prüfen", text: "Preis, Röhrchen und Tasso-Geräte. Deckt ein fertiger Test alles ab, zeigen wir ihn dir." },
     { title: "Set anfragen", text: "Wir stellen dein Set im Labor zusammen und melden uns mit der Bestätigung." },
   ],
   remove: "entfernen",
@@ -105,6 +112,13 @@ const de: BuilderCopy = {
   tooManyTasso: "Für diese Auswahl bräuchtest du {n} Tasso-Geräte, ein Set hat höchstens {max}. Entferne Werte oder teile sie auf zwei Sets auf.",
   placeholderNote: "Vorschau: Preise, Blutmengen und Röhrchen sind vorläufig, bis die Laborliste vorliegt.",
   cheaper: "Deckt alles ab und ist günstiger als dein Set",
+  stepsLabel: "Fortschritt",
+  next: "Weiter: Set prüfen",
+  toRequest: "Weiter: Set anfragen",
+  back: "Zurück",
+  editValues: "Werte ändern",
+  kitLine: "Dein Set: {n} Werte · {total}",
+  pickHint: "Tippe die Werte an, die du wissen willst.",
 };
 
 const en: BuilderCopy = {
@@ -160,6 +174,13 @@ const en: BuilderCopy = {
   tooManyTasso: "This selection would need {n} Tasso devices; a kit has at most {max}. Remove values or split them into two kits.",
   placeholderNote: "Preview: prices, blood volumes and tubes are provisional until the lab list is in.",
   cheaper: "Covers everything and costs less than your kit",
+  stepsLabel: "Progress",
+  next: "Next: check your kit",
+  toRequest: "Next: request the kit",
+  back: "Back",
+  editValues: "Change values",
+  kitLine: "Your kit: {n} values · {total}",
+  pickHint: "Tap the values you want to know.",
 };
 
 export const BUILDER_PAGE = "/pages/eigener-test";

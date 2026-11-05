@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { CheckIcon, CloseIcon, SearchIcon } from "@/components/ui/Icons";
 import { Highlight } from "@/components/ui/Highlight";
 import type { BuilderCopy } from "@/content/test-builder";
@@ -40,8 +40,8 @@ const matches = (marker: string, biomarker: string) => {
 const euro = (n: number, locale: Locale) => formatMoney({ amount: String(n), currencyCode: "EUR" }, locale);
 
 /**
- * Individual kit configurator: pick up to KIT_RULES.maxMarkers lab values, see price, tubes and
- * Tasso devices live (planKit), compare with ready-made tests, then request the kit.
+ * Individual kit configurator in three steps: pick up to KIT_RULES.maxMarkers lab values, check price,
+ * tubes and Tasso devices (planKit) next to ready-made tests that cover them, then request the kit.
  */
 export function TestBuilder({
   markers,
@@ -64,6 +64,8 @@ export function TestBuilder({
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState<Set<string>>(() => new Set(groups.slice(0, 2).map((g) => g.key)));
   const [state, setState] = useState<"idle" | "busy" | "ok" | "error">("idle");
+  const [step, setStep] = useState<Step>(1);
+  const topRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
 
   const q = norm(query);
@@ -132,202 +134,277 @@ export function TestBuilder({
 
   const field = "h-12 w-full rounded-2xl border border-line bg-white px-4 text-[0.95rem] focus:border-green focus:outline-none focus:ring-2 focus:ring-turquoise/60";
   const label = "mb-1.5 block text-sm font-medium";
+  const go = (s: Step) => {
+    setStep(s);
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
-      {/* Picker */}
-      <div>
-        <label className="relative block">
-          <span className="sr-only">{t.search}</span>
-          <SearchIcon width={18} height={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.search}
-            className="w-full rounded-full border border-line bg-white py-3.5 pl-11 pr-4 text-[0.95rem] shadow-card focus:border-green focus:outline-none focus:ring-2 focus:ring-turquoise/60"
-          />
-        </label>
-        <h2 className="h4 mt-8">{t.groupsTitle}</h2>
-        <ul className="mt-3 divide-y divide-line/70 rounded-[var(--radius-card)] border border-line/70 bg-white shadow-card">
-          {visible.map((g) => {
-            const isOpen = Boolean(q) || open.has(g.key);
-            const picked = g.ids.filter((id) => selected.includes(id)).length;
-            return (
-              <li key={g.key}>
-                <button type="button" onClick={() => toggleGroup(g.key)} className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left" aria-expanded={isOpen}>
-                  <span className="font-semibold">
-                    {g.label}
-                    <span className="ml-2 text-sm font-normal text-ink-muted">
-                      {picked > 0 ? `${picked} / ` : ""}
-                      {g.ids.length}
-                    </span>
-                  </span>
-                  <span className={`text-ink-muted transition-transform ${isOpen ? "rotate-45" : ""}`} aria-hidden>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 2v12M2 8h12" /></svg>
-                  </span>
-                </button>
-                {isOpen && (
-                  <ul className="flex flex-wrap gap-2 px-5 pb-5">
-                    {g.ids.map((id) => {
-                      const on = selected.includes(id);
-                      const m = byId.get(id)!;
-                      return (
-                        <li key={id}>
-                          <button
-                            type="button"
-                            onClick={() => toggle(id)}
-                            aria-pressed={on}
-                            disabled={!on && full}
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                              on ? "border-green bg-green text-white" : "border-line bg-white hover:border-ink"
-                            }`}
-                          >
-                            {on && <CheckIcon width={14} height={14} />}
-                            {m.name[locale]}
-                            <span className={`font-normal ${on ? "text-white/80" : "text-ink-muted"}`}>{euro(m.price, locale)}</span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </li>
-            );
-          })}
-          {visible.length === 0 && <li className="px-5 py-6 text-ink-muted">–</li>}
-        </ul>
-      </div>
+    <div ref={topRef} className="scroll-mt-24">
+      <Stepper step={step} reachable={(s) => s === 1 || selected.length > 0} onGo={go} t={t} />
 
-      {/* Mobile: the summary sits below the long list, so a bar keeps the selection in view */}
-      {selected.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 py-3 shadow-float backdrop-blur lg:hidden">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-            <span className="text-sm font-medium">
-              {fill(t.selectedCount, { n: selected.length, max: KIT_RULES.maxMarkers })} · {euro(plan.total, locale)}
+      {/* 1 · pick values: full width, a sticky bar carries the selection and the way on */}
+      {step === 1 && (
+        <section className="mt-8">
+          <p className="text-ink-muted">{t.pickHint}</p>
+          <label className="relative mt-4 block">
+            <span className="sr-only">{t.search}</span>
+            <SearchIcon width={18} height={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t.search}
+              className="w-full rounded-full border border-line bg-white py-3.5 pl-11 pr-4 text-[0.95rem] shadow-card focus:border-green focus:outline-none focus:ring-2 focus:ring-turquoise/60"
+            />
+          </label>
+          <h2 className="h4 mt-8">{t.groupsTitle}</h2>
+          <ul className="mt-3 divide-y divide-line/70 rounded-[var(--radius-card)] border border-line/70 bg-white shadow-card">
+            {visible.map((g) => {
+              const isOpen = Boolean(q) || open.has(g.key);
+              const picked = g.ids.filter((id) => selected.includes(id)).length;
+              return (
+                <li key={g.key}>
+                  <button type="button" onClick={() => toggleGroup(g.key)} className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left" aria-expanded={isOpen}>
+                    <span className="font-semibold">
+                      {g.label}
+                      <span className="ml-2 text-sm font-normal text-ink-muted">
+                        {picked > 0 ? `${picked} / ` : ""}
+                        {g.ids.length}
+                      </span>
+                    </span>
+                    <span className={`text-ink-muted transition-transform ${isOpen ? "rotate-45" : ""}`} aria-hidden>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 2v12M2 8h12" /></svg>
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <ul className="flex flex-wrap gap-2 px-5 pb-5">
+                      {g.ids.map((id) => {
+                        const on = selected.includes(id);
+                        const m = byId.get(id)!;
+                        return (
+                          <li key={id}>
+                            <button
+                              type="button"
+                              onClick={() => toggle(id)}
+                              aria-pressed={on}
+                              disabled={!on && full}
+                              className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                                on ? "border-green bg-green text-white" : "border-line bg-white hover:border-ink"
+                              }`}
+                            >
+                              {on && <CheckIcon width={14} height={14} />}
+                              {m.name[locale]}
+                              <span className={`font-normal ${on ? "text-white/80" : "text-ink-muted"}`}>{euro(m.price, locale)}</span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+            {visible.length === 0 && <li className="px-5 py-6 text-ink-muted">–</li>}
+          </ul>
+          {full && <p className="mt-4 rounded-xl bg-okker/50 px-3 py-2 text-sm leading-snug text-moss">{fill(t.limitReached, { max: KIT_RULES.maxMarkers })}</p>}
+
+          <div className="sticky bottom-3 z-20 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-card)] bg-moss p-3 pl-5 text-soft shadow-float">
+            <span className="text-sm">
+              <span className="font-semibold">{selected.length ? fill(t.selectedCount, { n: selected.length, max: KIT_RULES.maxMarkers }) : t.selectedEmpty}</span>
+              {selected.length > 0 && <span className="text-soft/80"> · {euro(plan.total, locale)}</span>}
             </span>
-            <a href="#builder-summary" className="btn btn-sm btn-primary">
-              {t.showCoverage}
-            </a>
+            <button type="button" onClick={() => go(2)} disabled={!selected.length} className="btn btn-primary disabled:opacity-50">
+              {t.next}
+            </button>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Summary */}
-      <aside id="builder-summary" className="grid scroll-mt-24 gap-5 lg:sticky lg:top-28">
-        <section className="rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="h4">{t.selectedTitle}</h2>
-              <p className="mt-1 text-sm text-ink-muted">{selected.length ? fill(t.selectedCount, { n: selected.length, max: KIT_RULES.maxMarkers }) : t.selectedEmpty}</p>
+      {/* 2 · check the kit: selection, tubes and price, ready-made tests that cover it */}
+      {step === 2 && (
+        <section className="mt-8">
+          <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+            <div className="grid gap-6">
+              <section className="rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="h4">{t.selectedTitle}</h2>
+                    <p className="mt-1 text-sm text-ink-muted">{fill(t.selectedCount, { n: selected.length, max: KIT_RULES.maxMarkers })}</p>
+                  </div>
+                  <button type="button" onClick={() => go(1)} className="shrink-0 text-sm font-medium text-green hover:underline">
+                    {t.editValues}
+                  </button>
+                </div>
+                <ul className="mt-4 divide-y divide-line/70 text-sm">
+                  {chosen.map((m) => (
+                    <li key={m.id} className="flex items-center justify-between gap-3 py-2">
+                      <span className="min-w-0">{m.name[locale]}</span>
+                      <span className="flex shrink-0 items-center gap-3">
+                        <span className="tabular-nums">{euro(m.price, locale)}</span>
+                        <button type="button" onClick={() => toggle(m.id)} aria-label={`${m.name[locale]}: ${t.remove}`} className="text-ink-muted hover:text-ink">
+                          <CloseIcon width={12} height={12} />
+                        </button>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+              {chosen.length > 0 && <KitCard plan={plan} placeholder={placeholder} locale={locale} t={t} />}
             </div>
-            {selected.length > 0 && (
-              <button type="button" onClick={() => setSelected([])} className="shrink-0 text-sm font-medium text-green hover:underline">
-                {t.clear}
+
+            {coverage.length > 0 && (
+              <section className="rounded-[var(--radius-card)] bg-lind p-5 text-moss sm:p-6">
+                <h2 className="h4">
+                  <Highlight text={t.coverageTitle} />
+                </h2>
+                <p className="mt-1 text-sm text-moss/80">{t.coverageText}</p>
+                <ol className="mt-4 grid gap-3">
+                  {coverage.map(({ product: p, covered, missing }, i) => (
+                    <li key={p.handle} className={`rounded-2xl bg-white/80 p-3.5 ${i === 0 ? "ring-2 ring-green/50" : ""}`}>
+                      <div className="flex items-center gap-3">
+                        <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white">
+                          {p.image && <Image src={shopifyImage(p.image, 120)} alt="" fill sizes="48px" className="object-contain p-0.5" />}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-semibold leading-snug">{p.title}</span>
+                          <span className="block text-sm text-moss/80">
+                            {missing.length === 0 ? t.allCovered : fill(t.covers, { m: covered.length, n: selected.length })} · {formatMoney(p.price, locale)}
+                          </span>
+                          {missing.length === 0 && parseFloat(p.price.amount) < plan.total && <span className="mt-1 block text-xs font-semibold text-green">{t.cheaper}</span>}
+                        </span>
+                        <Link href={localeHref(locale, `/products/${p.handle}`)} className="btn btn-sm btn-primary shrink-0">
+                          {t.toProduct}
+                        </Link>
+                      </div>
+                      {missing.length > 0 && (
+                        <p className="mt-2 text-xs leading-snug text-moss/70">
+                          {t.missing}: {missing.join(", ")}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+          </div>
+          <StepNav onBack={() => go(1)} onNext={selected.length ? () => go(3) : undefined} nextLabel={t.toRequest} t={t} />
+        </section>
+      )}
+
+      {/* 3 · request: short summary of the kit, then the form */}
+      {step === 3 && (
+        <section className="mx-auto mt-8 max-w-2xl">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-lind px-5 py-4 text-moss">
+            <span className="font-semibold">{fill(t.kitLine, { n: selected.length, total: euro(plan.total, locale) })}</span>
+            {state !== "ok" && (
+              <button type="button" onClick={() => go(2)} className="text-sm font-medium underline underline-offset-4">
+                {t.back}
               </button>
             )}
           </div>
-          {chosen.length > 0 && (
-            <ul className="mt-4 divide-y divide-line/70 text-sm">
-              {chosen.map((m) => (
-                <li key={m.id} className="flex items-center justify-between gap-3 py-2">
-                  <span className="min-w-0">{m.name[locale]}</span>
-                  <span className="flex shrink-0 items-center gap-3">
-                    <span className="tabular-nums">{euro(m.price, locale)}</span>
-                    <button type="button" onClick={() => toggle(m.id)} aria-label={`${m.name[locale]}: ${t.remove}`} className="text-ink-muted hover:text-ink">
-                      <CloseIcon width={12} height={12} />
-                    </button>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {full && <p className="mt-3 rounded-xl bg-okker/50 px-3 py-2 text-sm leading-snug text-moss">{fill(t.limitReached, { max: KIT_RULES.maxMarkers })}</p>}
-        </section>
-
-        {chosen.length > 0 && <KitCard plan={plan} placeholder={placeholder} locale={locale} t={t} />}
-
-        {coverage.length > 0 && (
-          <section className="rounded-[var(--radius-card)] bg-lind p-5 text-moss sm:p-6">
-            <h2 className="h4">
-              <Highlight text={t.coverageTitle} />
-            </h2>
-            <p className="mt-1 text-sm text-moss/80">{t.coverageText}</p>
-            <ol className="mt-4 grid gap-3">
-              {coverage.map(({ product: p, covered, missing }, i) => (
-                <li key={p.handle} className={`rounded-2xl bg-white/80 p-3.5 ${i === 0 ? "ring-2 ring-green/50" : ""}`}>
-                  <div className="flex items-center gap-3">
-                    <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white">
-                      {p.image && <Image src={shopifyImage(p.image, 120)} alt="" fill sizes="48px" className="object-contain p-0.5" />}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-semibold leading-snug">{p.title}</span>
-                      <span className="block text-sm text-moss/80">
-                        {missing.length === 0 ? t.allCovered : fill(t.covers, { m: covered.length, n: selected.length })} · {formatMoney(p.price, locale)}
-                      </span>
-                      {missing.length === 0 && parseFloat(p.price.amount) < plan.total && <span className="mt-1 block text-xs font-semibold text-green">{t.cheaper}</span>}
-                    </span>
-                    <Link href={localeHref(locale, `/products/${p.handle}`)} className="btn btn-sm btn-primary shrink-0">
-                      {t.toProduct}
-                    </Link>
+          <div className="mt-6 rounded-[var(--radius-card)] border border-line/70 bg-white p-5 shadow-card sm:p-8">
+            {state === "ok" ? (
+              <div>
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green text-white">
+                  <CheckIcon />
+                </span>
+                <h2 className="h4 mt-4">{t.successTitle}</h2>
+                <p className="mt-2 text-ink-muted">{t.successText}</p>
+              </div>
+            ) : (
+              <form onSubmit={submit} className="grid gap-4" noValidate>
+                <div>
+                  <h2 className="h4">{t.requestTitle}</h2>
+                  <p className="mt-1 text-sm text-ink-muted">{t.requestText}</p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="b-name" className={label}>{t.name} *</label>
+                    <input id="b-name" name="name" required minLength={2} autoComplete="name" className={field} />
                   </div>
-                  {missing.length > 0 && (
-                    <p className="mt-2 text-xs leading-snug text-moss/70">
-                      {t.missing}: {missing.join(", ")}
-                    </p>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-
-        <section className="rounded-[var(--radius-card)] border border-line/70 bg-surface p-5 sm:p-6">
-          {state === "ok" ? (
-            <div>
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green text-white">
-                <CheckIcon />
-              </span>
-              <h2 className="h4 mt-4">{t.successTitle}</h2>
-              <p className="mt-2 text-ink-muted">{t.successText}</p>
-            </div>
-          ) : (
-            <form onSubmit={submit} className="grid gap-4" noValidate>
-              <div>
-                <h2 className="h4">{t.requestTitle}</h2>
-                <p className="mt-1 text-sm text-ink-muted">{t.requestText}</p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="b-name" className={label}>{t.name} *</label>
-                  <input id="b-name" name="name" required minLength={2} autoComplete="name" className={field} />
+                  <div>
+                    <label htmlFor="b-email" className={label}>{t.email} *</label>
+                    <input id="b-email" name="email" type="email" required autoComplete="email" className={field} />
+                  </div>
                 </div>
                 <div>
-                  <label htmlFor="b-email" className={label}>{t.email} *</label>
-                  <input id="b-email" name="email" type="email" required autoComplete="email" className={field} />
+                  <label htmlFor="b-note" className={label}>{t.note}</label>
+                  <textarea id="b-note" name="note" rows={3} placeholder={t.notePlaceholder} className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-[0.95rem] focus:border-green focus:outline-none focus:ring-2 focus:ring-turquoise/60" />
                 </div>
-              </div>
-              <div>
-                <label htmlFor="b-note" className={label}>{t.note}</label>
-                <textarea id="b-note" name="note" rows={3} placeholder={t.notePlaceholder} className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-[0.95rem] focus:border-green focus:outline-none focus:ring-2 focus:ring-turquoise/60" />
-              </div>
-              <div className="hidden" aria-hidden>
-                <label htmlFor="b-website">Website</label>
-                <input id="b-website" name="website" tabIndex={-1} autoComplete="off" />
-              </div>
-              <button type="submit" className="btn btn-primary" disabled={state === "busy"}>
-                {t.submit}
-              </button>
-              <p className="text-xs leading-snug text-ink-muted">{t.privacy}</p>
-              {error && (
-                <p className="text-sm text-[#b42318]" role="alert">
-                  {error}
-                </p>
-              )}
-            </form>
-          )}
+                <div className="hidden" aria-hidden>
+                  <label htmlFor="b-website">Website</label>
+                  <input id="b-website" name="website" tabIndex={-1} autoComplete="off" />
+                </div>
+                <button type="submit" className="btn btn-primary" disabled={state === "busy"}>
+                  {t.submit}
+                </button>
+                <p className="text-xs leading-snug text-ink-muted">{t.privacy}</p>
+                {error && (
+                  <p className="text-sm text-[#b42318]" role="alert">
+                    {error}
+                  </p>
+                )}
+              </form>
+            )}
+          </div>
         </section>
-      </aside>
+      )}
+    </div>
+  );
+}
+
+type Step = 1 | 2 | 3;
+
+/** 1 Werte wählen → 2 Set prüfen → 3 Anfragen; finished and current steps can be jumped to */
+function Stepper({ step, reachable, onGo, t }: { step: Step; reachable: (s: Step) => boolean; onGo: (s: Step) => void; t: BuilderCopy }) {
+  return (
+    <nav aria-label={t.stepsLabel}>
+      <ol className="grid grid-cols-3 gap-2 sm:gap-4">
+        {t.steps.map((s, i) => {
+          const n = (i + 1) as Step;
+          const current = n === step;
+          const done = n < step;
+          return (
+            <li key={s.title}>
+              <button
+                type="button"
+                onClick={() => onGo(n)}
+                disabled={!reachable(n) || current}
+                aria-current={current ? "step" : undefined}
+                className={`flex h-full w-full flex-col items-center gap-2 rounded-2xl border p-2.5 text-center transition-colors disabled:cursor-default sm:flex-row sm:items-start sm:gap-3 sm:p-3 sm:text-left ${
+                  current ? "border-moss bg-white shadow-card" : "border-transparent hover:bg-white/70"
+                }`}
+              >
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                    current || done ? "bg-moss text-soft" : "bg-lind/60 text-moss"
+                  }`}
+                >
+                  {done ? <CheckIcon width={15} height={15} /> : n}
+                </span>
+                <span>
+                  <span className={`block text-sm font-semibold leading-snug sm:text-base ${current ? "" : "text-ink-muted"}`}>{s.title}</span>
+                  <span className="hidden text-sm text-ink-muted sm:block">{s.text}</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+function StepNav({ onBack, onNext, nextLabel, t }: { onBack: () => void; onNext?: () => void; nextLabel: string; t: BuilderCopy }) {
+  return (
+    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line/70 pt-6">
+      <button type="button" onClick={onBack} className="btn btn-secondary">
+        {t.back}
+      </button>
+      <button type="button" onClick={onNext} disabled={!onNext} className="btn btn-primary disabled:opacity-50">
+        {nextLabel}
+      </button>
     </div>
   );
 }
