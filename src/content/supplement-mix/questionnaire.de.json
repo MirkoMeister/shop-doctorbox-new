@@ -1,0 +1,1441 @@
+{
+  "documentType": "doctorbox_questionnaire_configuration_draft",
+  "schemaVersion": "1.0.0",
+  "questionnaireVersion": "doctorbox-supplements-v1-draft",
+  "locale": "de-DE",
+  "estimatedMinutes": 5,
+  "status": "product_design_draft_not_a_validated_clinical_rulebook",
+  "sourceBoundary": "Eigener DoctorBox-Entwurf nach dem öffentlich beschriebenen Riise-Prinzip. Keine Kopie oder Kenntnis des Riise-Empfehlungsalgorithmus.",
+  "intro": {
+    "title": "Dein persönlicher Nährstoffmix",
+    "body": "Beantworte ein paar Fragen. Du siehst anschließend einen Vorschlag und kannst die Zutaten und Mengen im verfügbaren Bereich ändern.",
+    "durationLabel": "Etwa 5 Minuten",
+    "primaryAction": "Fragebogen starten",
+    "secondaryAction": "Selbst zusammenstellen",
+    "guestCheckoutLabel": "Du brauchst kein DoctorBox-Konto.",
+    "proposalAvailability": "Ein echter Rezepturvorschlag ist erst mit einem versionierten fachlichen Regelwerk und bestätigtem Produktkatalog verfügbar."
+  },
+  "demoDataNotice": {
+    "showWhen": "demo_mode",
+    "title": "Demo – bitte nur erfundene Angaben",
+    "body": "Dieser Fragebogen zeigt den geplanten Ablauf. Nutze keine echten Gesundheitsdaten. Die Demo berechnet keine fachlich geprüften Dosierungen.",
+    "action": "Demo mit erfundenen Angaben starten",
+    "persistAnswers": false,
+    "storage": "memory_only",
+    "noDataTransfers": [
+      "shopify",
+      "riise",
+      "analytics",
+      "model_context",
+      "url",
+      "browser_persistent_storage"
+    ],
+    "demoSuggestionLabel": "Beispielmix – keine persönliche Dosierungsempfehlung"
+  },
+  "consentImplementation": {
+    "beforeAnyHealthCollection": true,
+    "uiCopyStatus": "draft_for_actual_processing_information",
+    "productionDetailsRequired": [
+      "Verantwortlicher und Kontakt",
+      "Konkreter Verarbeitungszweck und Umfang",
+      "Empfänger und Datenflüsse",
+      "Speicherdauer oder Löschregel",
+      "Widerruf und Auswirkung auf gespeicherte Fragebogenantworten",
+      "Verweis auf die passende Datenschutzerklärung"
+    ],
+    "acceptanceMustBeExplicit": true,
+    "prechecked": false,
+    "marketingConsentCombined": false,
+    "declineRoute": "self_configurator",
+    "declineDoesNotBypass": [
+      "confirmed_product_target_group_rules",
+      "allergen_compatibility_rules",
+      "catalog_constraints",
+      "technical_order_validation"
+    ],
+    "productionStorageDecisionRequired": true
+  },
+  "dataMinimization": {
+    "doNotAsk": [
+      "name",
+      "date_of_birth",
+      "address",
+      "email",
+      "laboratory_values",
+      "medical_free_text",
+      "diagnosis_free_text",
+      "medication_names",
+      "weight",
+      "height",
+      "sex_at_birth"
+    ],
+    "contactAndDeliveryCollectedBy": "shopify_checkout",
+    "noQuestionnaireAnswersIn": [
+      "shopify_cart_attributes",
+      "shopify_line_attributes",
+      "shopify_customer_metafields",
+      "urls",
+      "analytics_events",
+      "application_logs",
+      "error_reports"
+    ],
+    "transactionalFormulaSeparateFromQuestionnaire": true,
+    "noAccountRequired": true,
+    "noAutomaticDoctorBoxPatientRecordLink": true,
+    "productionPersistence": "Must be explicitly designed, consented and access-controlled; this draft does not authorize indefinite storage."
+  },
+  "questionPolicy": {
+    "startQuestionId": "health_data_consent",
+    "renderSensitiveQuestionsOnlyAfter": "health_data_consent=accept",
+    "questionOrder": [
+      "health_data_consent",
+      "age_band",
+      "goals",
+      "diet_pattern",
+      "fish_frequency",
+      "produce_portions",
+      "dairy_fortified_frequency",
+      "activity_sessions",
+      "sleep_duration",
+      "stress_level",
+      "outdoor_frequency",
+      "existing_supplements",
+      "current_intakes",
+      "regular_medication",
+      "relevant_conditions",
+      "pregnancy_status",
+      "allergies",
+      "product_preference"
+    ],
+    "optionalQuestionPolicy": "Render and use optional fields only when a versioned active rule explicitly declares that input binding. Otherwise omit them entirely.",
+    "lifestyleFieldsAreNotDosageRules": true,
+    "requiredQuestions": "Required inside the enabled questionnaire path; no forced completion when choosing self-configuration.",
+    "unknownValues": [
+      "unknown",
+      "prefer_not",
+      "variable",
+      "other",
+      "not_listed",
+      "unit_unsupported"
+    ],
+    "missingOrUnknownNeverMeans": "no",
+    "exclusiveMultiSelectOptions": "An exclusive option clears all other options; selecting another option clears an exclusive option.",
+    "changingParentAnswer": "Clear answers that become hidden and re-evaluate all derived flags and exclusions.",
+    "noBenefitPromisesFromAnswers": true
+  },
+  "groups": [
+    {
+      "id": "start",
+      "title": "Bevor du startest"
+    },
+    {
+      "id": "goals",
+      "title": "Deine Ziele"
+    },
+    {
+      "id": "nutrition",
+      "title": "Deine Ernährung"
+    },
+    {
+      "id": "lifestyle",
+      "title": "Dein Alltag"
+    },
+    {
+      "id": "health",
+      "title": "Wichtige Hinweise"
+    }
+  ],
+  "questions": [
+    {
+      "id": "health_data_consent",
+      "group": "start",
+      "type": "consent",
+      "label": "Dürfen wir deine Angaben für den Rezepturvorschlag verarbeiten?",
+      "required": true,
+      "fieldUse": "consent_gate",
+      "options": [
+        {
+          "value": "accept",
+          "label": "Ja, für meinen Rezepturvorschlag verwenden"
+        },
+        {
+          "value": "decline",
+          "label": "Ohne Fragebogen selbst zusammenstellen"
+        }
+      ],
+      "description": "Dazu gehören auch Angaben zu deiner Gesundheit. Du kannst deine Einwilligung später widerrufen.",
+      "copyStatus": "ui_draft_requires_actual_processing_details",
+      "consentVersion": "doctorbox-supplements-health-consent-draft-1",
+      "storeAsConsentReceipt": [
+        "choice",
+        "consentVersion",
+        "decidedAt"
+      ],
+      "notMarketingConsent": true
+    },
+    {
+      "id": "age_band",
+      "group": "goals",
+      "type": "single",
+      "label": "Wie alt bist du?",
+      "required": true,
+      "fieldUse": "eligibility_rule_input",
+      "options": [
+        {
+          "value": "under_18",
+          "label": "Unter 18"
+        },
+        {
+          "value": "18_39",
+          "label": "18–39"
+        },
+        {
+          "value": "40_64",
+          "label": "40–64"
+        },
+        {
+          "value": "65_plus",
+          "label": "65 oder älter"
+        },
+        {
+          "value": "prefer_not",
+          "label": "Keine Angabe"
+        }
+      ],
+      "ruleBindingKey": "eligibility.age_band"
+    },
+    {
+      "id": "goals",
+      "group": "goals",
+      "type": "multi",
+      "label": "Was ist dir besonders wichtig?",
+      "required": true,
+      "fieldUse": "preference_input",
+      "options": [
+        {
+          "value": "general",
+          "label": "Allgemeine Versorgung"
+        },
+        {
+          "value": "energy",
+          "label": "Energie"
+        },
+        {
+          "value": "sleep",
+          "label": "Schlaf"
+        },
+        {
+          "value": "stress",
+          "label": "Umgang mit Stress"
+        },
+        {
+          "value": "sport",
+          "label": "Sport und Regeneration"
+        },
+        {
+          "value": "immune",
+          "label": "Immunsystem"
+        },
+        {
+          "value": "skin_hair_nails",
+          "label": "Haut, Haare und Nägel"
+        }
+      ],
+      "ruleBindingKey": "recommendation.goals",
+      "description": "Wähle bis zu drei Ziele.",
+      "minSelected": 1,
+      "maxSelected": 3,
+      "interpretation": "preference_only_no_diagnosis_or_automatic_dose_effect"
+    },
+    {
+      "id": "diet_pattern",
+      "group": "nutrition",
+      "type": "single",
+      "label": "Wie ernährst du dich überwiegend?",
+      "required": true,
+      "fieldUse": "recommendation_rule_input",
+      "options": [
+        {
+          "value": "mixed",
+          "label": "Gemischt"
+        },
+        {
+          "value": "vegetarian",
+          "label": "Vegetarisch"
+        },
+        {
+          "value": "vegan",
+          "label": "Vegan"
+        },
+        {
+          "value": "pescatarian",
+          "label": "Mit Fisch, ohne Fleisch"
+        },
+        {
+          "value": "other",
+          "label": "Anders"
+        },
+        {
+          "value": "prefer_not",
+          "label": "Keine Angabe"
+        }
+      ],
+      "ruleBindingKey": "recommendation.diet_pattern"
+    },
+    {
+      "id": "fish_frequency",
+      "group": "nutrition",
+      "type": "single",
+      "label": "Wie oft isst du Fisch?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "never",
+          "label": "Nie"
+        },
+        {
+          "value": "less_than_weekly",
+          "label": "Seltener als einmal pro Woche"
+        },
+        {
+          "value": "one_two_weekly",
+          "label": "Ein- bis zweimal pro Woche"
+        },
+        {
+          "value": "three_plus_weekly",
+          "label": "Mindestens dreimal pro Woche"
+        },
+        {
+          "value": "unknown",
+          "label": "Weiß ich nicht"
+        }
+      ],
+      "ruleBindingKey": "recommendation.fish_frequency",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "recommendation.fish_frequency"
+      }
+    },
+    {
+      "id": "produce_portions",
+      "group": "nutrition",
+      "type": "single",
+      "label": "Wie viele Portionen Gemüse und Obst isst du meistens am Tag?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "zero_one",
+          "label": "0–1"
+        },
+        {
+          "value": "two_three",
+          "label": "2–3"
+        },
+        {
+          "value": "four_five",
+          "label": "4–5"
+        },
+        {
+          "value": "six_plus",
+          "label": "Mehr als 5"
+        },
+        {
+          "value": "unknown",
+          "label": "Weiß ich nicht"
+        }
+      ],
+      "ruleBindingKey": "recommendation.produce_portions",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "recommendation.produce_portions"
+      },
+      "description": "Eine Portion ist ungefähr eine Handvoll."
+    },
+    {
+      "id": "dairy_fortified_frequency",
+      "group": "nutrition",
+      "type": "single",
+      "label": "Wie oft isst oder trinkst du Milchprodukte oder angereicherte pflanzliche Alternativen?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "daily",
+          "label": "Täglich"
+        },
+        {
+          "value": "several_weekly",
+          "label": "Mehrmals pro Woche"
+        },
+        {
+          "value": "rarely",
+          "label": "Selten"
+        },
+        {
+          "value": "never",
+          "label": "Nie"
+        },
+        {
+          "value": "unknown",
+          "label": "Weiß ich nicht"
+        }
+      ],
+      "ruleBindingKey": "recommendation.dairy_fortified_frequency",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "recommendation.dairy_fortified_frequency"
+      }
+    },
+    {
+      "id": "activity_sessions",
+      "group": "lifestyle",
+      "type": "single",
+      "label": "Wie oft treibst du Sport?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "zero",
+          "label": "Zurzeit gar nicht"
+        },
+        {
+          "value": "one_two",
+          "label": "Ein- bis zweimal pro Woche"
+        },
+        {
+          "value": "three_four",
+          "label": "Drei- bis viermal pro Woche"
+        },
+        {
+          "value": "five_plus",
+          "label": "Mindestens fünfmal pro Woche"
+        }
+      ],
+      "ruleBindingKey": "recommendation.activity_sessions",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "recommendation.activity_sessions"
+      }
+    },
+    {
+      "id": "sleep_duration",
+      "group": "lifestyle",
+      "type": "single",
+      "label": "Wie lange schläfst du meistens pro Nacht?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "under_six",
+          "label": "Weniger als 6 Stunden"
+        },
+        {
+          "value": "six_seven",
+          "label": "6 bis unter 7 Stunden"
+        },
+        {
+          "value": "seven_nine",
+          "label": "7–9 Stunden"
+        },
+        {
+          "value": "over_nine",
+          "label": "Mehr als 9 Stunden"
+        },
+        {
+          "value": "variable",
+          "label": "Sehr unterschiedlich"
+        }
+      ],
+      "ruleBindingKey": "recommendation.sleep_duration",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "recommendation.sleep_duration"
+      }
+    },
+    {
+      "id": "stress_level",
+      "group": "lifestyle",
+      "type": "single",
+      "label": "Wie belastend ist dein Alltag zurzeit?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "low",
+          "label": "Wenig belastend"
+        },
+        {
+          "value": "moderate",
+          "label": "Teilweise belastend"
+        },
+        {
+          "value": "high",
+          "label": "Stark belastend"
+        },
+        {
+          "value": "prefer_not",
+          "label": "Keine Angabe"
+        }
+      ],
+      "ruleBindingKey": "recommendation.stress_level",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "recommendation.stress_level"
+      }
+    },
+    {
+      "id": "outdoor_frequency",
+      "group": "lifestyle",
+      "type": "single",
+      "label": "Wie oft bist du tagsüber draußen?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "most_days",
+          "label": "An den meisten Tagen"
+        },
+        {
+          "value": "some_days",
+          "label": "An einigen Tagen pro Woche"
+        },
+        {
+          "value": "rarely",
+          "label": "Selten"
+        },
+        {
+          "value": "variable",
+          "label": "Sehr unterschiedlich"
+        }
+      ],
+      "ruleBindingKey": "recommendation.outdoor_frequency",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "recommendation.outdoor_frequency"
+      }
+    },
+    {
+      "id": "existing_supplements",
+      "group": "health",
+      "type": "single",
+      "label": "Nimmst du bereits Nahrungsergänzungsmittel?",
+      "required": true,
+      "fieldUse": "eligibility_rule_input",
+      "options": [
+        {
+          "value": "no",
+          "label": "Nein"
+        },
+        {
+          "value": "yes",
+          "label": "Ja"
+        },
+        {
+          "value": "unknown",
+          "label": "Ich bin unsicher"
+        },
+        {
+          "value": "prefer_not",
+          "label": "Keine Angabe"
+        }
+      ],
+      "ruleBindingKey": "eligibility.current_supplement_intake"
+    },
+    {
+      "id": "current_intakes",
+      "group": "health",
+      "type": "ingredient_intake_repeater",
+      "label": "Welche Nährstoffe nimmst du bereits täglich ein?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "ruleBindingKey": "eligibility.current_supplement_intake",
+      "renderWhen": {
+        "operator": "all",
+        "conditions": [
+          {
+            "operator": "rule_binding_exists",
+            "bindingKey": "eligibility.current_supplement_intake"
+          },
+          {
+            "operator": "eq",
+            "field": "existing_supplements",
+            "value": "yes"
+          }
+        ]
+      },
+      "description": "Übernimm nur Nährstoffe und tägliche Mengen, die du auf dem Etikett sicher erkennst.",
+      "fields": [
+        {
+          "id": "ingredientKey",
+          "type": "catalog_selection",
+          "label": "Nährstoff",
+          "source": "versioned_canonical_nutrient_catalog",
+          "required": true,
+          "specialOptions": [
+            {
+              "value": "not_listed",
+              "label": "Mein Nährstoff ist nicht aufgeführt"
+            }
+          ]
+        },
+        {
+          "id": "amountStatus",
+          "type": "single",
+          "label": "Kennst du die tägliche Menge?",
+          "required": true,
+          "options": [
+            {
+              "value": "known",
+              "label": "Ja, Menge ist bekannt"
+            },
+            {
+              "value": "unknown",
+              "label": "Ich kenne die Menge nicht"
+            },
+            {
+              "value": "unit_unsupported",
+              "label": "Das Etikett nennt eine andere Einheit"
+            }
+          ]
+        },
+        {
+          "id": "dailyAmount",
+          "type": "decimal_string",
+          "label": "Menge pro Tag",
+          "requiredWhen": {
+            "operator": "eq",
+            "field": "amountStatus",
+            "value": "known"
+          },
+          "pattern": "^(?:0|[1-9][0-9]*)(?:[.,][0-9]+)?$",
+          "mustBeGreaterThan": "0",
+          "notFreeText": true
+        },
+        {
+          "id": "unit",
+          "type": "single",
+          "label": "Einheit",
+          "requiredWhen": {
+            "operator": "eq",
+            "field": "amountStatus",
+            "value": "known"
+          },
+          "options": [
+            {
+              "value": "mg",
+              "label": "mg"
+            },
+            {
+              "value": "ug",
+              "label": "µg"
+            }
+          ]
+        }
+      ],
+      "minRows": 0,
+      "maxRows": 20,
+      "allowProductNames": false,
+      "allowMedicalFreeText": false,
+      "incompleteIntakeMeaning": "Unknown quantities or missing nutrients prevent a claim of complete supplemental intake assessment."
+    },
+    {
+      "id": "regular_medication",
+      "group": "health",
+      "type": "single",
+      "label": "Nimmst du regelmäßig Medikamente?",
+      "required": true,
+      "fieldUse": "eligibility_rule_input",
+      "options": [
+        {
+          "value": "no",
+          "label": "Nein"
+        },
+        {
+          "value": "yes",
+          "label": "Ja"
+        },
+        {
+          "value": "unknown",
+          "label": "Ich bin unsicher"
+        },
+        {
+          "value": "prefer_not",
+          "label": "Keine Angabe"
+        }
+      ],
+      "ruleBindingKey": "eligibility.regular_medication",
+      "collectMedicationNames": false,
+      "interpretation": "Broad profile coverage flag only; does not identify interactions with specific medicines."
+    },
+    {
+      "id": "relevant_conditions",
+      "group": "health",
+      "type": "multi",
+      "label": "Gibt es gesundheitliche Besonderheiten, die berücksichtigt werden müssen?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "none_known",
+          "label": "Keine bekannt"
+        },
+        {
+          "value": "kidney",
+          "label": "Nierenerkrankung"
+        },
+        {
+          "value": "liver",
+          "label": "Lebererkrankung"
+        },
+        {
+          "value": "thyroid",
+          "label": "Schilddrüsenerkrankung"
+        },
+        {
+          "value": "iron_metabolism",
+          "label": "Störung des Eisenstoffwechsels"
+        },
+        {
+          "value": "other",
+          "label": "Andere Erkrankung"
+        },
+        {
+          "value": "prefer_not",
+          "label": "Keine Angabe"
+        }
+      ],
+      "ruleBindingKey": "eligibility.relevant_conditions",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "eligibility.relevant_conditions"
+      },
+      "exclusiveOptions": [
+        "none_known",
+        "prefer_not"
+      ],
+      "allowMedicalFreeText": false
+    },
+    {
+      "id": "pregnancy_status",
+      "group": "health",
+      "type": "single",
+      "label": "Trifft etwas davon auf dich zu?",
+      "required": false,
+      "fieldUse": "requires_rule_binding",
+      "options": [
+        {
+          "value": "not_applicable",
+          "label": "Nichts davon"
+        },
+        {
+          "value": "pregnant",
+          "label": "Schwanger"
+        },
+        {
+          "value": "breastfeeding",
+          "label": "Stillend"
+        },
+        {
+          "value": "planning",
+          "label": "Kinderwunsch"
+        },
+        {
+          "value": "unknown",
+          "label": "Ich bin unsicher"
+        },
+        {
+          "value": "prefer_not",
+          "label": "Keine Angabe"
+        }
+      ],
+      "ruleBindingKey": "eligibility.pregnancy_status",
+      "renderWhen": {
+        "operator": "rule_binding_exists",
+        "bindingKey": "eligibility.pregnancy_status"
+      }
+    },
+    {
+      "id": "allergies",
+      "group": "health",
+      "type": "multi",
+      "label": "Hast du bekannte Allergien oder Unverträglichkeiten?",
+      "required": true,
+      "fieldUse": "product_exclusion_rule_input",
+      "options": [
+        {
+          "value": "none_known",
+          "label": "Keine bekannt"
+        },
+        {
+          "value": "fish",
+          "label": "Fisch"
+        },
+        {
+          "value": "soy",
+          "label": "Soja"
+        },
+        {
+          "value": "other",
+          "label": "Andere"
+        },
+        {
+          "value": "unknown",
+          "label": "Ich bin unsicher"
+        },
+        {
+          "value": "prefer_not",
+          "label": "Keine Angabe"
+        }
+      ],
+      "ruleBindingKey": "eligibility.allergens",
+      "exclusiveOptions": [
+        "none_known",
+        "unknown",
+        "prefer_not"
+      ],
+      "allowMedicalFreeText": false,
+      "interpretation": "Absence of a confirmed catalog allergen declaration does not mean allergen-free."
+    },
+    {
+      "id": "product_preference",
+      "group": "health",
+      "type": "single",
+      "label": "Welche Produkte möchtest du verwenden?",
+      "required": true,
+      "fieldUse": "product_exclusion_rule_input",
+      "options": [
+        {
+          "value": "no_preference",
+          "label": "Keine besondere Vorgabe"
+        },
+        {
+          "value": "vegetarian",
+          "label": "Nur vegetarische Produkte"
+        },
+        {
+          "value": "vegan",
+          "label": "Nur vegane Produkte"
+        }
+      ],
+      "ruleBindingKey": "eligibility.product_preference"
+    }
+  ],
+  "normalization": {
+    "quantities": {
+      "acceptedInputUnits": [
+        "mg",
+        "ug"
+      ],
+      "displayUnitLabels": {
+        "mg": "mg",
+        "ug": "µg"
+      },
+      "canonicalUnit": "mg",
+      "decimalArithmeticRequired": true,
+      "localeDecimalCommaAccepted": true,
+      "normalizeDecimalSeparatorTo": ".",
+      "mgFromUg": "decimal(ug) / 1000",
+      "otherUnits": "Mark unit_unsupported; do not convert or infer.",
+      "riiseQuantityWireType": "decimal_string_in_mg"
+    },
+    "existingIntakes": "Normalize only known amounts. Resolve canonical nutrient identity through a versioned mapping; do not equate different nutrient forms automatically.",
+    "sumKnownSupplementIntakesOnlyWithValidatedRule": true,
+    "noClaimOfCompleteDietaryOrDailyIntake": true
+  },
+  "branchAndRiskRuleSemantics": {
+    "scope": "Declarative navigation, profile facts and catalog exclusions. No ingredient selection or dosage computation is defined here.",
+    "operators": {
+      "eq": "Exact field-value comparison.",
+      "in": "Scalar field equals one of values.",
+      "includes": "Array field contains value.",
+      "includes_any": "Array field intersects values.",
+      "is_missing": "Field has no answer.",
+      "is_empty": "Field absent or array empty.",
+      "all": "Every nested condition is true.",
+      "any": "At least one nested condition is true.",
+      "any_record": "At least one array record matches recordWhen, whose field references are local to that record.",
+      "rule_binding_exists": "The enabled versioned rulebook explicitly declares the binding key."
+    },
+    "riskFlagMeaning": "Fact or missing-information flag for configured product/profile coverage rules; not a diagnosis, blanket sales prohibition or instruction for manual clinical approval.",
+    "effectRecomputation": "Rebuild derived flags and product exclusions from current answers after each change; do not accumulate stale flags.",
+    "catalogTags": "Tags must be confirmed from the actual supplier/catalog data. Missing tags are unknown, not proof of compatibility.",
+    "productPreferencePrecedence": "Explicit product_preference controls product exclusions. diet_pattern is separate and must not silently override the explicit choice."
+  },
+  "branchAndRiskRules": [
+    {
+      "id": "consent_declined",
+      "when": {
+        "operator": "eq",
+        "field": "health_data_consent",
+        "value": "decline"
+      },
+      "effects": [
+        {
+          "type": "clear_answers",
+          "except": [
+            "health_data_consent"
+          ]
+        },
+        {
+          "type": "navigate",
+          "target": "self_configurator"
+        }
+      ]
+    },
+    {
+      "id": "consent_accepted",
+      "when": {
+        "operator": "eq",
+        "field": "health_data_consent",
+        "value": "accept"
+      },
+      "effects": [
+        {
+          "type": "navigate",
+          "target": "age_band"
+        }
+      ]
+    },
+    {
+      "id": "minor_profile",
+      "when": {
+        "operator": "eq",
+        "field": "age_band",
+        "value": "under_18"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "profile_under_18"
+        }
+      ]
+    },
+    {
+      "id": "age_unknown",
+      "when": {
+        "operator": "any",
+        "conditions": [
+          {
+            "operator": "eq",
+            "field": "age_band",
+            "value": "prefer_not"
+          },
+          {
+            "operator": "is_missing",
+            "field": "age_band"
+          }
+        ]
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "age_unknown"
+        }
+      ]
+    },
+    {
+      "id": "existing_supplements_yes",
+      "when": {
+        "operator": "eq",
+        "field": "existing_supplements",
+        "value": "yes"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "current_supplements_reported"
+        },
+        {
+          "type": "show_if_rule_bound",
+          "questionId": "current_intakes",
+          "bindingKey": "eligibility.current_supplement_intake"
+        }
+      ]
+    },
+    {
+      "id": "existing_supplements_no",
+      "when": {
+        "operator": "eq",
+        "field": "existing_supplements",
+        "value": "no"
+      },
+      "effects": [
+        {
+          "type": "clear_answer",
+          "questionId": "current_intakes"
+        }
+      ]
+    },
+    {
+      "id": "existing_supplements_unknown",
+      "when": {
+        "operator": "in",
+        "field": "existing_supplements",
+        "values": [
+          "unknown",
+          "prefer_not"
+        ]
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "current_supplement_intake_unknown"
+        },
+        {
+          "type": "clear_answer",
+          "questionId": "current_intakes"
+        }
+      ]
+    },
+    {
+      "id": "current_intakes_missing",
+      "when": {
+        "operator": "all",
+        "conditions": [
+          {
+            "operator": "eq",
+            "field": "existing_supplements",
+            "value": "yes"
+          },
+          {
+            "operator": "is_empty",
+            "field": "current_intakes"
+          }
+        ]
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "supplemental_intake_incomplete"
+        }
+      ]
+    },
+    {
+      "id": "current_intakes_incomplete",
+      "when": {
+        "operator": "any_record",
+        "field": "current_intakes",
+        "recordWhen": {
+          "operator": "any",
+          "conditions": [
+            {
+              "operator": "in",
+              "field": "amountStatus",
+              "values": [
+                "unknown",
+                "unit_unsupported"
+              ]
+            },
+            {
+              "operator": "eq",
+              "field": "ingredientKey",
+              "value": "not_listed"
+            }
+          ]
+        }
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "supplemental_intake_incomplete"
+        }
+      ]
+    },
+    {
+      "id": "medication_reported",
+      "when": {
+        "operator": "eq",
+        "field": "regular_medication",
+        "value": "yes"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "regular_medication_reported"
+        }
+      ]
+    },
+    {
+      "id": "medication_unknown",
+      "when": {
+        "operator": "any",
+        "conditions": [
+          {
+            "operator": "in",
+            "field": "regular_medication",
+            "values": [
+              "unknown",
+              "prefer_not"
+            ]
+          },
+          {
+            "operator": "is_missing",
+            "field": "regular_medication"
+          }
+        ]
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "medication_information_unknown"
+        }
+      ]
+    },
+    {
+      "id": "conditions_reported",
+      "when": {
+        "operator": "includes_any",
+        "field": "relevant_conditions",
+        "values": [
+          "kidney",
+          "liver",
+          "thyroid",
+          "iron_metabolism",
+          "other"
+        ]
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "condition_reported"
+        },
+        {
+          "type": "copy_selected_to_profile_facts",
+          "source": "relevant_conditions",
+          "exclude": [
+            "none_known",
+            "prefer_not"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conditions_unknown",
+      "when": {
+        "operator": "includes",
+        "field": "relevant_conditions",
+        "value": "prefer_not"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "condition_information_unknown"
+        }
+      ]
+    },
+    {
+      "id": "pregnancy_reported",
+      "when": {
+        "operator": "eq",
+        "field": "pregnancy_status",
+        "value": "pregnant"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "pregnancy_reported"
+        }
+      ]
+    },
+    {
+      "id": "breastfeeding_reported",
+      "when": {
+        "operator": "eq",
+        "field": "pregnancy_status",
+        "value": "breastfeeding"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "breastfeeding_reported"
+        }
+      ]
+    },
+    {
+      "id": "pregnancy_planning_reported",
+      "when": {
+        "operator": "eq",
+        "field": "pregnancy_status",
+        "value": "planning"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "pregnancy_planning_reported"
+        }
+      ]
+    },
+    {
+      "id": "pregnancy_unknown",
+      "when": {
+        "operator": "in",
+        "field": "pregnancy_status",
+        "values": [
+          "unknown",
+          "prefer_not"
+        ]
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "pregnancy_information_unknown"
+        }
+      ]
+    },
+    {
+      "id": "fish_allergy",
+      "when": {
+        "operator": "includes",
+        "field": "allergies",
+        "value": "fish"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "fish_allergy_reported"
+        },
+        {
+          "type": "exclude_product_by_confirmed_catalog_tag",
+          "tag": "contains_fish",
+          "reasonCode": "fish_allergy",
+          "knownEffect": "Exclude Riise fish-oil Omega-3 softgels."
+        }
+      ]
+    },
+    {
+      "id": "soy_allergy",
+      "when": {
+        "operator": "includes",
+        "field": "allergies",
+        "value": "soy"
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "soy_allergy_reported"
+        },
+        {
+          "type": "exclude_product_by_confirmed_catalog_tag",
+          "tag": "contains_soy",
+          "reasonCode": "soy_allergy",
+          "unknownCatalogBehavior": "allergen_coverage_incomplete"
+        }
+      ]
+    },
+    {
+      "id": "allergen_coverage_unknown",
+      "when": {
+        "operator": "includes_any",
+        "field": "allergies",
+        "values": [
+          "other",
+          "unknown",
+          "prefer_not"
+        ]
+      },
+      "effects": [
+        {
+          "type": "add_risk_flag",
+          "code": "allergen_coverage_incomplete"
+        }
+      ]
+    },
+    {
+      "id": "vegetarian_product_selection",
+      "when": {
+        "operator": "eq",
+        "field": "product_preference",
+        "value": "vegetarian"
+      },
+      "effects": [
+        {
+          "type": "exclude_product_by_confirmed_catalog_tag",
+          "tag": "non_vegetarian",
+          "reasonCode": "vegetarian_preference"
+        },
+        {
+          "type": "exclude_product_by_confirmed_catalog_tag",
+          "tag": "contains_fish",
+          "reasonCode": "vegetarian_preference"
+        }
+      ]
+    },
+    {
+      "id": "vegan_product_selection",
+      "when": {
+        "operator": "eq",
+        "field": "product_preference",
+        "value": "vegan"
+      },
+      "effects": [
+        {
+          "type": "exclude_product_by_confirmed_catalog_tag",
+          "tag": "non_vegan",
+          "reasonCode": "vegan_preference"
+        },
+        {
+          "type": "exclude_product_by_confirmed_catalog_tag",
+          "tag": "contains_fish",
+          "reasonCode": "vegan_preference"
+        }
+      ]
+    }
+  ],
+  "recommendationEngineContract": {
+    "requiredConfiguration": [
+      "questionnaireVersion",
+      "catalogVersion",
+      "ruleVersion",
+      "explicit_question_bindings",
+      "profile_coverage_rules",
+      "ingredient_selection_rules",
+      "quantity_rules",
+      "product_target_group_rules",
+      "allergen_rules",
+      "nutrient_form_mapping",
+      "combination_rules",
+      "technical_validation_rules"
+    ],
+    "realRecommendationAllowedOnlyWithCompleteApplicableRules": true,
+    "allowedStatuses": [
+      "ready",
+      "rule_configuration_missing",
+      "not_supported",
+      "insufficient_data"
+    ],
+    "missingRulesStatus": "rule_configuration_missing",
+    "unsupportedProfileStatus": "not_supported",
+    "missingRequiredRuleInputsStatus": "insufficient_data",
+    "riskFlagsWithoutExplicitCoverage": "Do not infer clearance or a dose. Return not_supported or insufficient_data according to the configured coverage rule.",
+    "noLLMComputedDose": true,
+    "noInventedScores": true,
+    "noInferredRiiseAlgorithm": true,
+    "noMandatoryManualClinicalOrderApproval": true,
+    "failureRoute": "Offer self-configuration only for products whose mandatory eligibility and compatibility checks can be satisfied; otherwise explain the concrete unavailable option.",
+    "failureUi": {
+      "rule_configuration_missing": "Der Rezepturvorschlag ist noch nicht verfügbar.",
+      "not_supported": "Für deine Angaben können wir aktuell keinen Rezepturvorschlag berechnen.",
+      "insufficient_data": "Für einen Rezepturvorschlag fehlen noch Angaben."
+    },
+    "readyResponseFields": [
+      "status",
+      "mode",
+      "questionnaireVersion",
+      "ruleVersion",
+      "productRuleVersion",
+      "catalogVersion",
+      "ingredients[].ingredientId",
+      "ingredients[].nutrientKey",
+      "ingredients[].quantityMg",
+      "ingredients[].displayAmount",
+      "ingredients[].displayUnit",
+      "ingredients[].reasonCodes",
+      "omega3Months",
+      "reasonCodes",
+      "unresolvedFlags",
+      "excludedProductIds",
+      "pricingStatus"
+    ],
+    "uiReasonCopy": "Use only approved factual reason text from the matched rule. Do not infer a deficiency or treatment benefit.",
+    "afterManualChanges": "Re-run applicable catalog, dose-step, combination, profile-coverage, target-group and allergen checks on the final formula. A questionnaire recommendation is not a permanent clearance.",
+    "paymentHandling": "Technical final-formula validation and a locked formula reference belong before checkout; a verified paid Shopify order is revalidated before the idempotent Riise submission. No frontend payment redirect triggers production.",
+    "allowedModes": [
+      "demo",
+      "live"
+    ],
+    "noIngredientsWhenUnavailable": true,
+    "nonReadyIngredients": [],
+    "nonReadyOmega3Months": null,
+    "pricingStatusValues": [
+      "unpriced",
+      "not_configured"
+    ]
+  },
+  "acceptanceChecks": [
+    {
+      "id": "consent_first",
+      "given": "No consent answer",
+      "expect": "No health question is rendered and no health answer is collected."
+    },
+    {
+      "id": "consent_declined",
+      "given": "health_data_consent=decline",
+      "expect": "Route to self_configurator; clear questionnaire answers; do not skip mandatory product rules."
+    },
+    {
+      "id": "optional_unbound",
+      "given": "No rule binding for sleep_duration",
+      "expect": "Do not render, collect, store or evaluate sleep_duration."
+    },
+    {
+      "id": "unknown_is_unknown",
+      "given": "regular_medication=prefer_not",
+      "expect": "Set medication_information_unknown; never transform the answer into no."
+    },
+    {
+      "id": "fish_allergy",
+      "given": "allergies includes fish",
+      "expect": "Exclude confirmed contains_fish products, including Riise fish-oil Omega-3 softgels."
+    },
+    {
+      "id": "vegan_preference",
+      "given": "product_preference=vegan",
+      "expect": "Exclude confirmed non_vegan products and fish-oil Omega-3; do not invent an algae substitute."
+    },
+    {
+      "id": "unknown_intake",
+      "given": "A current_intakes row has amountStatus=unknown",
+      "expect": "Set supplemental_intake_incomplete; do not invent an amount."
+    },
+    {
+      "id": "microgram_conversion",
+      "given": "dailyAmount=25, unit=ug",
+      "expect": "Use exact decimal quantityMg=0.025."
+    },
+    {
+      "id": "unsupported_unit",
+      "given": "A product label uses an unsupported unit",
+      "expect": "Accept only the structured unit_unsupported answer; do not infer a conversion."
+    },
+    {
+      "id": "missing_rulebook",
+      "given": "No applicable versioned quantity rules",
+      "expect": "Return rule_configuration_missing or a clearly marked fictional demo; never create a real dosage."
+    },
+    {
+      "id": "no_forced_clinical_queue",
+      "given": "A profile is outside supported rule coverage",
+      "expect": "Return not_supported with the concrete reason; do not invent a compulsory physician approval queue."
+    },
+    {
+      "id": "change_parent_answer",
+      "given": "existing_supplements changes from yes to no",
+      "expect": "Clear current_intakes and remove flags derived from the cleared rows."
+    },
+    {
+      "id": "guest_path",
+      "given": "No DoctorBox login",
+      "expect": "The questionnaire, self-configurator and existing Shopify cart are usable as a guest."
+    },
+    {
+      "id": "minimal_shopify_data",
+      "given": "Add the final mix to the existing cart",
+      "expect": "No questionnaire answers or health risk flags are attached to Shopify; only the agreed transaction formula/reference and versions."
+    }
+  ],
+  "apiAnswerShape": {
+    "path": "POST /api/supplements/recommendation",
+    "consentField": "consent",
+    "answersField": "answers",
+    "consentQuestionNotIncludedInAnswers": true,
+    "knownAnswerKeyCount": 17,
+    "unknownAnswerKeys": "reject",
+    "canonicalDoseUnit": "mg",
+    "acceptedCurrentIntakeUnits": [
+      "mg",
+      "ug"
+    ]
+  }
+}

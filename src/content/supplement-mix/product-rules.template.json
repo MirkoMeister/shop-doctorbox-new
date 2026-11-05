@@ -1,0 +1,484 @@
+{
+  "documentType": "doctorbox_inactive_product_rules_template",
+  "schemaVersion": "1.0.0",
+  "productRuleVersion": "doctorbox-product-rules-v1-INACTIVE",
+  "catalogVersion": null,
+  "active": false,
+  "mode": "live",
+  "status": "rule_configuration_missing",
+  "warning": "INAKTIVES TEMPLATE. Keine fachlich festgelegten Dosierungen, keine Preisfreigabe und keine Berechtigung zu Herstellung oder Verkauf. Nullwerte sind ungeklärt und niemals unbeschränkt. Erst vollständig befüllen, fachlich festlegen, versionieren und nach technischer Prüfung ausdrücklich veröffentlichen.",
+  "publication": {
+    "status": "not_published",
+    "owner": null,
+    "effectiveAt": null,
+    "sources": [],
+    "versionHash": null,
+    "liveEnabled": false,
+    "noRoutineManualClinicalOrderApproval": true
+  },
+  "productRules": {
+    "active": false,
+    "ingredients": [
+      {
+        "ingredientId": "28",
+        "nutrientKey": "vitamin-d",
+        "form": "vitamin_d3",
+        "label": "Vitamin D3",
+        "active": false,
+        "allowedDisplayUnits": [
+          "mg",
+          "ug"
+        ],
+        "quantityConstraints": {
+          "minMg": null,
+          "maxMg": null,
+          "stepMg": null,
+          "stepOriginMg": null,
+          "doseBasisValidated": false,
+          "doseBasis": null
+        },
+        "allergenAndPreferenceData": {
+          "status": "not_confirmed",
+          "contains": null,
+          "mayContain": null,
+          "vegetarian": null,
+          "vegan": null,
+          "sourceReference": null
+        }
+      },
+      {
+        "ingredientId": "34",
+        "nutrientKey": "vitamin-b12",
+        "form": "methylcobalamin",
+        "label": "Vitamin B12 · Methylcobalamin",
+        "active": false,
+        "allowedDisplayUnits": [
+          "mg",
+          "ug"
+        ],
+        "quantityConstraints": {
+          "minMg": null,
+          "maxMg": null,
+          "stepMg": null,
+          "stepOriginMg": null,
+          "doseBasisValidated": false,
+          "doseBasis": null
+        },
+        "allergenAndPreferenceData": {
+          "status": "not_confirmed",
+          "contains": null,
+          "mayContain": null,
+          "vegetarian": null,
+          "vegan": null,
+          "sourceReference": null
+        }
+      },
+      {
+        "ingredientId": "39",
+        "nutrientKey": "magnesium",
+        "form": "magnesium_bisglycinate",
+        "label": "Magnesium · Bisglycinat",
+        "active": false,
+        "allowedDisplayUnits": [
+          "mg",
+          "ug"
+        ],
+        "quantityConstraints": {
+          "minMg": null,
+          "maxMg": null,
+          "stepMg": null,
+          "stepOriginMg": null,
+          "doseBasisValidated": false,
+          "doseBasis": null
+        },
+        "allergenAndPreferenceData": {
+          "status": "not_confirmed",
+          "contains": null,
+          "mayContain": null,
+          "vegetarian": null,
+          "vegan": null,
+          "sourceReference": null
+        }
+      },
+      {
+        "ingredientId": "11",
+        "nutrientKey": "iron",
+        "form": "ferrous_gluconate",
+        "label": "Eisen · Gluconat",
+        "active": false,
+        "allowedDisplayUnits": [
+          "mg",
+          "ug"
+        ],
+        "quantityConstraints": {
+          "minMg": null,
+          "maxMg": null,
+          "stepMg": null,
+          "stepOriginMg": null,
+          "doseBasisValidated": false,
+          "doseBasis": null
+        },
+        "allergenAndPreferenceData": {
+          "status": "not_confirmed",
+          "contains": null,
+          "mayContain": null,
+          "vegetarian": null,
+          "vegan": null,
+          "sourceReference": null
+        }
+      },
+      {
+        "ingredientId": "31",
+        "nutrientKey": "zinc",
+        "form": "zinc_bisglycinate",
+        "label": "Zink · Bisglycinat",
+        "active": false,
+        "allowedDisplayUnits": [
+          "mg",
+          "ug"
+        ],
+        "quantityConstraints": {
+          "minMg": null,
+          "maxMg": null,
+          "stepMg": null,
+          "stepOriginMg": null,
+          "doseBasisValidated": false,
+          "doseBasis": null
+        },
+        "allergenAndPreferenceData": {
+          "status": "not_confirmed",
+          "contains": null,
+          "mayContain": null,
+          "vegetarian": null,
+          "vegan": null,
+          "sourceReference": null
+        }
+      },
+      {
+        "ingredientId": "26",
+        "nutrientKey": "folate",
+        "form": "folic_acid",
+        "label": "Folat · Folsäure",
+        "active": false,
+        "allowedDisplayUnits": [
+          "mg",
+          "ug"
+        ],
+        "quantityConstraints": {
+          "minMg": null,
+          "maxMg": null,
+          "stepMg": null,
+          "stepOriginMg": null,
+          "doseBasisValidated": false,
+          "doseBasis": null
+        },
+        "allergenAndPreferenceData": {
+          "status": "not_confirmed",
+          "contains": null,
+          "mayContain": null,
+          "vegetarian": null,
+          "vegan": null,
+          "sourceReference": null
+        }
+      },
+      {
+        "ingredientId": "33",
+        "nutrientKey": "folate",
+        "form": "l_5_mthf",
+        "label": "Folat · L-5-MTHF",
+        "active": false,
+        "allowedDisplayUnits": [
+          "mg",
+          "ug"
+        ],
+        "quantityConstraints": {
+          "minMg": null,
+          "maxMg": null,
+          "stepMg": null,
+          "stepOriginMg": null,
+          "doseBasisValidated": false,
+          "doseBasis": null
+        },
+        "allergenAndPreferenceData": {
+          "status": "not_confirmed",
+          "contains": null,
+          "mayContain": null,
+          "vegetarian": null,
+          "vegan": null,
+          "sourceReference": null
+        }
+      },
+      {
+        "ingredientId": "17",
+        "nutrientKey": "selenium",
+        "form": "sodium_selenite",
+        "label": "Selen · Natriumselenit",
+        "active": false,
+        "allowedDisplayUnits": [
+          "mg",
+          "ug"
+        ],
+        "quantityConstraints": {
+          "minMg": null,
+          "maxMg": null,
+          "stepMg": null,
+          "stepOriginMg": null,
+          "doseBasisValidated": false,
+          "doseBasis": null
+        },
+        "allergenAndPreferenceData": {
+          "status": "not_confirmed",
+          "contains": null,
+          "mayContain": null,
+          "vegetarian": null,
+          "vegan": null,
+          "sourceReference": null
+        }
+      }
+    ],
+    "omega3": {
+      "active": false,
+      "type": "separate_fish_oil_softgel_product",
+      "containsFish": true,
+      "vegetarian": false,
+      "vegan": false,
+      "orderMonths": "3",
+      "quantityBasisConfirmed": false,
+      "allergenAndPreferenceData": {
+        "status": "not_confirmed",
+        "contains": [
+          "fish"
+        ],
+        "mayContain": null,
+        "vegetarian": false,
+        "vegan": false,
+        "sourceReference": null
+      }
+    },
+    "orderMonths": "3",
+    "maxPackagesPerMix": 1,
+    "saleCountries": [],
+    "quantitySemanticsStatus": "not_confirmed",
+    "folateSelectedIngredientId": null,
+    "combinationRulesVersion": null,
+    "targetGroupRulesVersion": null
+  },
+  "quantitySemantics": {
+    "status": "not_confirmed",
+    "canonicalUnit": "mg",
+    "acceptedUiUnits": [
+      "mg",
+      "ug"
+    ],
+    "riiseWireQuantityType": "positive_canonical_decimal_string_mg",
+    "riiseQuantityPeriod": null,
+    "riiseQuantityMeaning": null,
+    "dailyVsPortionBasis": null,
+    "activeNutrientVsRawMaterialBasis": null,
+    "portionCountPerPack": null,
+    "packContent": null,
+    "roundingMode": null,
+    "manufacturerConfirmationReference": null,
+    "manufacturerConfirmedAt": null,
+    "multiplyThreeMonthsByNinety": false,
+    "decimalArithmeticRequired": true,
+    "otherUnitConversionsAllowed": false
+  },
+  "folateDecision": {
+    "status": "not_configured",
+    "candidateIngredientIds": [
+      "26",
+      "33"
+    ],
+    "selectedIngredientId": null,
+    "offerBothAsDefault": false,
+    "selectionRequiredBeforeActivation": true,
+    "aggregateNutrientKey": "folate",
+    "crossFormAggregationBasis": null,
+    "maxCombinedMg": null,
+    "conversionRules": []
+  },
+  "targetGroupRules": {
+    "active": false,
+    "version": null,
+    "declaredTargetGroups": [],
+    "coverageRules": [],
+    "unknownAnswerPolicy": "remain_unknown",
+    "missingCoverageStatus": "not_supported",
+    "missingInputStatus": "insufficient_data",
+    "noAutomaticPhysicianApprovalQueue": true
+  },
+  "combinationRules": {
+    "active": false,
+    "version": null,
+    "rules": [],
+    "absenceMeans": "not_configured_not_unrestricted",
+    "validateDuplicateIngredientIds": true,
+    "validateDuplicateNutrientForms": true,
+    "validatedCrossFormAggregationRules": []
+  },
+  "recommendationRules": {
+    "active": false,
+    "version": null,
+    "status": "rule_configuration_missing",
+    "sources": [],
+    "owner": null,
+    "establishedAt": null,
+    "selectionRules": [],
+    "quantityRules": [],
+    "profileCoverageRules": [],
+    "defaultDoses": null,
+    "llmComputesDose": false,
+    "riiseRecommendationApi": null,
+    "whenMissing": {
+      "status": "rule_configuration_missing",
+      "ingredients": [],
+      "omega3Months": null
+    }
+  },
+  "questionBindings": {
+    "questionnaireVersion": "doctorbox-supplements-v1-draft",
+    "activeBindings": [],
+    "optionalQuestionPolicy": "Collect only when an active versioned rule explicitly uses the field. Declared but inactive bindings are not use.",
+    "pendingOptionalBindings": [
+      {
+        "questionId": "fish_frequency",
+        "bindingKey": "recommendation.fish_frequency",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "produce_portions",
+        "bindingKey": "recommendation.produce_portions",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "dairy_fortified_frequency",
+        "bindingKey": "recommendation.dairy_fortified_frequency",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "activity_sessions",
+        "bindingKey": "recommendation.activity_sessions",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "sleep_duration",
+        "bindingKey": "recommendation.sleep_duration",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "stress_level",
+        "bindingKey": "recommendation.stress_level",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "outdoor_frequency",
+        "bindingKey": "recommendation.outdoor_frequency",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "current_intakes",
+        "bindingKey": "eligibility.current_supplement_intake",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "relevant_conditions",
+        "bindingKey": "eligibility.relevant_conditions",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      },
+      {
+        "questionId": "pregnancy_status",
+        "bindingKey": "eligibility.pregnancy_status",
+        "fieldUse": "requires_rule_binding",
+        "active": false,
+        "ruleIds": [],
+        "ruleVersion": null
+      }
+    ],
+    "lifestyleMayNotImplyBenefitOrDoseWithoutRule": true
+  },
+  "pricing": {
+    "status": "not_configured",
+    "model": "not_configured",
+    "version": null,
+    "currencyCode": null,
+    "manufacturerCost": null,
+    "manufacturerCostTaxBasis": null,
+    "manufacturerShippingBasis": null,
+    "salePrice": null,
+    "marginModel": null,
+    "variantMappings": [],
+    "discountPolicyVersion": null,
+    "allowedDiscountCodes": null,
+    "quoteService": null,
+    "allowBrowserPriceAsAuthority": false,
+    "allowCartAttributeToChangeShopifyPrice": false
+  },
+  "shopify": {
+    "storefrontApiVersion": "2026-10",
+    "cartIntegration": "existing_storefront_cart",
+    "shopDomain": null,
+    "shopPlan": null,
+    "checkoutEnforcementStatus": "not_configured",
+    "checkoutEnforcementProof": null,
+    "productVariantIds": [],
+    "fulfillmentLocationId": null,
+    "shippingProfileId": null,
+    "requiredPhoneCollectionConfirmed": false,
+    "liveCheckoutAvailable": false
+  },
+  "riiseOperations": {
+    "testEnvironmentConfirmed": false,
+    "quantitySemanticsConfirmed": false,
+    "upsertBehaviorConfirmed": false,
+    "consistencyBehaviorConfirmed": false,
+    "sourceCompanyNameConfigured": false,
+    "productionCredentialsConfigured": false,
+    "rateLimitsConfirmed": false,
+    "cancellationProcessConfirmed": false,
+    "postAuthorized": false,
+    "credentials": "SERVER_SECRET_MANAGER_ONLY_NO_VALUES_IN_THIS_FILE"
+  },
+  "activationRequirements": [
+    "Alle angebotenen Zutatenformen und Folatentscheidung festlegen",
+    "Tatsächliche Hersteller-Mengenbasis, Portionszahl und Rundung bestätigen",
+    "Grenzen und Schrittweiten je angebotener Zutat fachlich festlegen und mit Quellen versionieren",
+    "Zielgruppen-, Allergen-, Eignungs- und Kombinationsregeln vollständig festlegen",
+    "Nur tatsächlich gebundene Fragebogenfelder veröffentlichen",
+    "Eigenständige Empfehlungsregeln fachlich festlegen oder echte nicht verfügbare Empfehlung ehrlich darstellen",
+    "Herstellerkosten, Steuer-/Versandbasis, Verkaufspreise und Shopify-Varianten verbindlich konfigurieren",
+    "Rabatte und Verkaufsländer tatsächlich konfigurieren",
+    "Wirksame Checkout-Prüfung auf dem tatsächlichen Shopify-Plan nachweisen",
+    "Datenschutz, Einwilligungsinformation und Löschkonzept passend zum tatsächlichen Betrieb festlegen",
+    "Riise-Testmodus oder ausdrücklich autorisierten Testauftrag bestätigen und Übergabe prüfen",
+    "Dauerhafte Webhook-/Job-Deduplizierung und unklare POST-Ausgänge prüfen"
+  ],
+  "activationPolicy": "Der Server muss alle Voraussetzungen unabhängig von active prüfen. active=true allein oder vom Browser übermittelte Regeln erlauben keine Freigabe."
+}
