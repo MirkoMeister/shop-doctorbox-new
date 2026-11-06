@@ -20,7 +20,7 @@ const Payload = z.object({
 const limited = rateLimiter({ windowMs: 60 * 60 * 1000, perKey: 5, global: 100 });
 
 /**
- * Contact form endpoint. Sends the message by e-mail (Brevo or Resend, see lib/mail.ts) when
+ * Contact form endpoint. Sends the message by e-mail (Brevo, see lib/mail.ts) when
  * a key is configured; otherwise it is logged on the server so the
  * form still works in development (in production the form reports an error). Recipient: CONTACT_TO (falls back to B2B_INQUIRY_TO).
  */
@@ -53,10 +53,10 @@ export async function POST(req: NextRequest) {
     // live without a mail key: report an error instead of thanking for a message nobody receives,
     // and keep the visitor's data out of the production log
     if (process.env.NODE_ENV === "production") {
-      console.error("[contact] no BREVO_API_KEY or RESEND_API_KEY configured, message not sent");
+      console.error("[contact] no BREVO_API_KEY configured, message not sent");
       return NextResponse.json({ ok: false, error: "delivery" }, { status: 502 });
     }
-    console.info("[contact] (no BREVO_API_KEY or RESEND_API_KEY configured, logging only)\n" + text);
+    console.info("[contact] (no BREVO_API_KEY configured, logging only)\n" + text);
     return NextResponse.json({ ok: true, delivered: false });
   }
   return NextResponse.json({ ok: true, delivered: true });

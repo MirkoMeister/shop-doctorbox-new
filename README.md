@@ -27,7 +27,7 @@ Weitere Befehle: `npm run build` (Produktions-Build), `npm run lint`, `npx tsc -
 | `NEXT_PUBLIC_KLAVIYO_COMPANY_ID`, `NEXT_PUBLIC_KLAVIYO_LIST_ID` | Klaviyo Onsite + Newsletter-Formular im Footer (Formular erscheint nur mit List-ID) |
 | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | Plausible (cookieless) |
 | `NEXT_PUBLIC_ETRUSTED_ENABLED`, `NEXT_PUBLIC_ETRUSTED_WIDGET_ID` | Trusted Shops Widget-Bootstrap |
-| `BREVO_API_KEY` oder `RESEND_API_KEY`, `B2B_INQUIRY_TO`, `CONTACT_TO`, `B2B_INQUIRY_FROM` | Zustellung von B2B- und Kontaktformular per E-Mail (`src/lib/mail.ts`, Brevo vor Resend; ohne Key wird serverseitig nur geloggt). Der Absender muss beim Anbieter verifiziert sein |
+| `BREVO_API_KEY`, `B2B_INQUIRY_TO`, `CONTACT_TO`, `B2B_INQUIRY_FROM` | Zustellung von B2B- und Kontaktformular per E-Mail (`src/lib/mail.ts` über Brevo; ohne Key wird serverseitig nur geloggt). Der Absender muss in Brevo verifiziert sein |
 | `ANTHROPIC_API_KEY` | V2: KI-Testberater (Claude API) |
 
 ## URL-Struktur und SEO
