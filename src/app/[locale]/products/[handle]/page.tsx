@@ -24,6 +24,7 @@ import { SupplementDetails } from "@/components/supplements/SupplementDetails";
 import { sameGoalSupplements, supplementsForTest, testsForSupplement } from "@/content/supplements";
 import { youngleContent } from "@/content/youngle-content";
 import { TassoBanner } from "@/components/home/TassoBanner";
+import { SecurityTrust } from "@/components/product/SecurityTrust";
 import { MULTI_BUY } from "@/content/bundles";
 import { getMultiBuyPercent } from "@/lib/shopify/multi-buy";
 import { isTassoVariant } from "@/components/product/default-variant";
@@ -270,6 +271,9 @@ export default async function ProductPage({ params }: Props) {
           <HowItWorks dict={dict} compact />
         </section>
       )}
+
+      {/* tests only: results in the app, encryption, TÜV NORD certificates (issue #13) */}
+      {!supplement && <SecurityTrust locale={locale} />}
 
       {relatedShown.length > 0 && (
         <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
