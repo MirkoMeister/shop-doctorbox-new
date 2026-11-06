@@ -172,6 +172,8 @@ export type CartLine = {
 export type Cart = {
   id: string;
   checkoutUrl: string;
+  /** market the cart belongs to (delivery country chosen in the shop) */
+  buyerIdentity: { countryCode: string | null };
   totalQuantity: number;
   /** codes on the cart; `applicable` false means Shopify rejected it */
   discountCodes: { code: string; applicable: boolean }[];

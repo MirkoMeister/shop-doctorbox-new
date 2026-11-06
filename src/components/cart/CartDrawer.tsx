@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "./CartProvider";
+import { CartShipping } from "./ShipCountry";
 import type { Locale } from "@/lib/i18n/config";
 import { localeHref } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -191,6 +192,7 @@ export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; di
                 )}
               </p>
             )}
+            <CartShipping dict={dict} locale={locale} className="mt-2" />
             <p className="mt-1 flex items-start gap-2 text-sm text-ink-muted">
               <PinIcon width={16} height={16} className="mt-0.5 shrink-0 text-green" />
               {dict.cart.pickupNote}

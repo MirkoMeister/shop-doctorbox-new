@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useAssistant } from "@/components/assistant/AssistantProvider";
 import { useCart } from "./CartProvider";
+import { CartShipping } from "./ShipCountry";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Highlight } from "@/components/ui/Highlight";
 import { ArrowRight, CheckIcon, DropIcon, MinusIcon, PinIcon, PlusIcon, SearchIcon, ShieldIcon, SparkIcon, TruckIcon } from "@/components/ui/Icons";
@@ -187,6 +188,7 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
         </div>
       </dl>
       <p className="mt-1 text-xs text-ink-muted">{dict.cart.vatNote}</p>
+      <CartShipping dict={dict} locale={locale} className="mt-4 rounded-2xl bg-soft px-4 py-3" />
 
       {promo && (
         <div className="mt-5 rounded-2xl bg-soft p-4">

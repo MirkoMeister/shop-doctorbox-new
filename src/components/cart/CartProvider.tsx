@@ -2,7 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { Locale } from "@/lib/i18n/config";
-import { addToCart, getCart, removeLine, setDiscountCode, updateLine } from "@/lib/cart/actions";
+import { addToCart, getCart, removeLine, setDiscountCode, setShipCountry, updateLine } from "@/lib/cart/actions";
+import { DEFAULT_SHIP_COUNTRY, readShipCountryCookie, type ShippingCountry } from "@/lib/shipping";
 import type { Cart } from "@/lib/shopify/types";
 import type { CartLineInput } from "@/lib/shopify/queries";
 import { itemFromLine, trackAddToCart, trackRemoveFromCart } from "@/lib/tracking/events";
@@ -19,16 +20,35 @@ type CartContextValue = {
   /** resolves to true when Shopify accepted the code; null removes the code */
   applyDiscount: (code: string | null) => Promise<boolean>;
   error: string | null;
+  /** delivery country picked in the shop; decides the Shopify market of the cart */
+  country: string;
+  countryPending: boolean;
+  setCountry: (country: string) => Promise<void>;
+  /** countries Shopify delivers to, with their standard rate (Germany first) */
+  countries: ShippingCountry[];
+  /** the chosen country with its rate; null when Shopify could not be asked */
+  countryInfo: ShippingCountry | null;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-export function CartProvider({ locale, children }: { locale: Locale; children: React.ReactNode }) {
+export function CartProvider({
+  locale,
+  countries = [],
+  children,
+}: {
+  locale: Locale;
+  countries?: ShippingCountry[];
+  children: React.ReactNode;
+}) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [country, setCountryState] = useState<string>(DEFAULT_SHIP_COUNTRY);
+  // own transition: switching the country must not show "adding…" on the add-to-cart button
+  const [countryPending, startCountryTransition] = useTransition();
   // the cart before a change, for remove_from_cart (the callbacks stay stable)
   const cartRef = useRef<Cart | null>(null);
   useEffect(() => {
@@ -37,6 +57,9 @@ export function CartProvider({ locale, children }: { locale: Locale; children: R
 
   useEffect(() => {
     let alive = true;
+    // the cookie is read after hydration, so server and first client render agree (DE)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCountryState(readShipCountryCookie());
     getCart(locale)
       .then((c) => alive && setCart(c))
       .finally(() => alive && setLoading(false));
@@ -120,9 +143,26 @@ export function CartProvider({ locale, children }: { locale: Locale; children: R
     [locale],
   );
 
+  const setCountry = useCallback(
+    (next: string) =>
+      new Promise<void>((resolve) => {
+        setCountryState(next);
+        startCountryTransition(async () => {
+          const res = await setShipCountry(next, locale);
+          setCountryState(res.country);
+          if (res.cart) setCart(res.cart);
+          else if (res.error) setError(res.error);
+          resolve();
+        });
+      }),
+    [locale],
+  );
+
+  const countryInfo = countries.find((c) => c.code === country) ?? countries.find((c) => c.code === DEFAULT_SHIP_COUNTRY) ?? null;
+
   const value = useMemo(
-    () => ({ cart, loading, pending, open, setOpen, add, update, remove, applyDiscount, error }),
-    [cart, loading, pending, open, add, update, remove, applyDiscount, error],
+    () => ({ cart, loading, pending, open, setOpen, add, update, remove, applyDiscount, error, country, countryPending, setCountry, countries, countryInfo }),
+    [cart, loading, pending, open, add, update, remove, applyDiscount, error, country, countryPending, setCountry, countries, countryInfo],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

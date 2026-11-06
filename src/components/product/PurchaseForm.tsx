@@ -11,6 +11,7 @@ import type { Money, Product, Variant } from "@/lib/shopify/types";
 import { BoxIcon, CheckIcon, LockIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
 import { defaultVariant, isTasso } from "@/components/product/default-variant";
 import { BundleOffer } from "@/components/product/BundleOffer";
+import { cheapestAbroad, shippingShort } from "@/components/cart/ShipCountry";
 import { isYoungle } from "@/components/supplements/SupplementTrust";
 import { SUBSCRIPTION_PAGE } from "@/content/subscription";
 import { youngleShipping } from "@/content/youngle-shipping";
@@ -33,7 +34,9 @@ export function PurchaseForm({
   /** multi-buy discount offered under the add-to-cart button (content/bundles.ts) */
   multiBuy?: { percent: number } | null;
 }) {
-  const { add, pending, error: cartError } = useCart();
+  const { add, pending, error: cartError, countryInfo, countries } = useCart();
+  // shown only while Germany is chosen; anyone who picked another country in the cart sees that rate above
+  const abroad = countryInfo && countryInfo.code !== "DE" ? null : cheapestAbroad(countries);
   const [addFailed, setAddFailed] = useState(false);
   const firstAvailable = defaultVariant(product);
   // A ?variant= link (Google Shopping) wins over the default until the visitor picks something
@@ -321,9 +324,16 @@ export function PurchaseForm({
           )}
           <li className="flex flex-col items-center gap-1.5">
             <TruckIcon width={22} height={22} className="text-green" />
-            <span className="font-medium">{dict.product.trustFreeShipping}</span>
+            <span className="font-medium">{shippingShort(countryInfo, dict, locale)}</span>
           </li>
         </ul>
+      )}
+      {!youngle && abroad && (
+        <p className="-mt-3 text-center text-xs text-ink-muted">
+          <a href={localeHref(locale, "/policies/shipping-policy")} className="underline-offset-2 hover:text-ink hover:underline">
+            {fill(dict.product.shippingAbroadFrom, { amount: formatMoney(abroad, locale) })}
+          </a>
+        </p>
       )}
 
       {/* Youngle ships its products itself; pickup only for our own stock */}

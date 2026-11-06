@@ -3,6 +3,7 @@ import { CART_COOKIE, DISCOUNT_COOKIE, DISCOUNT_COOKIE_MAX_AGE, isLinkCode, safe
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { clientIp, rateLimiter } from "@/lib/rate-limit";
 import { updateCartDiscountCodes } from "@/lib/shopify/queries";
+import { parseShipCountry, SHIP_COUNTRY_COOKIE } from "@/lib/shipping";
 
 /** links can be used to guess codes like the cart field: same limit */
 const limited = rateLimiter({ windowMs: 10 * 60 * 1000, perKey: 10 });
@@ -34,7 +35,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const ip = clientIp(request.headers);
   if (cartId && !limited(ip ?? "local")) {
     // a failing or unknown code must not block the redirect; Shopify ignores codes that do not apply
-    await updateCartDiscountCodes(cartId, [code], locale, ip).catch(() => null);
+    const country = parseShipCountry(request.cookies.get(SHIP_COUNTRY_COOKIE)?.value);
+    await updateCartDiscountCodes(cartId, [code], locale, ip, country).catch(() => null);
   }
   return res;
 }

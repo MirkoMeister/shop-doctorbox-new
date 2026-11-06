@@ -5,6 +5,7 @@ import { Host_Grotesk } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { CartProvider } from "@/components/cart/CartProvider";
+import { getShippingCountries } from "@/lib/shopify/shipping-rates";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -64,10 +65,11 @@ export default async function LocaleLayout({
   if (!isLocale(raw)) notFound();
   const locale: Locale = raw;
   const dict = getDictionary(locale);
-  const [collections, picks, upsellProduct] = await Promise.all([
+  const [collections, picks, upsellProduct, shippingCountries] = await Promise.all([
     getNavCollections(locale).catch(() => []),
     getCollection(TOP_PICKS_COLLECTION, locale).catch(() => null),
     getProduct(CART_UPSELL_HANDLE, locale).catch(() => null),
+    getShippingCountries(locale).catch(() => []),
   ]);
   const campaign = activeCampaign(locale);
   const promo = Boolean(campaign);
@@ -85,7 +87,7 @@ export default async function LocaleLayout({
         </Script>
         <Script id="iubenda-embed" src={iubendaEmbedSrc()} strategy="beforeInteractive" />
         <JsonLd data={[organizationJsonLd(locale), websiteJsonLd(locale)]} />
-        <CartProvider locale={locale}>
+        <CartProvider locale={locale} countries={shippingCountries}>
           <AssistantProvider locale={locale} dict={dict}>
           {campaign && <AnnouncementBar locale={locale} campaign={campaign} />}
           <Header locale={locale} dict={dict} collections={collections} featured={featured} campaign={campaign} />

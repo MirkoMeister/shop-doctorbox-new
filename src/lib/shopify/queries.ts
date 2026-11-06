@@ -31,6 +31,8 @@ import type {
 } from "./types";
 import { rankSearchResults } from "@/lib/search-rank";
 
+import { DEFAULT_SHIP_COUNTRY } from "@/lib/shipping";
+
 const CTX = "@inContext(language: $language, country: $country)";
 const CTX_VARS = "$language: LanguageCode, $country: CountryCode";
 
@@ -747,9 +749,9 @@ const CART_QUERY = /* GraphQL */ `
   ${CART_FRAGMENT}
 `;
 
-export async function fetchCart(id: string, locale: Locale, buyerIp?: string | null): Promise<Cart | null> {
+export async function fetchCart(id: string, locale: Locale, buyerIp?: string | null, country: string = DEFAULT_SHIP_COUNTRY): Promise<Cart | null> {
   const data = await shopifyFetch<{ cart: RawCart | null }>(CART_QUERY, {
-    variables: { id },
+    variables: { id, country },
     locale,
     cache: "no-store",
     buyerIp,
@@ -843,9 +845,9 @@ function unwrap(result: CartMutation): Cart {
   return cart;
 }
 
-export async function createCart(lines: CartLineInput[], locale: Locale, buyerIp?: string | null): Promise<Cart> {
+export async function createCart(lines: CartLineInput[], locale: Locale, buyerIp?: string | null, country: string = DEFAULT_SHIP_COUNTRY): Promise<Cart> {
   const data = await shopifyFetch<{ cartCreate: CartMutation }>(CART_CREATE, {
-    variables: { lines },
+    variables: { lines, country },
     locale,
     cache: "no-store",
     buyerIp,
@@ -853,9 +855,9 @@ export async function createCart(lines: CartLineInput[], locale: Locale, buyerIp
   return unwrap(data.cartCreate);
 }
 
-export async function addCartLines(cartId: string, lines: CartLineInput[], locale: Locale, buyerIp?: string | null): Promise<Cart> {
+export async function addCartLines(cartId: string, lines: CartLineInput[], locale: Locale, buyerIp?: string | null, country: string = DEFAULT_SHIP_COUNTRY): Promise<Cart> {
   const data = await shopifyFetch<{ cartLinesAdd: CartMutation }>(CART_LINES_ADD, {
-    variables: { cartId, lines },
+    variables: { cartId, lines, country },
     locale,
     cache: "no-store",
     buyerIp,
@@ -868,9 +870,10 @@ export async function updateCartLines(
   lines: { id: string; quantity: number }[],
   locale: Locale,
   buyerIp?: string | null,
+  country: string = DEFAULT_SHIP_COUNTRY,
 ): Promise<Cart> {
   const data = await shopifyFetch<{ cartLinesUpdate: CartMutation }>(CART_LINES_UPDATE, {
-    variables: { cartId, lines },
+    variables: { cartId, lines, country },
     locale,
     cache: "no-store",
     buyerIp,
@@ -879,9 +882,9 @@ export async function updateCartLines(
 }
 
 /** Replaces the discount codes on the cart (empty array removes them). */
-export async function updateCartDiscountCodes(cartId: string, discountCodes: string[], locale: Locale, buyerIp?: string | null): Promise<Cart> {
+export async function updateCartDiscountCodes(cartId: string, discountCodes: string[], locale: Locale, buyerIp?: string | null, country: string = DEFAULT_SHIP_COUNTRY): Promise<Cart> {
   const data = await shopifyFetch<{ cartDiscountCodesUpdate: CartMutation }>(CART_DISCOUNT_CODES_UPDATE, {
-    variables: { cartId, discountCodes },
+    variables: { cartId, discountCodes, country },
     locale,
     cache: "no-store",
     buyerIp,
@@ -889,12 +892,38 @@ export async function updateCartDiscountCodes(cartId: string, discountCodes: str
   return unwrap(data.cartDiscountCodesUpdate);
 }
 
-export async function removeCartLines(cartId: string, lineIds: string[], locale: Locale, buyerIp?: string | null): Promise<Cart> {
+export async function removeCartLines(cartId: string, lineIds: string[], locale: Locale, buyerIp?: string | null, country: string = DEFAULT_SHIP_COUNTRY): Promise<Cart> {
   const data = await shopifyFetch<{ cartLinesRemove: CartMutation }>(CART_LINES_REMOVE, {
-    variables: { cartId, lineIds },
+    variables: { cartId, lineIds, country },
     locale,
     cache: "no-store",
     buyerIp,
   });
   return unwrap(data.cartLinesRemove);
+}
+
+const CART_BUYER_IDENTITY_UPDATE = /* GraphQL */ `
+  mutation CartBuyerIdentityUpdate($cartId: ID!, ${CTX_VARS}) ${CTX} {
+    cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: { countryCode: $country }) {
+      cart {
+        ...CartFields
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+  ${CART_FRAGMENT}
+`;
+
+/** Moves the cart to the market of another delivery country (checkout then opens with that country). */
+export async function updateCartCountry(cartId: string, locale: Locale, buyerIp: string | null | undefined, country: string): Promise<Cart> {
+  const data = await shopifyFetch<{ cartBuyerIdentityUpdate: CartMutation }>(CART_BUYER_IDENTITY_UPDATE, {
+    variables: { cartId, country },
+    locale,
+    cache: "no-store",
+    buyerIp,
+  });
+  return unwrap(data.cartBuyerIdentityUpdate);
 }

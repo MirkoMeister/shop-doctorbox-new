@@ -249,6 +249,9 @@ export const CART_FRAGMENT = /* GraphQL */ `
   fragment CartFields on Cart {
     id
     checkoutUrl
+    buyerIdentity {
+      countryCode
+    }
     totalQuantity
     discountCodes {
       code
