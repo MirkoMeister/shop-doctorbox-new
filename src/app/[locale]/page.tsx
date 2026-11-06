@@ -12,6 +12,7 @@ import { NewsletterSection } from "@/components/home/NewsletterSection";
 import { StiSpotlight } from "@/components/home/StiSpotlight";
 import { SupplementsSpotlight } from "@/components/home/SupplementsSpotlight";
 import { TassoBanner } from "@/components/home/TassoBanner";
+import { SecurityTrust } from "@/components/product/SecurityTrust";
 import { ProductGrid } from "@/components/product/ProductCard";
 import { localeHref } from "@/lib/i18n/config";
 import { resolveLocale } from "@/lib/locale-params";
@@ -108,6 +109,8 @@ export default async function HomePage({ params }: Props) {
 
       <HowItWorks dict={dict} />
       <TrustBand dict={dict} />
+      {/* results in the app, encryption, TÜV NORD certificates (issue #13) */}
+      <SecurityTrust locale={locale} />
       <BlogTeasers articles={articles} locale={locale} dict={dict} />
       <NewsletterSection locale={locale} dict={dict} />
       <InsuranceCard dict={dict} />
