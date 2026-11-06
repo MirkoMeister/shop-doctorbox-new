@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { isMiraPick, MIRA_LINE_ATTRIBUTE } from "@/lib/assistant/attribution";
-import type { Locale } from "@/lib/i18n/config";
+import { localeHref, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney } from "@/lib/format";
@@ -12,6 +12,7 @@ import { BoxIcon, CheckIcon, LockIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon }
 import { defaultVariant, isTasso } from "@/components/product/default-variant";
 import { BundleOffer } from "@/components/product/BundleOffer";
 import { isYoungle } from "@/components/supplements/SupplementTrust";
+import { SUBSCRIPTION_PAGE } from "@/content/subscription";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { unitPriceOf, type UnitPrice } from "@/lib/unit-price";
 import { useUrlVariant, writeVariantToUrl } from "./use-url-variant";
@@ -242,9 +243,12 @@ export function PurchaseForm({
                   );
                 })}
               </div>
-              {savePct && (
-                <p className="mt-2 text-xs text-ink-muted">{fill(dict.product.subscriptionSaving, { pct: savePct })}</p>
-              )}
+              <p className="mt-2 text-xs text-ink-muted">
+                {savePct && <>{fill(dict.product.subscriptionSaving, { pct: savePct })} </>}
+                <a href={localeHref(locale, SUBSCRIPTION_PAGE)} className="underline underline-offset-2 hover:text-ink">
+                  {dict.product.subscriptionHow}
+                </a>
+              </p>
             </fieldset>
           )}
         </fieldset>
@@ -308,7 +312,6 @@ export function PurchaseForm({
           <li className="flex flex-col items-center gap-1.5">
             <TruckIcon width={22} height={22} className="text-green" />
             <span className="font-medium">{dict.product.trustFreeShipping}</span>
-            {parseFloat(activePrice.amount) < 50 && <span className="text-[11px] text-ink-muted">{dict.product.trustFreeFrom}</span>}
           </li>
         </ul>
       )}

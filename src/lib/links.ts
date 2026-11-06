@@ -47,3 +47,6 @@ export function cleanContentHref(href: string): string {
   const target = legacyTarget(path);
   return target ? `${target}${cut >= 0 ? h.slice(cut) : ""}` : h;
 }
+
+/** Shopify customer account: manage, pause or cancel subscriptions (link from the old subscription page) */
+export const SUBSCRIPTION_MANAGE_URL = "https://shopify.com/56469913683/account/pages/6971b1a1-27f6-4c27-b8b0-3009fd3b921d";
