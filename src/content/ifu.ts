@@ -5,6 +5,8 @@ import type { Locale } from "@/lib/i18n/config";
  * manufacturers' own instructions for every component. PDFs go to public/ifu/<slug>/ (or a Shopify
  * Files URL); a component without `ifu.href` shows "folgt" when it needs instructions, "–" when not.
  */
+export type IfuDoc = { href: string; label: Record<Locale, string> };
+
 export type IfuComponent = {
   name: string;
   /** manufacturer, EU representative, importer as printed on the label */
@@ -15,8 +17,8 @@ export type IfuComponent = {
   usage?: string;
   /** EU declaration of conformity (PDF) */
   conformity?: string;
-  /** a further manufacturer document, e.g. a collection guide */
-  extra?: { href: string; label: Record<Locale, string> };
+  /** further manufacturer documents, e.g. a collection guide or certificates */
+  extra?: IfuDoc | IfuDoc[];
   /**
    * `version`: document number and revision printed on the IFU.
    * `onPack`: no separate IFU, the instructions are printed on the packaging; `onProduct`: on the product itself.
@@ -105,12 +107,17 @@ const DBS_PARTS: IfuComponent[] = [
   },
   { ...SOFT_ZELLIN },
   { ...DERMAPLAST },
-  // no IFU; the declaration of conformity on file (2022-03-07, MDD) expired on 2023-08-04, so it is not linked
-  // until Leina-Werke sends the current one (docs/IFU-OFFEN.md)
+  // no IFU; EU declaration of conformity under MDR (class I sterile, REF 61200-61204/61207-61212, valid until
+  // 2029-01-16) plus the TÜV Rheinland certificates (MDR HZ 1007442-1, ISO 13485 SX 1007442-1)
   {
     name: "LEINASAN Wundkompresse",
     manufacturer: "Leina-Werke, Windeck",
     marking: "MD, CE 0197, steril",
+    conformity: "/ifu/dbs/leinasan-konformitaetserklaerung-2024.pdf",
+    extra: [
+      { href: "/ifu/dbs/leina-mdr-zertifikat-hz-1007442-1.pdf", label: { de: "EU-Zertifikat MDR (TÜV Rheinland, bis 16.01.2029)", en: "EU MDR certificate (TÜV Rheinland, until 2029-01-16)" } },
+      { href: "/ifu/dbs/leina-iso-13485-zertifikat-sx-1007442-1.pdf", label: { de: "Zertifikat ISO 13485 (TÜV Rheinland, bis 04.08.2028)", en: "ISO 13485 certificate (TÜV Rheinland, until 2028-08-04)" } },
+    ],
     ifu: { required: false },
   },
   {

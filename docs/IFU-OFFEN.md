@@ -21,7 +21,6 @@ Stand: 06.11.2026
 |---|---|---|---|
 | 1 | **DoctorBox-Schritt-für-Schritt-Anleitungen (PDF)** | alle 4 Seiten; oben steht „Anleitung öffnen (PDF): folgt“ | intern, PDFs liefern |
 | 2 | **Gebrauchsanweisung BD Microtainer® K2EDTA-Röhrchen (lila Kappe)**, deutsch | /ifu/tasso („folgt“) | bei BD angefragt (Frau Schlüter), dabei auch gefragt: Darf das PDF auf die Website? Ist die Serum-IFU (Version 01, 2022-02) noch aktuell? |
-| 3 | **Aktuelle Konformitätserklärung LEINASAN Wundkompresse** | DBS-Teil (alle Seiten außer Tasso) | bei Leina-Werke angefragt. Die hinterlegte vom 07.03.2022 (MDD 93/42/EWG) ist seit 04.08.2023 abgelaufen und sollte **nicht live** gehen. Mit der neuen Erklärung die CE-Nummer prüfen (bisher 0197). |
 | 4 | **Copan HPC146R05** (zweites Dokument zum Self Vaginal FLOQSwab®, REF 552C.80) | /ifu/vaginal-dbs-rektal | klären: Gibt es das als eigenes PDF oder ist es durch HPI031R05 abgedeckt? Eingebaut ist nur HPI031R05. |
 
 ### Vor dem Livegang klären
@@ -29,7 +28,6 @@ Stand: 06.11.2026
 | # | Was |
 |---|---|
 | 5 | **Regulatory-Check der Hinweise in den Hersteller-PDFs:** Tasso+ IFU enthält „Nur auf Rezept“, Aptima-IFU enthält „Nur zum US-Export“. |
-| 6 | **LEINASAN-Link:** erledigt, Link ist raus (06.11.2026); die abgelaufene Erklärung liegt nur lokal (`public/ifu/dbs/leinasan-konformitaetserklaerung.pdf`, nicht im Repo). Mit der neuen Erklärung wieder `conformity` setzen. |
 | 7 | **Vaginal-IFU verkleinern:** `self-vaginal-floqswab-gebrauchsanweisung.pdf` ist 16 MB, lädt auf dem Handy langsam. |
 | 8 | ~~Freigabe~~ erledigt: alle Seiten live seit 06.11.2026, bewusst nirgends verlinkt (nicht in Navigation, Footer, Sitemap). |
 
@@ -38,6 +36,7 @@ Stand: 06.11.2026
 - **Keine IFU vom Hersteller:** MaiMed® Handschuh (nur technisches Datenblatt, verlinkt; CE 0123 laut Datenblatt), LEINASAN, Leerröhrchen 12 × 80 mm, Versandbeutel, Druckverschlussbeutel mit Trockenmittel.
 - **Angaben auf der Verpackung:** Soft-Zellin®, DermaPlast® (zusätzlich Konformitätserklärung verlinkt), Wärmebeutel (MD, CE 1936), Sicherheitsbeutel.
 - **Angaben auf dem Produkt:** Safe2Pcanter Urinbecher (zusätzlich technisches Datenblatt, englisch).
+- **LEINASAN Wundkompresse:** keine IFU; EU-Konformitätserklärung nach MDR (22.01.2024, Klasse I steril, gültig bis 16.01.2029) sowie TÜV-Rheinland-Zertifikate MDR HZ 1007442-1 (bis 16.01.2029) und ISO 13485 SX 1007442-1 (bis 04.08.2028) verlinkt, CE 0197 bestätigt (06.11.2026).
 - **Hersteller-IFU vorhanden:** Tasso+ (PN0762-01 Rev. 03), BD Serum (Version 01, 2022-02), TFN BioSample Card (Rev. 14), Unistik® Touch (IFU MCC 0220/04), Aptima Urin (AW-26251-801 Rev. 001, plus Entnahmeanleitung), Rectal Self FLOQSwab® (HPI068R00, 2023-11), Self Vaginal FLOQSwab® (HPI031R05, 2022-05).
 - **Produktbilder** und **Stückzahlen** sind bewusst raus (04.11.2026), auf /ifu/tasso auch live.
 

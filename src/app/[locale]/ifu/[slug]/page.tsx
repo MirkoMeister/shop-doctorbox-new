@@ -149,11 +149,11 @@ function IfuCell({ c, locale }: { c: IfuComponent; locale: Locale }) {
   return (
     <span className="block">
       <IfuLink c={c} locale={locale} />
-      {c.extra && (
-        <a href={c.extra.href} target="_blank" rel="noopener" className="mt-1 block text-xs text-green underline underline-offset-2">
-          {c.extra.label[locale]}
+      {(Array.isArray(c.extra) ? c.extra : c.extra ? [c.extra] : []).map((doc) => (
+        <a key={doc.href} href={doc.href} target="_blank" rel="noopener" className="mt-1 block text-xs text-green underline underline-offset-2">
+          {doc.label[locale]}
         </a>
-      )}
+      ))}
       {c.conformity && (
         <a href={c.conformity} target="_blank" rel="noopener" className="mt-1 block text-xs text-green underline underline-offset-2">
           {t.conformity}
