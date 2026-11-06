@@ -85,6 +85,18 @@ export const ShieldIcon = (p: P) => (
     <path d="m9 12 2 2 4-4" />
   </svg>
 );
+export const LockIcon = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="5" y="11" width="14" height="10" rx="2" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </svg>
+);
+export const BoxIcon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z" />
+    <path d="m3 7.5 9 4.5 9-4.5M12 12v9" />
+  </svg>
+);
 export const LabIcon = (p: P) => (
   <svg {...base(p)}>
     <path d="M9 3h6M10 3v6l-5.5 9A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-3L14 9V3" />

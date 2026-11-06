@@ -8,7 +8,7 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney } from "@/lib/format";
 import type { Money, Product, Variant } from "@/lib/shopify/types";
-import { CheckIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
+import { BoxIcon, CheckIcon, LockIcon, MinusIcon, PinIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
 import { defaultVariant, isTasso } from "@/components/product/default-variant";
 import { BundleOffer } from "@/components/product/BundleOffer";
 import { isYoungle } from "@/components/supplements/SupplementTrust";
@@ -290,12 +290,37 @@ export function PurchaseForm({
         </button>
       </div>
 
-      {/* Delivery & pickup (Youngle ships its products itself, no pickup) */}
+      {/* Trust strip under the button (old theme had the same three points) */}
+      {!youngle && (
+        <ul className={`grid ${product.productType === "Nahrungsergänzungsmittel" ? "grid-cols-2" : "grid-cols-3"} gap-2 border-y border-line py-3 text-center text-xs leading-snug text-ink`}>
+          <li className="flex flex-col items-center gap-1.5">
+            <BoxIcon width={22} height={22} className="text-green" />
+            <span className="font-medium">{dict.product.trustFastShipping}</span>
+          </li>
+          {product.productType !== "Nahrungsergänzungsmittel" && (
+            <li className="flex flex-col items-center gap-1.5">
+              <LockIcon width={22} height={22} className="text-green" />
+              <a href="#security-trust" className="font-medium underline-offset-2 hover:underline">
+                {dict.product.trustE2E}
+              </a>
+            </li>
+          )}
+          <li className="flex flex-col items-center gap-1.5">
+            <TruckIcon width={22} height={22} className="text-green" />
+            <span className="font-medium">{dict.product.trustFreeShipping}</span>
+            {parseFloat(activePrice.amount) < 50 && <span className="text-[11px] text-ink-muted">{dict.product.trustFreeFrom}</span>}
+          </li>
+        </ul>
+      )}
+
+      {/* Youngle ships its products itself; pickup only for our own stock */}
       <ul className="space-y-2 text-sm text-ink-muted">
-        <li className="flex items-start gap-2.5">
-          <TruckIcon width={18} height={18} className="mt-0.5 shrink-0 text-green" />
-          <span>{youngle ? youngleShipping(locale).short : dict.product.shippingHint}</span>
-        </li>
+        {youngle && (
+          <li className="flex items-start gap-2.5">
+            <TruckIcon width={18} height={18} className="mt-0.5 shrink-0 text-green" />
+            <span>{youngleShipping(locale).short}</span>
+          </li>
+        )}
         {pickup && !youngle && (
           <li className="flex items-start gap-2.5">
             <PinIcon width={18} height={18} className="mt-0.5 shrink-0 text-green" />

@@ -23,7 +23,7 @@ const copy = {
       {
         icon: ShieldIcon,
         title: "Ende-zu-Ende-verschlüsselt",
-        text: "Befunde werden Ende-zu-Ende-verschlüsselt übertragen. Wir können die Inhalte technisch nicht lesen.",
+        text: "Dein Befund kommt Ende-zu-Ende-verschlüsselt vom Labor in deine App. Mit wem du ihn teilst, entscheidest nur du.",
       },
       {
         icon: LabIcon,
@@ -60,7 +60,7 @@ const copy = {
       {
         icon: ShieldIcon,
         title: "End-to-end encrypted",
-        text: "Results are transmitted end-to-end encrypted. We cannot technically read their content.",
+        text: "Your result travels end-to-end encrypted from the laboratory to your app. Only you decide who you share it with.",
       },
       {
         icon: LabIcon,
@@ -93,7 +93,7 @@ export function SecurityTrust({ locale }: { locale: Locale }) {
     <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8" aria-labelledby="security-trust">
       <div className="rounded-[var(--radius-panel)] bg-soft p-6 sm:p-10">
         <p className="text-sm font-medium text-green">{t.kicker}</p>
-        <h2 id="security-trust" className="h2 mt-2 text-balance">
+        <h2 id="security-trust" className="h2 mt-2 scroll-mt-32 text-balance">
           <Highlight text={t.title} />
         </h2>
 
