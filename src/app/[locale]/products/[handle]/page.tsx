@@ -25,6 +25,7 @@ import { sameGoalSupplements, supplementsForTest, testsForSupplement } from "@/c
 import { youngleContent } from "@/content/youngle-content";
 import { TassoBanner } from "@/components/home/TassoBanner";
 import { MULTI_BUY } from "@/content/bundles";
+import { getMultiBuyPercent } from "@/lib/shopify/multi-buy";
 import { isTassoVariant } from "@/components/product/default-variant";
 import { youngleShipping } from "@/content/youngle-shipping";
 import { getAllProducts, getCollection, getProduct, getProductRecommendations, SUPPLEMENTS_COLLECTION } from "@/lib/shopify/queries";
@@ -74,7 +75,9 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
   const supplement = isSupplement(product);
   // multi-buy discount offered under the add-to-cart button (e.g. STI Pro: 20 % from two kits)
-  const multiBuy = MULTI_BUY[product.handle] ?? null;
+  const probeVariant = product.variants.find((v) => v.availableForSale) ?? product.variants[0];
+  const multiBuyPercent = MULTI_BUY[product.handle] && probeVariant ? await getMultiBuyPercent(product.handle, probeVariant.id) : null;
+  const multiBuy = multiBuyPercent ? { percent: multiBuyPercent } : null;
   // Trusted Shops product reviews are matched by variant SKU (empty without API credentials)
   const reviews = await getProductReviews(reviewSkusFor(product.handle, product.variants.map((v) => v.sku)));
   const reviewSummary = summarize(reviews);

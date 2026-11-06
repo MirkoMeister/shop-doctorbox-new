@@ -31,6 +31,8 @@ export function BundleOffer({
   const [added, setAdded] = useState(false);
   const [open, setOpen] = useState(false);
   const t = dict.product;
+  // measured from Shopify, may have a decimal (12,5 %)
+  const percentLabel = percent.toLocaleString(locale === "en" ? "en-GB" : "de-DE", { maximumFractionDigits: 1 });
   const available = variants.filter((v) => v.availableForSale);
   // every pair of kits: A + B, 2 × A, 2 × B … (order does not matter); mixed pairs first, the common
   // case for a heterosexual couple (urine for him, vaginal swab for her)
@@ -84,7 +86,7 @@ export function BundleOffer({
   return (
     <aside
       className={`rounded-2xl border transition-colors ${open ? "border-green/50 bg-lind/30" : "border-line bg-surface"}`}
-      aria-label={fill(t.bundleKicker, { percent }).replace(/\[\[|\]\]/g, "")}
+      aria-label={fill(t.bundleKicker, { percent: percentLabel }).replace(/\[\[|\]\]/g, "")}
     >
       <button
         type="button"
@@ -95,7 +97,7 @@ export function BundleOffer({
       >
         <span className="font-semibold">
           {/* the saving in the okker pill used for discounts elsewhere (Abo −20 %) */}
-          {fill(t.bundleKicker, { percent })
+          {fill(t.bundleKicker, { percent: percentLabel })
             .split(/\[\[(.+?)\]\]/)
             .map((part, i) =>
               i % 2 ? (
