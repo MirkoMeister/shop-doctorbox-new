@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -28,8 +27,9 @@ export default async function IfuPage({ params }: Props) {
   const ifu = ifuBySlug(p.slug);
   if (!ifu) notFound();
   const t = IFU_COPY[locale];
-  const photos = ifu.components.some((c) => c.image);
   const href = (path: string) => localeHref(locale, path);
+  const groups = ifu.groups.filter((g) => g.components.length > 0);
+  const count = groups.reduce((n, g) => n + g.components.length, 0);
   const updated = new Date(ifu.updated).toLocaleDateString(locale === "en" ? "en-GB" : "de-DE", { day: "numeric", month: "long", year: "numeric" });
 
   return (
@@ -41,6 +41,21 @@ export default async function IfuPage({ params }: Props) {
         <Link href={href(ifu.related.href)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-green underline underline-offset-4">
           {ifu.related.label[locale]} <ArrowRight width={14} height={14} />
         </Link>
+      )}
+      {ifu.kits && (
+        <div className="mt-6">
+          <h2 className="text-sm font-semibold">{t.kits}</h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {ifu.kits.map((k) => (
+              <li key={k.name + (k.note?.de ?? "")}>
+                <Link href={href(k.href)} className="inline-flex rounded-full border border-line bg-white px-3 py-1.5 text-sm font-semibold hover:border-green">
+                  {k.name}
+                  {k.note && <span className="ml-1 font-normal text-ink-muted">({k.note[locale]})</span>}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <section className="mt-10 rounded-[var(--radius-card)] bg-soft p-6 sm:p-8" aria-labelledby="ours">
@@ -57,61 +72,14 @@ export default async function IfuPage({ params }: Props) {
 
       <section className="mt-12" aria-labelledby="components">
         <h2 id="components" className="h3">{t.componentsTitle}</h2>
-        {/* table from md, cards below; the photo column only when there are photos */}
-        <div className="mt-5 hidden overflow-hidden rounded-[var(--radius-card)] border border-line md:block">
-          <table className="w-full text-left text-[0.95rem]">
-            <thead className="bg-surface text-sm text-ink-muted">
-              <tr>
-                {photos && (
-                  <th scope="col" className="w-20 px-4 py-3">
-                    <span className="sr-only">{t.photo}</span>
-                  </th>
-                )}
-                <th scope="col" className="px-4 py-3 font-medium">{t.component}</th>
-                <th scope="col" className="px-4 py-3 font-medium">{t.manufacturer}</th>
-                <th scope="col" className="px-4 py-3 font-medium">{t.marking}</th>
-                <th scope="col" className="px-4 py-3 font-medium">{t.ifu}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line bg-white">
-              {ifu.components.map((c) => (
-                <tr key={c.name} className="align-top">
-                  {photos && (
-                    <td className="px-4 py-3">
-                      <Thumb c={c} />
-                    </td>
-                  )}
-                  <th scope="row" className="px-4 py-3 font-semibold">
-                    {c.name}
-                    {c.usage && <span className="mt-1 block text-sm font-normal text-ink-muted">{c.usage}</span>}
-                  </th>
-                  <td className="px-4 py-3 text-ink-muted">{c.manufacturer}</td>
-                  <td className="whitespace-nowrap px-4 py-3">{c.marking}</td>
-                  <td className="whitespace-nowrap px-4 py-3"><IfuCell c={c} locale={locale} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <ul className="mt-5 grid gap-3 md:hidden">
-          {ifu.components.map((c) => (
-            <li key={c.name} className="rounded-[var(--radius-card)] border border-line bg-white p-4">
-              <div className="flex gap-3">
-                {photos && <Thumb c={c} />}
-                <div className="min-w-0">
-                  <p className="font-semibold">{c.name}</p>
-                  {c.usage && <p className="mt-1 text-sm text-ink-muted">{c.usage}</p>}
-                  <p className="mt-1 text-sm text-ink-muted">{c.manufacturer}</p>
-                </div>
-              </div>
-              <p className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-                <span>{c.marking}</span>
-                <IfuCell c={c} locale={locale} />
-              </p>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-xs leading-snug text-ink-muted">{t.legend}</p>
+        {count === 0 && <p className="mt-3 text-ink-muted">{t.componentsPending}</p>}
+        {groups.map((g, i) => (
+          <div key={g.title.de} className={i === 0 ? "mt-6" : "mt-10"}>
+            <h3 className="text-lg font-semibold">{g.title[locale]}</h3>
+            <Components components={g.components} locale={locale} />
+          </div>
+        ))}
+        {count > 0 && <p className="mt-6 text-xs leading-snug text-ink-muted">{t.legend}</p>}
         <p className="mt-2 text-xs text-ink-muted">
           {t.updated}: {updated}
         </p>
@@ -120,12 +88,59 @@ export default async function IfuPage({ params }: Props) {
   );
 }
 
-/** product photo of a component; an empty tile keeps the rows aligned until a photo exists */
-function Thumb({ c }: { c: IfuComponent }) {
+/** one group's parts: table from md, cards below */
+function Components({ components, locale }: { components: IfuComponent[]; locale: Locale }) {
+  const t = IFU_COPY[locale];
   return (
-    <span className="relative block h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-line bg-surface">
-      {c.image && <Image src={c.image} alt={c.name} fill sizes="56px" className="bg-white object-contain p-1" />}
-    </span>
+    <>
+      <div className="mt-3 hidden overflow-hidden rounded-[var(--radius-card)] border border-line md:block">
+        {/* fixed column widths, so the tables of all groups line up */}
+        <table className="w-full table-fixed text-left text-[0.95rem]">
+          <colgroup>
+            <col style={{ width: "36%" }} />
+            <col style={{ width: "26%" }} />
+            <col style={{ width: "18%" }} />
+            <col />
+          </colgroup>
+          <thead className="bg-surface text-sm text-ink-muted">
+            <tr>
+              <th scope="col" className="px-4 py-3 font-medium">{t.component}</th>
+              <th scope="col" className="px-4 py-3 font-medium">{t.manufacturer}</th>
+              <th scope="col" className="px-4 py-3 font-medium">{t.marking}</th>
+              <th scope="col" className="px-4 py-3 font-medium">{t.ifu}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line bg-white">
+            {components.map((c) => (
+              <tr key={c.name} className="align-top">
+                <th scope="row" className="px-4 py-3 font-semibold">
+                  {c.name}
+                  {c.usage && <span className="mt-1 block text-sm font-normal text-ink-muted">{c.usage}</span>}
+                </th>
+                <td className="px-4 py-3 text-ink-muted">{c.manufacturer}</td>
+                <td className="px-4 py-3">{c.marking}</td>
+                <td className="px-4 py-3">
+                  <IfuCell c={c} locale={locale} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <ul className="mt-3 grid gap-3 md:hidden">
+        {components.map((c) => (
+          <li key={c.name} className="rounded-[var(--radius-card)] border border-line bg-white p-4">
+            <p className="font-semibold">{c.name}</p>
+            {c.usage && <p className="mt-1 text-sm text-ink-muted">{c.usage}</p>}
+            <p className="mt-1 text-sm text-ink-muted">{c.manufacturer}</p>
+            <p className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
+              <span>{c.marking}</span>
+              <IfuCell c={c} locale={locale} />
+            </p>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -134,6 +149,11 @@ function IfuCell({ c, locale }: { c: IfuComponent; locale: Locale }) {
   return (
     <span className="block">
       <IfuLink c={c} locale={locale} />
+      {c.extra && (
+        <a href={c.extra.href} target="_blank" rel="noopener" className="mt-1 block text-xs text-green underline underline-offset-2">
+          {c.extra.label[locale]}
+        </a>
+      )}
       {c.conformity && (
         <a href={c.conformity} target="_blank" rel="noopener" className="mt-1 block text-xs text-green underline underline-offset-2">
           {t.conformity}
@@ -154,5 +174,6 @@ function IfuLink({ c, locale }: { c: IfuComponent; locale: Locale }) {
         {c.ifu.version && <span className="block text-xs text-ink-muted">{c.ifu.version}</span>}
       </span>
     );
-  return <span className="text-ink-muted">{c.ifu.onPack ? t.onPack : c.ifu.required ? t.pending : t.notRequired}</span>;
+  const note = c.ifu.onProduct ? t.onProduct : c.ifu.onPack ? t.onPack : c.ifu.required ? t.pending : t.notRequired;
+  return <span className="text-ink-muted">{note}</span>;
 }
