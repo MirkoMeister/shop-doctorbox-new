@@ -69,8 +69,12 @@ export async function addToCart(line: CartLineInput, locale: Locale): Promise<Ca
     if (id) {
       try {
         cart = await addCartLines(id, [line], locale, ip);
-      } catch {
-        // stale/expired cart → start a new one
+      } catch (addError) {
+        // Only a cart that no longer exists (expired or checked out) is replaced. Any other failure
+        // (sold out, quantity, network) keeps the existing cart and reports the error, so the lines
+        // already in it are not lost. If the check itself fails, nothing is replaced either.
+        const existing = await fetchCart(id, locale, ip);
+        if (existing) throw addError;
         cart = await withLinkDiscount(await createCart([line], locale, ip), locale, ip);
         await writeCartId(cart.id);
       }

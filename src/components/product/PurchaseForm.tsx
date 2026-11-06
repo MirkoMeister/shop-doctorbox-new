@@ -33,7 +33,8 @@ export function PurchaseForm({
   /** multi-buy discount offered under the add-to-cart button (content/bundles.ts) */
   multiBuy?: { percent: number } | null;
 }) {
-  const { add, pending } = useCart();
+  const { add, pending, error: cartError } = useCart();
+  const [addFailed, setAddFailed] = useState(false);
   const firstAvailable = defaultVariant(product);
   // A ?variant= link (Google Shopping) wins over the default until the visitor picks something
   const urlVariant = useUrlVariant(product);
@@ -102,6 +103,7 @@ export function PurchaseForm({
       ...(mode === "subscription" && planId ? { sellingPlanId: planId } : {}),
       ...(isMiraPick(product.handle) ? { attributes: [MIRA_LINE_ATTRIBUTE] } : {}),
     });
+    setAddFailed(!ok);
     if (ok) {
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 2000);
@@ -293,6 +295,14 @@ export function PurchaseForm({
           )}
         </button>
       </div>
+
+      {/* Adding failed: the cart stays as it was, so say so (Shopify's own message, e.g. sold out) */}
+      {addFailed && (
+        <p role="alert" className="-mt-3 rounded-2xl bg-[#fef3f2] px-4 py-3 text-sm text-[#b42318]">
+          {dict.product.addFailed}
+          {cartError && cartError !== "error" && <> ({cartError})</>}
+        </p>
+      )}
 
       {/* Trust strip under the button (old theme had the same three points) */}
       {!youngle && (
