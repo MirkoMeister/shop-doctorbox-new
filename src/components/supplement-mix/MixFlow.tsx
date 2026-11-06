@@ -32,7 +32,17 @@ const GROUPS = Q.groups.filter((g) => g.id !== "start");
  * Personalised mix, phase 1: the complete flow as a demo in the browser. Answers live in memory only
  * (no URL, storage, analytics, Shopify or Riise); cart, payment and handover to Riise are simulated.
  */
-export function MixFlow({ nutrients, live }: { nutrients: Nutrient[]; live: boolean }) {
+export function MixFlow({
+  nutrients,
+  live,
+  unavailable,
+  version,
+}: {
+  nutrients: Nutrient[];
+  live: boolean;
+  unavailable: string[];
+  version: string;
+}) {
   const nutrient = (key: string) => nutrients.find((n) => n.key === key);
   const [step, setStep] = useState<Step>("intro");
   const [answers, setAnswers] = useState<Answers>({});
@@ -234,7 +244,9 @@ export function MixFlow({ nutrients, live }: { nutrients: Nutrient[]; live: bool
             Tagesmengen pro Nährstoff, Laufzeit {MIX_MONTHS} Monate. Grenzen, Schrittweiten und Preise folgen mit den Produktregeln; bis dahin wird nur das Zahlenformat geprüft.
           </p>
           <p className="mt-1 text-xs text-ink-muted">
-            {live ? `Zutaten: aktueller Riise-Katalog (${nutrients.length} für B2B verfügbare Zutaten).` : "Zutaten: Ersatzliste aus dem Briefing (Riise-Katalog gerade nicht erreichbar)."}
+            Zutaten: festgelegte Liste (Entwurf {version}, nicht freigegeben), {nutrients.length} Nährstoffe.{" "}
+            {live ? "Mit dem aktuellen Riise-Katalog abgeglichen." : "Riise-Katalog gerade nicht erreichbar, Abgleich ausstehend."}
+            {unavailable.length > 0 && ` Bei Riise derzeit nicht verfügbar: ${unavailable.join(", ")}.`}
           </p>
           <ul className="mt-5 grid gap-3">
             {formula.map((f, idx) => (

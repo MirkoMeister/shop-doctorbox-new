@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MixFlow } from "@/components/supplement-mix/MixFlow";
-import { getRiiseNutrients } from "@/lib/supplement-mix/riise-catalog";
+import { getMixCatalog } from "@/lib/supplement-mix/riise-catalog";
 import { resolveLocale } from "@/lib/locale-params";
 import { pageMetadata } from "@/lib/seo";
 
@@ -20,10 +20,10 @@ export default async function VitaminMixPage({ params }: Props) {
   // the questionnaire exists in German only so far
   if (locale !== "de") notFound();
   // names, forms and IDs from Riise's public catalogue (fallback: the briefing's seven nutrients)
-  const { nutrients, live } = await getRiiseNutrients();
+  const { nutrients, live, unavailable, version } = await getMixCatalog();
   return (
     <div className="mx-auto max-w-3xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
-      <MixFlow nutrients={nutrients} live={live} />
+      <MixFlow nutrients={nutrients} live={live} unavailable={unavailable} version={version} />
     </div>
   );
 }

@@ -1,53 +1,46 @@
 import "server-only";
-import { FALLBACK_NUTRIENTS, type Nutrient } from "@/content/supplement-mix/catalog";
+import type { Nutrient } from "@/content/supplement-mix/catalog";
+import { PRODUCT_CONFIG } from "@/content/supplement-mix/product-config";
 
 /** Riise's public ingredient catalogue (no key needed); read-only, cached for a day */
 const URL = "https://api.weriise.de/api/ingredient/all";
 
-type RiiseIngredient = {
-  id: number | string;
-  active: string;
-  b2b: number | string;
-  ingredient: string;
-  ingredient_de: string | null;
-  scientific_name: string | null;
-  eu_nrv: string | null;
-};
+type RiiseIngredient = { id: number | string; active: string; b2b: number | string; scientific_name: string | null };
 
-/** nutrients sold in microgram amounts (EU reference value below 1 mg); everything else in mg */
-const unitFor = (r: RiiseIngredient): "mg" | "ug" => {
-  const nrv = Number(r.eu_nrv);
-  return nrv > 0 && nrv < 1 ? "ug" : "mg";
-};
-
-/** forms of one nutrient that may not be combined in a mix */
-const groupFor = (name: string): string | undefined => {
-  if (/vitamin b9|fols|folat|mthf/i.test(name)) return "folate";
-  if (/vitamin b12/i.test(name)) return "b12";
-  if (/^magnesium/i.test(name)) return "magnesium";
-  return undefined;
+export type MixCatalog = {
+  nutrients: Nutrient[];
+  /** true when Riise's catalogue was reachable and checked */
+  live: boolean;
+  /** configured ingredients that Riise currently lists as inactive, not B2B or not at all */
+  unavailable: string[];
+  version: string;
 };
 
 /**
- * Active ingredients released for B2B, in Riise's current IDs. Falls back to the briefing's seven
- * nutrients when Riise is unreachable. Doses and prices are not part of this catalogue.
+ * The configured ingredient list (PRODUCT_CONFIG), checked against Riise's live catalogue: entries that
+ * Riise no longer offers for B2B drop out, the form name comes from Riise. The catalogue never adds
+ * ingredients. When Riise is unreachable, the configured list is used as is.
  */
-export async function getRiiseNutrients(): Promise<{ nutrients: Nutrient[]; live: boolean }> {
+export async function getMixCatalog(): Promise<MixCatalog> {
+  const configured = PRODUCT_CONFIG.ingredients;
+  const version = PRODUCT_CONFIG.version;
   try {
     const res = await fetch(URL, { next: { revalidate: 86400 }, signal: AbortSignal.timeout(8000) });
     if (!res.ok) throw new Error(`riise ${res.status}`);
     const json = (await res.json()) as { data?: RiiseIngredient[] };
-    const rows = (json.data ?? []).filter((r) => r.active === "Yes" && Number(r.b2b) === 1);
-    if (!rows.length) throw new Error("riise: empty catalogue");
-    const nutrients = rows
-      .map((r) => {
-        const label = (r.ingredient_de || r.ingredient).trim();
-        return { key: String(r.id), label, form: (r.scientific_name || "").trim(), unit: unitFor(r), group: groupFor(label) };
-      })
-      .sort((a, b) => a.label.localeCompare(b.label, "de"));
-    return { nutrients, live: true };
+    const byId = new Map((json.data ?? []).map((r) => [String(r.id), r]));
+    if (!byId.size) throw new Error("riise: empty catalogue");
+    const nutrients: Nutrient[] = [];
+    const unavailable: string[] = [];
+    for (const n of configured) {
+      const r = byId.get(n.key);
+      if (r && r.active === "Yes" && Number(r.b2b) === 1) nutrients.push({ ...n, form: (r.scientific_name || n.form).trim() });
+      else unavailable.push(n.label);
+    }
+    if (unavailable.length) console.warn("[supplement-mix] configured but not available at Riise:", unavailable.join(", "));
+    return { nutrients, live: true, unavailable, version };
   } catch (err) {
-    console.warn("[supplement-mix] Riise catalogue unavailable, using fallback", err instanceof Error ? err.message : err);
-    return { nutrients: FALLBACK_NUTRIENTS, live: false };
+    console.warn("[supplement-mix] Riise catalogue unavailable, using the configured list", err instanceof Error ? err.message : err);
+    return { nutrients: configured, live: false, unavailable: [], version };
   }
 }
