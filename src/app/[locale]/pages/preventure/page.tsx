@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { PreventureKiosk } from "@/components/promo/PreventureKiosk";
+import { PreventureKiosk, type KioskSet } from "@/components/promo/PreventureKiosk";
 import { movemberActive } from "@/content/movember";
-import { preventureCopy } from "@/content/preventure";
+import { PREVENTURE, preventureCopy } from "@/content/preventure";
 import { resolveLocale } from "@/lib/locale-params";
-import { getNavCollections } from "@/lib/shopify/queries";
+import { getAllProducts, getNavCollections } from "@/lib/shopify/queries";
 
 export const revalidate = 300;
 
@@ -21,8 +21,20 @@ export const viewport: Viewport = { themeColor: "#0e4d2f" };
 
 export default async function PreventurePage({ params }: Props) {
   const { locale } = await resolveLocale(params);
-  const collections = await getNavCollections(locale).catch(() => []);
+  const [all, collections] = await Promise.all([getAllProducts(locale).catch(() => []), getNavCollections(locale).catch(() => [])]);
+  const byHandle = new Map(all.map((p) => [p.handle, p]));
+  const sets: KioskSet[] = PREVENTURE.sets
+    .map((h) => byHandle.get(h))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p?.availableForSale))
+    .map((p) => ({
+      handle: p.handle,
+      title: p.title,
+      image: p.featuredImage?.url ?? null,
+      values: p.biomarkers.length,
+      sample: p.sampleMaterial,
+      price: p.priceRange.minVariantPrice,
+    }));
   // same photo as the Movember page hero
   const movember = movemberActive() ? { image: collections.find((c) => c.handle === "mannergesundheit")?.image?.url ?? null } : null;
-  return <PreventureKiosk movember={movember} />;
+  return <PreventureKiosk sets={sets} movember={movember} />;
 }

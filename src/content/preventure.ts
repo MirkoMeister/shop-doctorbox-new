@@ -18,10 +18,12 @@ export const PREVENTURE = {
   movemberQrUrl:
     "https://shop.doctorbox.de/discount/MOVEMBER26?redirect=%2Fpages%2Fmovember%3Futm_source%3Dpreventure%26utm_medium%3Dqr%26utm_campaign%3Dmovember26",
   movemberQrImage: "/preventure/qr-movember.svg",
+  /** classic prevention sets on the sets slide, in this order */
+  sets: ["rundum-check-fur-frauen", "rundum-check-fur-manner", "herz-kreislauf-check", "darmkrebsvorsorge", "blutzucker-hba1c", "psa-test-prostata-vorsorge"],
   /** shown under the QR code for people who prefer typing */
   shortUrl: "shop.doctorbox.de",
   /** seconds per slide; the video slide lasts as long as the video */
-  seconds: { steps: 9, offer: 18, movember: 14 },
+  seconds: { steps: 9, sets: 12, offer: 18, movember: 14 },
 } as const;
 
 export const preventureCopy = {
@@ -39,6 +41,12 @@ export const preventureCopy = {
       { title: "Probe nehmen", text: "Zu Hause, mit Tasso+ oder Fingerpiks. Anleitung liegt bei." },
       { title: "Befund in der App", text: "Analyse im akkreditierten Labor, Ergebnis in der DoctorBox App." },
     ],
+  },
+  sets: {
+    title: "Die Klassiker der Vorsorge.",
+    values: "{n} Laborwerte",
+    value: "1 Laborwert",
+    from: "ab {price}",
   },
   offer: {
     kicker: "Nur für Besucher der PREVENTURE",

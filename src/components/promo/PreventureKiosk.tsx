@@ -8,9 +8,12 @@ import { MOVEMBER } from "@/content/movember";
 import { PREVENTURE, preventureCopy as t } from "@/content/preventure";
 import { TASSO_POSTER, TASSO_VIDEO } from "@/content/tasso";
 import { fill } from "@/lib/i18n/dictionaries";
-import { shopifyImage } from "@/lib/format";
+import { formatMoney, shopifyImage } from "@/lib/format";
 
-type SlideKey = "video" | "steps" | "offer" | "movember";
+type SlideKey = "video" | "steps" | "sets" | "offer" | "movember";
+
+/** a prevention set on the sets slide */
+export type KioskSet = { handle: string; title: string; image: string | null; values: number; sample: string | null; price: { amount: string; currencyCode: string } };
 
 /** Movember slide, only while the campaign runs; image: the same photo as on /pages/movember */
 export type KioskMovember = { image: string | null };
@@ -22,14 +25,15 @@ const VIDEO_SECONDS = 19;
 const HOME_HERO = "/hero/hero.jpg";
 
 /**
- * Tablet slideshow for the PREVENTURE stand: Tasso video → three steps → offer with QR
+ * Tablet slideshow for the PREVENTURE stand: Tasso video → three steps → prevention sets → offer with QR
  * code → Movember (while it runs). Runs on its own in a loop; a tap moves on. Covers the shop header and footer, keeps the screen
  * awake (Wake Lock) and offers fullscreen when it is not already running as an installed app.
  */
-export function PreventureKiosk({ movember }: { movember: KioskMovember | null }) {
+export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember: KioskMovember | null }) {
   const slides: SlideKey[] = [
     "video",
     "steps",
+    ...(sets.length ? (["sets"] as const) : []),
     "offer",
     ...(movember ? (["movember"] as const) : []),
   ];
@@ -156,7 +160,30 @@ export function PreventureKiosk({ movember }: { movember: KioskMovember | null }
         </ol>
       </section>
 
-      {/* 3: the offer, QR code to the shop with the code */}
+      {/* 3: classic prevention sets */}
+      {sets.length > 0 && (
+        <section className={`kiosk-slide flex flex-col justify-center px-8 sm:px-14 ${slide === "sets" ? "is-active" : ""}`} aria-hidden={slide !== "sets"}>
+          <p className="text-4xl font-semibold tracking-tight sm:text-5xl">{t.sets.title}</p>
+          <ul className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-5">
+            {sets.map((p) => (
+              <li key={p.handle} className="flex items-center gap-4 overflow-hidden rounded-[var(--radius-card)] bg-soft p-3 pr-5 text-ink">
+                <div className="relative size-24 shrink-0 overflow-hidden rounded-2xl bg-white sm:size-28">
+                  {p.image && <Image src={shopifyImage(p.image, 300)} alt="" fill sizes="112px" className="object-contain p-2" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-lg font-semibold leading-tight sm:text-xl">{p.title}</p>
+                  <p className="mt-1 text-sm text-ink-muted">
+                    {[p.values === 1 ? t.sets.value : p.values > 1 ? fill(t.sets.values, { n: p.values }) : null, p.sample].filter(Boolean).join(" · ")}
+                  </p>
+                  <p className="mt-1.5 text-base font-semibold tabular-nums text-green">{fill(t.sets.from, { price: formatMoney(p.price, "de") })}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* 4: the offer, QR code to the shop with the code */}
       <section className={`kiosk-slide flex items-center px-8 sm:px-14 ${slide === "offer" ? "is-active" : ""}`} aria-hidden={slide !== "offer"}>
         {/* the photo from the home page hero, mirrored like there so the person stands on the right */}
         <Image src={HOME_HERO} alt="" fill sizes="100vw" className="hero-photo-mirror object-cover object-[72%_center] lg:object-[center_35%]" />
@@ -179,7 +206,7 @@ export function PreventureKiosk({ movember }: { movember: KioskMovember | null }
         </div>
       </section>
 
-      {/* 4: Movember, with the photo and code of the Movember page */}
+      {/* 5: Movember, with the photo and code of the Movember page */}
       {movember && (
         <section className={`kiosk-slide !p-0 ${slide === "movember" ? "is-active" : ""}`} aria-hidden={slide !== "movember"}>
           {movember.image && <Image src={shopifyImage(movember.image, 2000)} alt="" fill sizes="100vw" className="object-cover object-[center_30%]" />}
