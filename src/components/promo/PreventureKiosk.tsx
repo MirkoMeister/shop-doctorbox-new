@@ -141,29 +141,41 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
         <div className="absolute inset-0 bg-gradient-to-t from-moss-deep via-moss-deep/30 to-moss-deep/40" />
         {/* bottom padding keeps the text clear of the QR corner */}
         <div className="absolute inset-x-0 bottom-0 p-8 pb-36 sm:p-14 sm:pb-36 lg:pr-[22rem] lg:pb-14">
-          <p className="max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">{t.video.title}</p>
+          <p className="max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl"><Highlight text={t.video.title} tone="dark" /></p>
           <p className="mt-4 max-w-2xl text-lg text-soft/85 sm:text-2xl">{t.video.text}</p>
         </div>
       </section>
 
-      {/* 2: three steps */}
-      <section className={`kiosk-slide flex flex-col justify-center px-8 sm:px-14 ${slide === "steps" ? "is-active" : ""}`} aria-hidden={slide !== "steps"}>
-        <p className="text-4xl font-semibold tracking-tight sm:text-6xl">{t.steps.title}</p>
-        <ol className="mt-10 grid gap-5 sm:mt-14 sm:grid-cols-3 sm:gap-6">
-          {t.steps.items.map((s, i) => (
-            <li key={s.title} className="rounded-[var(--radius-card)] bg-white/[0.07] p-6 sm:p-8">
-              <span className="flex size-12 items-center justify-center rounded-full bg-turquoise text-xl font-semibold text-moss-deep">{i + 1}</span>
-              <p className="mt-5 text-2xl font-semibold sm:text-3xl">{s.title}</p>
-              <p className="mt-2 text-lg leading-snug text-soft/80">{s.text}</p>
-            </li>
-          ))}
-        </ol>
+      {/* 2: three steps, next to the set on a table and Tasso+ on the arm */}
+      <section className={`kiosk-slide grid items-center gap-10 px-8 sm:px-14 lg:grid-cols-[1fr_1.15fr] lg:gap-14 ${slide === "steps" ? "is-active" : ""}`} aria-hidden={slide !== "steps"}>
+        <div className="relative mx-auto hidden aspect-square w-full max-w-[480px] lg:block">
+          <div className="absolute inset-0 overflow-hidden rounded-[var(--radius-panel)]">
+            <Image src={shopifyImage(PREVENTURE.images.kit, 1000)} alt="DoctorBox Probenahme-Set" fill sizes="480px" className="object-cover" />
+          </div>
+          <div className="absolute -bottom-6 -right-6 size-44 overflow-hidden rounded-[var(--radius-card)] border-4 border-moss shadow-2xl">
+            <Image src={shopifyImage(PREVENTURE.images.tasso, 400)} alt="Tasso+ am Oberarm" fill sizes="176px" className="object-cover" />
+          </div>
+        </div>
+        <div>
+          <p className="text-4xl font-semibold tracking-tight sm:text-6xl"><Highlight text={t.steps.title} tone="dark" /></p>
+          <ol className="mt-8 space-y-4 sm:mt-10">
+            {t.steps.items.map((s, i) => (
+              <li key={s.title} className="flex items-start gap-5 rounded-[var(--radius-card)] bg-white/[0.07] p-5 sm:p-6">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-turquoise text-xl font-semibold text-moss-deep">{i + 1}</span>
+                <span>
+                  <span className="block text-2xl font-semibold">{s.title}</span>
+                  <span className="mt-1 block text-lg leading-snug text-soft/80">{s.text}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
       {/* 3: classic prevention sets */}
       {sets.length > 0 && (
         <section className={`kiosk-slide flex flex-col justify-center px-8 sm:px-14 ${slide === "sets" ? "is-active" : ""}`} aria-hidden={slide !== "sets"}>
-          <p className="text-4xl font-semibold tracking-tight sm:text-5xl">{t.sets.title}</p>
+          <p className="text-4xl font-semibold tracking-tight sm:text-5xl"><Highlight text={t.sets.title} tone="dark" /></p>
           <ul className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-5">
             {sets.map((p) => (
               <li key={p.handle} className="flex items-center gap-4 overflow-hidden rounded-[var(--radius-card)] bg-soft p-3 pr-5 text-ink">
@@ -190,7 +202,7 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
         <div className="absolute inset-0 bg-gradient-to-b from-moss-deep/85 via-moss-deep/70 to-moss-deep/90 lg:bg-gradient-to-r lg:from-moss-deep/95 lg:via-moss-deep/75 lg:to-transparent" />
         <div className="relative max-w-2xl">
           <p className="text-lg font-medium text-turquoise sm:text-xl">{t.offer.kicker}</p>
-          <p className="mt-3 text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">{fill(t.offer.title, pct)}</p>
+          <p className="mt-3 text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl"><Highlight text={fill(t.offer.title, pct)} tone="dark" /></p>
           <p className="mt-5 max-w-xl text-xl text-soft/85 sm:text-2xl">{t.offer.text}</p>
           <div className="mt-8 flex flex-wrap items-center gap-6">
             <div className="flex w-52 flex-col items-center rounded-[var(--radius-card)] bg-white p-4 text-ink shadow-2xl sm:w-60">

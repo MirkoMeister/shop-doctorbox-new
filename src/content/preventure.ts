@@ -18,6 +18,11 @@ export const PREVENTURE = {
   movemberQrUrl:
     "https://shop.doctorbox.de/discount/MOVEMBER26?redirect=%2Fpages%2Fmovember%3Futm_source%3Dpreventure%26utm_medium%3Dqr%26utm_campaign%3Dmovember26",
   movemberQrImage: "/preventure/qr-movember.svg",
+  /** photos from the Shopify files (steps slide) */
+  images: {
+    kit: "https://cdn.shopify.com/s/files/1/0564/6991/3683/files/Sexuelle_Gesundheit_Kits_0cf42336-13da-4c0a-abac-16c0b97ceb93.png?v=1769442006",
+    tasso: "https://cdn.shopify.com/s/files/1/0564/6991/3683/files/Tasso_ohne_text.jpg?v=1773752734",
+  },
   /** classic prevention sets on the sets slide, in this order */
   sets: ["rundum-check-fur-frauen", "rundum-check-fur-manner", "herz-kreislauf-check", "darmkrebsvorsorge", "blutzucker-hba1c", "psa-test-prostata-vorsorge"],
   /** shown under the QR code for people who prefer typing */
@@ -30,12 +35,12 @@ export const preventureCopy = {
   metaTitle: "DoctorBox auf der PREVENTURE 2026",
   event: "PREVENTURE 2026 · Hamburg",
   video: {
-    title: "Blut abnehmen, nahezu schmerzfrei.",
+    title: "Blut abnehmen, [[nahezu schmerzfrei]].",
     text: "Tasso+ klebt am Oberarm. Ein Knopfdruck, keine sichtbare Nadel, nach etwa 5 Minuten ist die Probe im Röhrchen.",
     label: "Video: Blutabnahme mit dem Tasso+ Gerät am Oberarm",
   },
   steps: {
-    title: "Laborwerte von zu Hause.",
+    title: "Laborwerte [[von zu Hause]].",
     items: [
       { title: "Bestellen", text: "Test online wählen, das Set kommt in neutraler Verpackung." },
       { title: "Probe nehmen", text: "Zu Hause, mit Tasso+ oder Fingerpiks. Anleitung liegt bei." },
@@ -43,14 +48,14 @@ export const preventureCopy = {
     ],
   },
   sets: {
-    title: "Die Klassiker der Vorsorge.",
+    title: "Die Klassiker der [[Vorsorge]].",
     values: "{n} Laborwerte",
     value: "1 Laborwert",
     from: "ab {price}",
   },
   offer: {
     kicker: "Nur für Besucher der PREVENTURE",
-    title: "{percent} % auf alle Heimtests.",
+    title: "[[{percent} %]] auf alle Heimtests.",
     text: "QR-Code scannen, der Code ist im Warenkorb schon eingetragen.",
     codeLabel: "Oder Code im Warenkorb eingeben",
   },
