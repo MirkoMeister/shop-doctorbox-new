@@ -10,9 +10,11 @@ export const PREVENTURE = {
   page: "/pages/preventure",
   code: "PREVENTURE26",
   percent: 20,
+  /** landing page behind the QR code: the six sets the code applies to */
+  landing: "/pages/preventure-vorsorge",
   /** where the QR code leads; public/preventure/qr.svg encodes exactly this (scripts/preventure-qr.py) */
   qrUrl:
-    "https://shop.doctorbox.de/discount/PREVENTURE26?redirect=%2Fcollections%2Funsere-heimtests%3Futm_source%3Dpreventure%26utm_medium%3Dqr%26utm_campaign%3Dpreventure26",
+    "https://shop.doctorbox.de/discount/PREVENTURE26?redirect=%2Fpages%2Fpreventure-vorsorge%3Futm_source%3Dpreventure%26utm_medium%3Dqr%26utm_campaign%3Dpreventure26",
   qrImage: "/preventure/qr.svg",
   /** Movember slide: QR to the Movember page with its code (public/preventure/qr-movember.svg) */
   movemberQrUrl:
@@ -23,7 +25,7 @@ export const PREVENTURE = {
     kit: "https://cdn.shopify.com/s/files/1/0564/6991/3683/files/Sexuelle_Gesundheit_Kits_0cf42336-13da-4c0a-abac-16c0b97ceb93.png?v=1769442006",
     tasso: "https://cdn.shopify.com/s/files/1/0564/6991/3683/files/Tasso_ohne_text.jpg?v=1773752734",
   },
-  /** classic prevention sets on the sets slide, in this order */
+  /** the sets PREVENTURE26 applies to (set up so in Shopify): sets slide and landing page, in this order */
   sets: ["rundum-check-fur-frauen", "rundum-check-fur-manner", "herz-kreislauf-check", "darmkrebsvorsorge", "blutzucker-hba1c", "psa-test-prostata-vorsorge"],
   /** shown under the QR code for people who prefer typing */
   shortUrl: "shop.doctorbox.de",
@@ -49,14 +51,15 @@ export const preventureCopy = {
   },
   sets: {
     title: "Die Klassiker der [[Vorsorge]].",
+    note: "Mit Code {code} {percent} % auf diese sechs Sets.",
     values: "{n} Laborwerte",
     value: "1 Laborwert",
     from: "ab {price}",
   },
   offer: {
     kicker: "Nur für Besucher der PREVENTURE",
-    title: "[[{percent} %]] auf alle Heimtests.",
-    text: "QR-Code scannen, der Code ist im Warenkorb schon eingetragen.",
+    title: "[[{percent} %]] auf die Klassiker der Vorsorge.",
+    text: "Rundum Check, Herz-Kreislauf, Darmkrebs, Blutzucker und PSA. QR-Code scannen, der Code ist im Warenkorb schon eingetragen.",
     codeLabel: "Oder Code im Warenkorb eingeben",
   },
   movember: {
@@ -66,5 +69,15 @@ export const preventureCopy = {
     until: "Code gilt bis 30. November",
   },
   corner: "{percent} % mit Code",
+  landing: {
+    metaTitle: "PREVENTURE 2026: 20 % auf die Klassiker der Vorsorge",
+    kicker: "Für Besucher der PREVENTURE 2026",
+    title: "[[{percent} %]] auf die Klassiker der Vorsorge.",
+    text: "Mit dem Code {code} sparst du {percent} % auf diese sechs Sets. Kamst du über den QR-Code am Stand, ist der Code im Warenkorb schon eingetragen.",
+    codeLabel: "Dein Code",
+    copy: "Kopieren",
+    copied: "Kopiert",
+    note: "Der Code gilt nur für die Sets auf dieser Seite.",
+  },
   fullscreen: "Vollbild",
 };

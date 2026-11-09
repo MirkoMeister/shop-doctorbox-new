@@ -176,6 +176,7 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
       {sets.length > 0 && (
         <section className={`kiosk-slide flex flex-col justify-center px-8 sm:px-14 ${slide === "sets" ? "is-active" : ""}`} aria-hidden={slide !== "sets"}>
           <p className="text-4xl font-semibold tracking-tight sm:text-5xl"><Highlight text={t.sets.title} tone="dark" /></p>
+          <p className="mt-3 text-xl text-soft/85 sm:text-2xl">{fill(t.sets.note, { code: PREVENTURE.code, percent: PREVENTURE.percent })}</p>
           <ul className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-5">
             {sets.map((p) => (
               <li key={p.handle} className="flex items-center gap-4 overflow-hidden rounded-[var(--radius-card)] bg-soft p-3 pr-5 text-ink">
@@ -202,10 +203,10 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
         <div className="absolute inset-0 bg-gradient-to-b from-moss-deep/85 via-moss-deep/70 to-moss-deep/90 lg:bg-gradient-to-r lg:from-moss-deep/95 lg:via-moss-deep/75 lg:to-transparent" />
         <div className="relative max-w-2xl">
           <p className="text-lg font-medium text-turquoise sm:text-xl">{t.offer.kicker}</p>
-          <p className="mt-3 text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl"><Highlight text={fill(t.offer.title, pct)} tone="dark" /></p>
-          <p className="mt-5 max-w-xl text-xl text-soft/85 sm:text-2xl">{t.offer.text}</p>
-          <div className="mt-8 flex flex-wrap items-center gap-6">
-            <div className="flex w-52 flex-col items-center rounded-[var(--radius-card)] bg-white p-4 text-ink shadow-2xl sm:w-60">
+          <p className="mt-3 text-4xl font-semibold leading-[1.04] tracking-tight sm:text-6xl"><Highlight text={fill(t.offer.title, pct)} tone="dark" /></p>
+          <p className="mt-4 max-w-xl text-lg text-soft/85 sm:text-xl">{t.offer.text}</p>
+          <div className="mt-6 flex flex-wrap items-center gap-6">
+            <div className="flex w-48 flex-col items-center rounded-[var(--radius-card)] bg-white p-4 text-ink shadow-2xl sm:w-52">
               {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimisation needed */}
               <img src={PREVENTURE.qrImage} alt={`QR-Code zum Shop mit Code ${PREVENTURE.code}`} className="aspect-square w-full" />
               <p className="mt-3 text-sm font-semibold">{PREVENTURE.shortUrl}</p>

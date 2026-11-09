@@ -128,7 +128,7 @@ const de = {
     review: "Bewertung",
     chooseVariant: "Variante wählen",
     recommended: "Empfohlen",
-    tassoChip: "Schmerzfrei mit Tasso+",
+    tassoChip: "Nahezu schmerzfrei mit Tasso+",
     reviewsBlock: {
       title: "Das sagen Kundinnen und Kunden",
       source: "Bewertungen über Trusted Shops. Als „Verifizierter Kauf“ gekennzeichnete Bewertungen stammen aus einer bei Trusted Shops bestätigten Bestellung.",
@@ -713,7 +713,7 @@ const en: Dictionary = {
     review: "review",
     chooseVariant: "Choose variant",
     recommended: "Recommended",
-    tassoChip: "Painless with Tasso+",
+    tassoChip: "Virtually painless with Tasso+",
     reviewsBlock: {
       title: "What customers say",
       source: "Reviews via Trusted Shops. Reviews marked “Verified purchase” come from an order confirmed with Trusted Shops.",
