@@ -30,7 +30,7 @@ export const PREVENTURE = {
   /** shown under the QR code for people who prefer typing */
   shortUrl: "shop.doctorbox.de",
   /** seconds per slide; the video slide lasts as long as the video */
-  seconds: { steps: 9, sets: 12, offer: 18, movember: 14 },
+  seconds: { steps: 9, pharmacy: 12, sets: 12, offer: 18, movember: 14 },
 } as const;
 
 export const preventureCopy = {
@@ -48,6 +48,14 @@ export const preventureCopy = {
       { title: "Probe nehmen", text: "Zu Hause, mit Tasso+ oder Fingerpiks. Anleitung liegt bei." },
       { title: "Befund in der App", text: "Analyse im akkreditierten Labor, Ergebnis in der DoctorBox App." },
     ],
+  },
+  pharmacy: {
+    title: "Blutabnahme [[in der Apotheke]].",
+    text: "Lieber nicht selbst? In Partnerapotheken in ganz Deutschland nimmt das Apothekenteam deine Probe ab. Test im Shop bestellen, vor Ort abnehmen lassen, Befund in der App.",
+    legend: "Partnerapotheken mit Probenentnahme",
+    one: "1 Apotheke",
+    more: "mehrere in der Nähe",
+    mapLabel: "Deutschlandkarte mit den Partnerapotheken, die Proben abnehmen",
   },
   sets: {
     title: "Die Klassiker der [[Vorsorge]].",

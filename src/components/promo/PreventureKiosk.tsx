@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Moustache } from "@/components/promo/Moustache";
+import { PharmacyMap } from "@/components/promo/PharmacyMap";
 import { Highlight } from "@/components/ui/Highlight";
 import { MOVEMBER } from "@/content/movember";
 import { PREVENTURE, preventureCopy as t } from "@/content/preventure";
@@ -10,7 +11,7 @@ import { TASSO_POSTER, TASSO_VIDEO } from "@/content/tasso";
 import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney, shopifyImage } from "@/lib/format";
 
-type SlideKey = "video" | "steps" | "sets" | "offer" | "movember";
+type SlideKey = "video" | "steps" | "pharmacy" | "sets" | "offer" | "movember";
 
 /** a prevention set on the sets slide */
 export type KioskSet = { handle: string; title: string; image: string | null; values: number; sample: string | null; price: { amount: string; currencyCode: string } };
@@ -33,6 +34,7 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
   const slides: SlideKey[] = [
     "video",
     "steps",
+    "pharmacy",
     ...(sets.length ? (["sets"] as const) : []),
     "offer",
     ...(movember ? (["movember"] as const) : []),
@@ -172,7 +174,29 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
         </div>
       </section>
 
-      {/* 3: classic prevention sets */}
+      {/* 3: blood sampling in partner pharmacies, map of Germany */}
+      <section className={`kiosk-slide grid items-center gap-10 px-8 sm:px-14 lg:grid-cols-[1.1fr_1fr] ${slide === "pharmacy" ? "is-active" : ""}`} aria-hidden={slide !== "pharmacy"}>
+        <div>
+          <p className="text-4xl font-semibold tracking-tight sm:text-6xl">
+            <Highlight text={t.pharmacy.title} tone="dark" />
+          </p>
+          <p className="mt-5 max-w-xl text-xl text-soft/85 sm:text-2xl">{t.pharmacy.text}</p>
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-base text-soft/80">
+            <span className="font-medium text-soft">{t.pharmacy.legend}</span>
+            <span className="inline-flex items-center gap-2">
+              <svg viewBox="0 0 20 22" className="h-5 w-5" aria-hidden><polygon points="10,1 19,6 19,16 10,21 1,16 1,6" fill="#cbdfc6" /></svg>
+              {t.pharmacy.one}
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <svg viewBox="0 0 20 22" className="h-5 w-5" aria-hidden><polygon points="10,1 19,6 19,16 10,21 1,16 1,6" fill="#0e834b" /></svg>
+              {t.pharmacy.more}
+            </span>
+          </div>
+        </div>
+        <PharmacyMap label={t.pharmacy.mapLabel} className="mx-auto h-[min(70vh,640px)] w-auto max-w-full" />
+      </section>
+
+      {/* 4: classic prevention sets */}
       {sets.length > 0 && (
         <section className={`kiosk-slide flex flex-col justify-center px-8 sm:px-14 ${slide === "sets" ? "is-active" : ""}`} aria-hidden={slide !== "sets"}>
           <p className="text-4xl font-semibold tracking-tight sm:text-5xl"><Highlight text={t.sets.title} tone="dark" /></p>
@@ -196,7 +220,7 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
         </section>
       )}
 
-      {/* 4: the offer, QR code to the shop with the code */}
+      {/* 5: the offer, QR code to the shop with the code */}
       <section className={`kiosk-slide flex items-center px-8 sm:px-14 ${slide === "offer" ? "is-active" : ""}`} aria-hidden={slide !== "offer"}>
         {/* the photo from the home page hero, mirrored like there so the person stands on the right */}
         <Image src={HOME_HERO} alt="" fill sizes="100vw" className="hero-photo-mirror object-cover object-[72%_center] lg:object-[center_35%]" />
@@ -219,7 +243,7 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
         </div>
       </section>
 
-      {/* 5: Movember, with the photo and code of the Movember page */}
+      {/* 6: Movember, with the photo and code of the Movember page */}
       {movember && (
         <section className={`kiosk-slide !p-0 ${slide === "movember" ? "is-active" : ""}`} aria-hidden={slide !== "movember"}>
           {movember.image && <Image src={shopifyImage(movember.image, 2000)} alt="" fill sizes="100vw" className="object-cover object-[center_30%]" />}
