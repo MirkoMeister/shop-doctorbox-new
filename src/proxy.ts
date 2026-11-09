@@ -66,7 +66,13 @@ export function proxy(request: NextRequest) {
   // Shopify cart permalinks (/cart/<variant>:<qty>[,…], /cart/c/<token>): Google Merchant Center
   // direct checkout and old links. The cart lives on the Shopify checkout domain, so send them there
   // (302: the domain may change). Query (discount, attributes, UTM) is kept.
-  const permalink = bare.replace(/%3A/gi, ":").replace(/%2C/gi, ",").match(/^\/cart\/(\d+:\d+(?:,\d+:\d+)*|c\/[\w-]+)\/?$/);
+  // Merchant Center fills {id} in its template (/cart/{id}:1) with the feed ID of the Shopify app,
+  // shopify_<country>_<product>_<variant>, which Shopify does not understand: keep only the variant.
+  const cartPath = bare
+    .replace(/%3A/gi, ":")
+    .replace(/%2C/gi, ",")
+    .replace(/shopify_[A-Z]{2}_\d+_(\d+)(?=:)/g, "$1");
+  const permalink = cartPath.match(/^\/cart\/(\d+:\d+(?:,\d+:\d+)*|c\/[\w-]+)\/?$/);
   if (permalink) {
     const host = process.env.SHOPIFY_ONLINE_STORE_DOMAIN || "checkout.doctorbox.de";
     return NextResponse.redirect(`https://${host}/cart/${permalink[1]}${search}`, 302);
