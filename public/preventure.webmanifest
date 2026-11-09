@@ -1,0 +1,18 @@
+{
+  "name": "DoctorBox auf der PREVENTURE",
+  "short_name": "DoctorBox",
+  "description": "Slideshow für den DoctorBox-Stand auf der PREVENTURE 2026",
+  "id": "/pages/preventure",
+  "start_url": "/pages/preventure?app=1",
+  "scope": "/pages/preventure",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#0e4d2f",
+  "theme_color": "#0e4d2f",
+  "lang": "de",
+  "icons": [
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
