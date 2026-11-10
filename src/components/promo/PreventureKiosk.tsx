@@ -11,7 +11,7 @@ import { TASSO_POSTER, TASSO_VIDEO } from "@/content/tasso";
 import { fill } from "@/lib/i18n/dictionaries";
 import { formatMoney, shopifyImage } from "@/lib/format";
 
-type SlideKey = "video" | "steps" | "pharmacy" | "sets" | "offer" | "movember";
+type SlideKey = "video" | "steps" | "wheel" | "pharmacy" | "sets" | "offer" | "movember";
 
 /** a prevention set on the sets slide */
 export type KioskSet = { handle: string; title: string; image: string | null; values: number; sample: string | null; price: { amount: string; currencyCode: string } };
@@ -34,11 +34,15 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
   const slides: SlideKey[] = [
     "video",
     "steps",
+    "wheel",
     "pharmacy",
     ...(sets.length ? (["sets"] as const) : []),
     "offer",
+    // the wheel comes up twice per round
+    "wheel",
     ...(movember ? (["movember"] as const) : []),
   ];
+  const prize = sets.find((p) => p.handle === PREVENTURE.wheelPrize) ?? null;
   const [index, setIndex] = useState(0);
   const [standalone, setStandalone] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -111,9 +115,9 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
       {/* progress, one bar per slide */}
       <div className="absolute inset-x-6 top-5 z-20 flex gap-2" aria-hidden>
         {slides.map((s, i) => (
-          <span key={s} className="h-1 flex-1 overflow-hidden rounded-full bg-white/25">
+          <span key={`${s}-${i}`} className="h-1 flex-1 overflow-hidden rounded-full bg-white/25">
             <span
-              key={i === index ? `run-${index}` : s}
+              key={i === index ? `run-${index}` : `${s}-${i}`}
               className={`block h-full rounded-full bg-soft ${i < index ? "w-full" : i === index ? "kiosk-bar" : "w-0"}`}
               style={i === index ? { animationDuration: `${slide === "video" ? VIDEO_SECONDS : PREVENTURE.seconds[slide]}s` } : undefined}
             />
@@ -171,6 +175,30 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* wheel of fortune at the stand: green field wins a bowel cancer screening set (shown twice per round) */}
+      <section className={`kiosk-slide grid items-center gap-10 px-8 sm:px-14 lg:grid-cols-[1.35fr_1fr] lg:gap-12 ${slide === "wheel" ? "is-active" : ""}`} aria-hidden={slide !== "wheel"}>
+        <div className="relative mx-auto w-[min(56vh,460px)] max-w-full lg:order-2">
+          <Wheel label={t.wheel.label} />
+        </div>
+        <div className="lg:order-1">
+          <p className="text-lg font-medium text-turquoise sm:text-xl">{t.wheel.kicker}</p>
+          <p className="mt-3 text-4xl font-semibold leading-[1.08] tracking-tight sm:text-[3.4rem]"><Highlight text={t.wheel.title} tone="dark" /></p>
+          <p className="mt-5 max-w-xl text-xl text-soft/85 sm:text-2xl">{t.wheel.text}</p>
+          {prize && (
+            <div className="mt-8 flex max-w-md items-center gap-4 rounded-[var(--radius-card)] bg-soft p-3 pr-5 text-ink">
+              <div className="relative size-24 shrink-0 overflow-hidden rounded-2xl bg-white">
+                {prize.image && <Image src={shopifyImage(prize.image, 300)} alt="" fill sizes="96px" className="object-contain p-2" />}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-ink-muted">{t.wheel.prize}</p>
+                <p className="text-xl font-semibold leading-tight">{prize.title}</p>
+                {prize.sample && <p className="mt-1 text-sm text-ink-muted">{prize.sample}</p>}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -300,5 +328,38 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
         </button>
       )}
     </div>
+  );
+}
+
+/** colours of the eight fields; the first one (green) is the prize */
+const WHEEL_FIELDS = ["#0e834b", "#f7f1e9", "#ecd3a8", "#f7f1e9", "#ecd3a8", "#f7f1e9", "#ecd3a8", "#f7f1e9"];
+
+/** stylised wheel of fortune; spins and stops on the green field (CSS .kiosk-wheel) */
+function Wheel({ label }: { label: string }) {
+  const r = 100;
+  const step = (2 * Math.PI) / WHEEL_FIELDS.length;
+  const pt = (a: number) => `${(r * Math.sin(a)).toFixed(2)} ${(-r * Math.cos(a)).toFixed(2)}`;
+  return (
+    <svg viewBox="-118 -128 236 246" className="w-full" role="img" aria-label={label}>
+      <circle r={112} fill="#0a3a23" />
+      <g className="kiosk-wheel">
+        {WHEEL_FIELDS.map((c, i) => (
+          <path key={i} d={`M0 0 L${pt(i * step)} A${r} ${r} 0 0 1 ${pt((i + 1) * step)} Z`} fill={c} stroke="#0a3a23" strokeWidth={1.5} />
+        ))}
+        {/* star on the prize field */}
+        <path
+          transform={`rotate(22.5) translate(0 -66)`}
+          d="M0 -13 L3.8 -4 L13 -4 L5.6 1.8 L8.4 11 L0 5.4 L-8.4 11 L-5.6 1.8 L-13 -4 L-3.8 -4 Z"
+          fill="#f7f1e9"
+        />
+        {WHEEL_FIELDS.map((_, i) => (
+          <circle key={i} cx={(106 * Math.sin(i * step)).toFixed(2)} cy={(-106 * Math.cos(i * step)).toFixed(2)} r={2.6} fill="#f7f1e9" />
+        ))}
+      </g>
+      <circle r={22} fill="#0a3a23" stroke="#f7f1e9" strokeWidth={3} />
+      <circle r={7} fill="#f7f1e9" />
+      {/* pointer at the top */}
+      <path d="M0 -96 L-13 -126 L13 -126 Z" fill="#f7f1e9" stroke="#0a3a23" strokeWidth={2} strokeLinejoin="round" />
+    </svg>
   );
 }

@@ -30,7 +30,9 @@ export const PREVENTURE = {
   /** shown under the QR code for people who prefer typing */
   shortUrl: "shop.doctorbox.de",
   /** seconds per slide; the video slide lasts as long as the video */
-  seconds: { steps: 9, pharmacy: 12, sets: 12, offer: 18, movember: 14 },
+  seconds: { steps: 9, wheel: 11, pharmacy: 12, sets: 12, offer: 18, movember: 14 },
+  /** the prize on the wheel slide (green field on the wheel at the stand) */
+  wheelPrize: "darmkrebsvorsorge",
 } as const;
 
 export const preventureCopy = {
@@ -56,6 +58,13 @@ export const preventureCopy = {
     one: "1 Apotheke",
     more: "mehrere in der Nähe",
     mapLabel: "Deutschlandkarte mit den Partnerapotheken, die Proben abnehmen",
+  },
+  wheel: {
+    kicker: "Hier am Stand",
+    title: "Dreh am Rad und gewinn [[ein Darmkrebsvorsorge\u2011Set]].", // non-breaking hyphen
+    text: "Landet das Rad auf Grün, nimmst du das Set gleich mit.",
+    prize: "Der Gewinn",
+    label: "Glücksrad mit einem grünen Gewinnfeld",
   },
   sets: {
     title: "Die Klassiker der [[Vorsorge]].",

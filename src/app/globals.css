@@ -627,6 +627,15 @@ html[data-assistant-open] [class*="kl-teaser-"] {
   visibility: visible;
   transition: opacity 0.7s ease;
 }
+/* wheel slide: spins once and stops on the green field each time the slide comes up; resets after the fade-out */
+.kiosk-wheel {
+  transform: rotate(0deg);
+  transition: transform 0s linear 0.8s;
+}
+.kiosk-slide.is-active .kiosk-wheel {
+  transform: rotate(1428deg);
+  transition: transform 5s cubic-bezier(0.15, 0.6, 0.15, 1) 0.5s;
+}
 .kiosk-bar {
   width: 0;
   animation: kiosk-fill linear forwards;
@@ -639,6 +648,11 @@ html[data-assistant-open] [class*="kl-teaser-"] {
 @media (prefers-reduced-motion: reduce) {
   .kiosk-slide,
   .kiosk-slide.is-active {
+    transition: none;
+  }
+  .kiosk-wheel,
+  .kiosk-slide.is-active .kiosk-wheel {
+    transform: rotate(-22.5deg);
     transition: none;
   }
 }
