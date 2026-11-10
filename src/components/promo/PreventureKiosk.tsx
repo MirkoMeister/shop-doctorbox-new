@@ -331,8 +331,9 @@ export function PreventureKiosk({ sets, movember }: { sets: KioskSet[]; movember
   );
 }
 
-/** colours of the eight fields; the first one (green) is the prize */
-const WHEEL_FIELDS = ["#0e834b", "#f7f1e9", "#ecd3a8", "#f7f1e9", "#ecd3a8", "#f7f1e9", "#ecd3a8", "#f7f1e9"];
+/** colours of the ten fields like the wheel at the stand; the two green ones win */
+const G = "#0e834b";
+const WHEEL_FIELDS = [G, "#f7f1e9", "#ecd3a8", "#f7f1e9", "#ecd3a8", G, "#f7f1e9", "#ecd3a8", "#f7f1e9", "#ecd3a8"];
 
 /** stylised wheel of fortune; spins and stops on the green field (CSS .kiosk-wheel) */
 function Wheel({ label }: { label: string }) {
@@ -346,12 +347,17 @@ function Wheel({ label }: { label: string }) {
         {WHEEL_FIELDS.map((c, i) => (
           <path key={i} d={`M0 0 L${pt(i * step)} A${r} ${r} 0 0 1 ${pt((i + 1) * step)} Z`} fill={c} stroke="#0a3a23" strokeWidth={1.5} />
         ))}
-        {/* star on the prize field */}
-        <path
-          transform={`rotate(22.5) translate(0 -66)`}
-          d="M0 -13 L3.8 -4 L13 -4 L5.6 1.8 L8.4 11 L0 5.4 L-8.4 11 L-5.6 1.8 L-13 -4 L-3.8 -4 Z"
-          fill="#f7f1e9"
-        />
+        {/* star on the prize fields */}
+        {WHEEL_FIELDS.map((c, i) =>
+          c === G ? (
+            <path
+              key={`star-${i}`}
+              transform={`rotate(${(i + 0.5) * (360 / WHEEL_FIELDS.length)}) translate(0 -68)`}
+              d="M0 -12 L3.5 -3.7 L12 -3.7 L5.2 1.7 L7.8 10.2 L0 5 L-7.8 10.2 L-5.2 1.7 L-12 -3.7 L-3.5 -3.7 Z"
+              fill="#f7f1e9"
+            />
+          ) : null,
+        )}
         {WHEEL_FIELDS.map((_, i) => (
           <circle key={i} cx={(106 * Math.sin(i * step)).toFixed(2)} cy={(-106 * Math.cos(i * step)).toFixed(2)} r={2.6} fill="#f7f1e9" />
         ))}
