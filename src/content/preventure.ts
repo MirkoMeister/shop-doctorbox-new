@@ -61,7 +61,7 @@ export const preventureCopy = {
   },
   wheel: {
     kicker: "Hier am Stand",
-    title: "Dreh am Rad und gewinn [[ein Darmkrebsvorsorge\u2011Set]].", // non-breaking hyphen
+    title: "Dreh am Rad und gewinn\u00a0ein [[Darmkrebsvorsorge\u2011Set]].", // non-breaking space and hyphen
     text: "Landet das Rad auf Grün, nimmst du das Set gleich mit.",
     prize: "Der Gewinn",
     label: "Glücksrad mit einem grünen Gewinnfeld",
