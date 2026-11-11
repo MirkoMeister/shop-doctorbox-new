@@ -5,6 +5,7 @@ import {
   AnalyticsPageType,
   ShopifySalesChannel,
   getClientBrowserParameters,
+  getTrackingValues,
   sendShopifyAnalytics,
   type ShopifyAnalyticsProduct,
   type ShopifyPageViewPayload,
@@ -18,8 +19,9 @@ import type { TrackItem } from "./events";
  * A headless storefront does not load Shopify's theme scripts, so without this Shopify only saw
  * sessions that started in the checkout.
  *
- * Visitor and session tokens (_shopify_y/_shopify_s) come from Shopify's Customer Privacy API,
- * which the iubenda callback loads and hands the visitor's choice to (Analytics.tsx). The checkout
+ * Visitor and session tokens come from Shopify's Customer Privacy API, which the iubenda callback
+ * loads and hands the visitor's choice to (Analytics.tsx). Shopify keeps them stable
+ * through its own cookies, set via our proxy (ensureCookies), whose answer the events then use. The checkout
  * on checkout.doctorbox.de continues the same session.
  *
  * Nothing is sent without consent to measurement (iubenda purpose 4 → Shopify "analytics").
@@ -64,6 +66,8 @@ function base() {
     analyticsAllowed: true,
     marketingAllowed: safe(p?.marketingAllowed),
     saleOfDataAllowed: safe(p?.saleOfDataAllowed),
+    // the shop sells to the EU only
+    gdprEnforced: true,
   };
 }
 
@@ -76,9 +80,43 @@ function safe(fn?: () => boolean) {
 }
 
 function send(event: Event) {
-  // payload built at send time so the tokens are the ones the Customer Privacy API holds now
-  const payload = { ...base(), ...event.payload } as ShopifyPageViewPayload;
-  sendShopifyAnalytics({ eventName: event.eventName, payload }, TRACKING.shopifyCheckoutDomain).catch(() => {});
+  // after the cookie request, so the first event of a page load already has the visitor's stable tokens
+  void ensureCookies().then(() => {
+    const payload = { ...base(), ...stable, ...event.payload } as ShopifyPageViewPayload;
+    sendShopifyAnalytics({ eventName: event.eventName, payload }, TRACKING.shopifyCheckoutDomain).catch(() => {});
+  });
+}
+
+/**
+ * Asks Shopify, through our proxy (app/api/unstable/graphql.json), for this visitor's tokens. Shopify
+ * keeps them in its own HttpOnly cookies; without them every page load would be a new visitor. The
+ * page's tokens go along, so a first visit keeps the ones it started with. Once per page load, and
+ * only called with consent (send runs after the consent check).
+ */
+let cookies: Promise<void> | null = null;
+/** the tokens Shopify knows this visitor by (from its cookies); they replace the page's own */
+let stable: { uniqueToken: string; visitToken: string } | null = null;
+
+function ensureCookies(): Promise<void> {
+  if (cookies) return cookies;
+  const { uniqueToken, visitToken } = getTrackingValues();
+  cookies = fetch("/api/unstable/graphql.json", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(uniqueToken && visitToken ? { "X-Shopify-UniqueToken": uniqueToken, "X-Shopify-VisitToken": visitToken } : {}),
+    },
+    body: JSON.stringify({
+      query: "query ensureCookies { consentManagement { cookies(visitorConsent:{}) { trackingConsentCookie cookieDomain shopifyUnique shopifyVisit } } }",
+    }),
+  })
+    .then((r) => r.json())
+    .then((j: { data?: { consentManagement?: { cookies?: { shopifyUnique?: string | null; shopifyVisit?: string | null } } } }) => {
+      const c = j.data?.consentManagement?.cookies;
+      if (c?.shopifyUnique && c.shopifyVisit) stable = { uniqueToken: c.shopifyUnique, visitToken: c.shopifyVisit };
+    })
+    .catch(() => {});
+  return cookies;
 }
 
 function flush() {
