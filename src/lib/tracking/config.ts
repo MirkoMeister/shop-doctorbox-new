@@ -21,6 +21,8 @@ export const TRACKING = {
   /** Shopify analytics (lib/tracking/shopify.ts): shop ID (Storefront API shop.id) and the online store domain the events go to */
   shopifyShopId: process.env.NEXT_PUBLIC_SHOPIFY_SHOP_ID || "gid://shopify/Shop/56469913683",
   shopifyCheckoutDomain: process.env.NEXT_PUBLIC_SHOPIFY_CHECKOUT_DOMAIN || "checkout.doctorbox.de",
+  /** Headless channel storefront ID (Admin → Headless → storefront), so Shopify attributes the events to that sales channel */
+  shopifyStorefrontId: process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ID || "392908",
   plausibleDomain: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || "",
   etrusted: process.env.NEXT_PUBLIC_ETRUSTED_ENABLED === "true",
 } as const;

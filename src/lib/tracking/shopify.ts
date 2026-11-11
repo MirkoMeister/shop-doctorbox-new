@@ -59,6 +59,7 @@ function base() {
     currency: "EUR" as const,
     acceptedLanguage: en ? ("EN" as const) : ("DE" as const),
     shopifySalesChannel: ShopifySalesChannel.headless,
+    ...(TRACKING.shopifyStorefrontId ? { storefrontId: TRACKING.shopifyStorefrontId } : {}),
     hasUserConsent: true,
     analyticsAllowed: true,
     marketingAllowed: safe(p?.marketingAllowed),
