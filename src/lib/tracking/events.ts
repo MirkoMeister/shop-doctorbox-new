@@ -2,6 +2,7 @@
 
 import { siteUrl } from "@/lib/i18n/config";
 import type { Cart, CartLine, Product, Variant } from "@/lib/shopify/types";
+import { shopifyAddToCart, shopifyProductView } from "./shopify";
 
 /**
  * E-commerce events for GTM (GA4 format, same shape as the old Shopify theme pushed),
@@ -13,7 +14,8 @@ import type { Cart, CartLine, Product, Variant } from "@/lib/shopify/types";
  * dataLayer pushes are only processed once GTM runs, which iubenda allows after consent.
  * Meta and Reddit calls wait in a queue until their pixel was activated after consent
  * (see Analytics.tsx); Klaviyo calls wait in klaviyo.js's own queue until the script is
- * activated after consent. Nothing leaves the browser without consent.
+ * activated after consent. Shopify's own analytics (sessions, funnel): lib/tracking/shopify.ts.
+ * Nothing leaves the browser without consent.
  */
 
 export type TrackItem = {
@@ -174,6 +176,7 @@ export function itemFromLine(line: CartLine, quantity = line.quantity): TrackIte
 }
 
 export function trackViewItem(item: TrackItem) {
+  shopifyProductView(item);
   pushEcommerce("view_item", [item]);
   pixel("Meta", "track", "ViewContent", metaParams([item]));
   pixel("Reddit", "track", "ViewContent", redditParams([item]));
@@ -201,6 +204,7 @@ export function trackViewItem(item: TrackItem) {
 }
 
 export function trackAddToCart(item: TrackItem, cart: Cart) {
+  shopifyAddToCart(item, cart);
   pushEcommerce("add_to_cart", [item]);
   pixel("Meta", "track", "AddToCart", metaParams([item]));
   pixel("Reddit", "track", "AddToCart", redditParams([item]));

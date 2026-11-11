@@ -18,6 +18,9 @@ export const TRACKING = {
   metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || "725119135330052",
   redditPixelId: process.env.NEXT_PUBLIC_REDDIT_PIXEL_ID || "a2_jjo8ujxv6gt2",
   klaviyoCompanyId: process.env.NEXT_PUBLIC_KLAVIYO_COMPANY_ID || "XHvpRp",
+  /** Shopify analytics (lib/tracking/shopify.ts): shop ID (Storefront API shop.id) and the online store domain the events go to */
+  shopifyShopId: process.env.NEXT_PUBLIC_SHOPIFY_SHOP_ID || "gid://shopify/Shop/56469913683",
+  shopifyCheckoutDomain: process.env.NEXT_PUBLIC_SHOPIFY_CHECKOUT_DOMAIN || "checkout.doctorbox.de",
   plausibleDomain: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || "",
   etrusted: process.env.NEXT_PUBLIC_ETRUSTED_ENABLED === "true",
 } as const;
