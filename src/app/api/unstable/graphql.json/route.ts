@@ -12,13 +12,30 @@ export const dynamic = "force-dynamic";
  * the Customer Privacy API makes up new visitor/session tokens on every page load.
  *
  * Only the one cookie query is forwarded; this is not a general Storefront API proxy. Shopify decides
- * from the visitor's consent cookie (_tracking_consent) what to set; the browser only asks after consent
- * to measurement. The answer carries the visitor's stable tokens (shopifyUnique/shopifyVisit), which the
+ * from the consent the page sends along (four yes/no values) what to set; the browser only asks after
+ * consent to measurement. The answer carries the visitor's stable tokens (shopifyUnique/shopifyVisit), which the
  * browser side (lib/tracking/shopify.ts) puts into its events.
  */
 
-const QUERY = "query ensureCookies { consentManagement { cookies(visitorConsent:{}) { trackingConsentCookie cookieDomain shopifyUnique shopifyVisit } } }";
+const QUERY =
+  "query ensureCookies($visitorConsent: VisitorConsent!) { consentManagement { cookies(visitorConsent: $visitorConsent) { trackingConsentCookie cookieDomain shopifyUnique shopifyVisit } } }";
 const norm = (q: string) => q.replace(/\s+/g, "");
+
+/**
+ * The visitor's choice, as the page's Customer Privacy API knows it. Shopify reads an empty consent as
+ * "declined" and then sets no visitor cookies and returns no tokens. Exactly these four yes/no values.
+ */
+const CONSENT_KEYS = ["analytics", "marketing", "preferences", "saleOfData"] as const;
+type VisitorConsent = Record<(typeof CONSENT_KEYS)[number], boolean>;
+function visitorConsent(v: unknown): VisitorConsent | null {
+  if (!v || typeof v !== "object") return null;
+  const o = v as Record<string, unknown>;
+  if (Object.keys(o).length !== CONSENT_KEYS.length) return null;
+  if (!CONSENT_KEYS.every((k) => typeof o[k] === "boolean")) return null;
+  // the page only asks after consent to measurement
+  if (o.analytics !== true) return null;
+  return Object.fromEntries(CONSENT_KEYS.map((k) => [k, o[k]])) as VisitorConsent;
+}
 
 const token = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN ?? process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 const privateToken = process.env.SHOPIFY_STOREFRONT_PRIVATE_TOKEN;
@@ -36,7 +53,7 @@ const VISITOR_COOKIES = new Set(["_shopify_essential", "_shopify_analytics", "_s
 const tokenOk = (v: string | null) => !!v && /^[A-Za-z0-9._-]{8,100}$/.test(v);
 
 export async function POST(req: NextRequest) {
-  let body: { query?: unknown };
+  let body: { query?: unknown; variables?: { visitorConsent?: unknown } };
   try {
     body = await req.json();
   } catch {
@@ -45,6 +62,8 @@ export async function POST(req: NextRequest) {
   if (typeof body.query !== "string" || norm(body.query) !== norm(QUERY)) {
     return NextResponse.json({ error: "not allowed" }, { status: 403 });
   }
+  const consent = visitorConsent(body.variables?.visitorConsent);
+  if (!consent) return NextResponse.json({ error: "bad consent" }, { status: 400 });
   if (!token && !privateToken) return NextResponse.json({ error: "not configured" }, { status: 503 });
 
   const headers: Record<string, string> = {
@@ -67,7 +86,7 @@ export async function POST(req: NextRequest) {
 
   let res: Response;
   try {
-    res = await fetch(upstream, { method: "POST", headers, body: JSON.stringify({ query: QUERY }), cache: "no-store" });
+    res = await fetch(upstream, { method: "POST", headers, body: JSON.stringify({ query: QUERY, variables: { visitorConsent: consent } }), cache: "no-store" });
   } catch {
     return NextResponse.json({ error: "upstream" }, { status: 502 });
   }

@@ -31,6 +31,7 @@ import type { TrackItem } from "./events";
 type CustomerPrivacy = {
   analyticsProcessingAllowed?: () => boolean;
   marketingAllowed?: () => boolean;
+  preferencesProcessingAllowed?: () => boolean;
   saleOfDataAllowed?: () => boolean;
 };
 type ShopifyWindow = Window & { Shopify?: { customerPrivacy?: CustomerPrivacy } };
@@ -100,6 +101,14 @@ let stable: { uniqueToken: string; visitToken: string } | null = null;
 function ensureCookies(): Promise<void> {
   if (cookies) return cookies;
   const { uniqueToken, visitToken } = getTrackingValues();
+  const p = privacy();
+  // the visitor's real choice: with an empty one Shopify assumes "declined" and returns no tokens
+  const visitorConsent = {
+    analytics: true,
+    marketing: safe(p?.marketingAllowed),
+    preferences: safe(p?.preferencesProcessingAllowed),
+    saleOfData: safe(p?.saleOfDataAllowed),
+  };
   cookies = fetch("/api/unstable/graphql.json", {
     method: "POST",
     headers: {
@@ -107,7 +116,9 @@ function ensureCookies(): Promise<void> {
       ...(uniqueToken && visitToken ? { "X-Shopify-UniqueToken": uniqueToken, "X-Shopify-VisitToken": visitToken } : {}),
     },
     body: JSON.stringify({
-      query: "query ensureCookies { consentManagement { cookies(visitorConsent:{}) { trackingConsentCookie cookieDomain shopifyUnique shopifyVisit } } }",
+      query:
+        "query ensureCookies($visitorConsent: VisitorConsent!) { consentManagement { cookies(visitorConsent: $visitorConsent) { trackingConsentCookie cookieDomain shopifyUnique shopifyVisit } } }",
+      variables: { visitorConsent },
     }),
   })
     .then((r) => r.json())
