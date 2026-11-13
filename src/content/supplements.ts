@@ -20,7 +20,26 @@ export type SupplementsCopy = {
   vitaminDForms: string;
   more: string;
   groups: SupplementGroup[];
+  /** image banners between the goal sections, shown before the group with this key */
+  banners: SupplementBanner[];
 };
+
+export type SupplementBanner = {
+  before: string;
+  image: string;
+  alt: string;
+  title: string;
+  text: string;
+  /** product the banner links to (its price is added to the button), or none */
+  handle?: string;
+  cta?: string;
+  /** short facts shown as a list */
+  points?: { title: string; text: string }[];
+  tone: "green" | "lind";
+};
+
+const OM3_TEXTURE = "https://cdn.shopify.com/s/files/1/0564/6991/3683/files/om3_kapseln_07_textur_1536x1536_gruen_ohne_text.jpg?v=1794576684";
+const OM3_INTAKE = "https://cdn.shopify.com/s/files/1/0564/6991/3683/files/om3_kapseln_02_einnahme_1536x1536_gruen_ohne_text.jpg?v=1794576694";
 
 /** biomo vitamin D in four forms: shown as one card */
 export const VITAMIN_D_HANDLES = ["vitamin-d3-biomo®-2-000-i-e-vegan", "vitamin-d3-biomo®-2-000-i-e", "vitamin-d3-biomo®-2-000-i-e-120-tabletten", "vitamin-d3-biomo®-tropfen"];
@@ -50,6 +69,30 @@ const de: SupplementsCopy = {
     { key: "longevity", title: "Longevity & Zellschutz", text: "Für zelluläre Erneuerung, Regeneration und gesundes Altern.", handles: ["spermidin-kapseln", "akg-calcium-alphaketoglutarat", "sulphoraphan-kapseln", "recovery-formula"] },
     { key: "basis", title: "Basis, Männer & Frauen", text: "Die tägliche Grundversorgung und Formeln, die auf den männlichen oder weiblichen Hormonhaushalt abgestimmt sind.", handles: ["essentials-formula", "men-formula", "fem-formula"] },
   ],
+  banners: [
+    {
+      before: "energie",
+      image: OM3_INTAKE,
+      alt: "Frau hält eine Kapsel zwischen den Fingern, daneben ein Glas Wasser",
+      title: "Formel oder [[Einzelstoff]]?",
+      text: "Beides findest du in jedem Bereich. So entscheidest du, was zu dir passt.",
+      points: [
+        { title: "Formel", text: "Mehrere aufeinander abgestimmte Stoffe für ein Ziel, in einer Tagesportion." },
+        { title: "Einzelstoff", text: "Ein Wirkstoff, gezielt dosiert. Am besten, wenn ein Bluttest zeigt, was dir fehlt." },
+      ],
+      tone: "lind",
+    },
+    {
+      before: "herz",
+      image: OM3_TEXTURE,
+      alt: "Goldgelbe Omega-3-Kapseln in einer Reihe auf grünem Grund",
+      title: "Omega-3 [[in rTG-Form]]",
+      text: "Hochdosiertes EPA und DHA in besonders bioverfügbarer rTG-Form.",
+      handle: "omega-3-kapseln",
+      cta: "Zu Omega-3",
+      tone: "green",
+    },
+  ],
 };
 
 const en: SupplementsCopy = {
@@ -72,6 +115,30 @@ const en: SupplementsCopy = {
     { key: "gelenke", title: "Joints & skin", text: "For mobility, connective tissue and hydration.", handles: ["mobility-formula", "hyaluron-kapseln"] },
     { key: "longevity", title: "Longevity & cell protection", text: "For cellular renewal, recovery and healthy ageing.", handles: ["spermidin-kapseln", "akg-calcium-alphaketoglutarat", "sulphoraphan-kapseln", "recovery-formula"] },
     { key: "basis", title: "Basics, men & women", text: "Daily foundations and formulas tuned to the male or female hormone balance.", handles: ["essentials-formula", "men-formula", "fem-formula"] },
+  ],
+  banners: [
+    {
+      before: "energie",
+      image: OM3_INTAKE,
+      alt: "Woman holding a capsule between her fingers, a glass of water beside her",
+      title: "Formula or [[single active]]?",
+      text: "You will find both in every area. This is how to choose what suits you.",
+      points: [
+        { title: "Formula", text: "Several matched actives for one goal, in one daily serving." },
+        { title: "Single active", text: "One active, dosed on purpose. Best when a blood test shows what you are missing." },
+      ],
+      tone: "lind",
+    },
+    {
+      before: "herz",
+      image: OM3_TEXTURE,
+      alt: "Golden omega-3 capsules in a row on a green background",
+      title: "Omega-3 [[in rTG form]]",
+      text: "High-dose EPA and DHA in the highly bioavailable rTG form.",
+      handle: "omega-3-kapseln",
+      cta: "Shop omega-3",
+      tone: "green",
+    },
   ],
 };
 

@@ -1,10 +1,11 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AssistantCard } from "@/components/collection/AssistantCard";
 import { ProductCard, ProductGrid } from "@/components/product/ProductCard";
 import { Highlight } from "@/components/ui/Highlight";
 import { ArrowRight } from "@/components/ui/Icons";
-import { FORMULA_HANDLES, MEASURE_FIRST_HANDLES, VITAMIN_D_HANDLES, supplementsCopy } from "@/content/supplements";
+import { FORMULA_HANDLES, MEASURE_FIRST_HANDLES, VITAMIN_D_HANDLES, supplementsCopy, type SupplementBanner } from "@/content/supplements";
 import { miraDemo } from "@/content/mira-demo";
 import { formatMoney, shopifyImage } from "@/lib/format";
 import { localeHref, type Locale } from "@/lib/i18n/config";
@@ -81,7 +82,13 @@ export function SupplementsView({ products, tests, locale, dict }: { products: P
 
       {/* Groups */}
       {groups.map((g, gi) => (
-        <section key={g.key} id={`supp-${g.key}`} className="mt-16 scroll-mt-24" aria-labelledby={`supp-${g.key}-title`}>
+        <Fragment key={g.key}>
+        {t.banners
+          .filter((b) => b.before === g.key && gi > 0)
+          .map((b) => (
+            <Banner key={b.image} banner={b} product={b.handle ? byHandle.get(b.handle) : undefined} locale={locale} />
+          ))}
+        <section id={`supp-${g.key}`} className="mt-16 scroll-mt-24" aria-labelledby={`supp-${g.key}-title`}>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div className="max-w-2xl">
               <h2 id={`supp-${g.key}-title`} className="h3">{g.title}</h2>
@@ -110,6 +117,7 @@ export function SupplementsView({ products, tests, locale, dict }: { products: P
             )}
           </ul>
         </section>
+        </Fragment>
       ))}
 
       {rest.length > 0 && (
@@ -149,5 +157,43 @@ function VitaminDCard({ products, locale, title, text, formsLabel }: { products:
         </ul>
       </div>
     </article>
+  );
+}
+
+/** Image banner between two goal sections: picture on one side, a short explanation or one product on the other */
+function Banner({ banner: b, product, locale }: { banner: SupplementBanner; product?: ProductCardType; locale: Locale }) {
+  const green = b.tone === "green";
+  return (
+    <section
+      className={`mt-16 grid overflow-hidden rounded-[var(--radius-panel)] md:grid-cols-2 ${green ? "bg-green-deep text-white" : "bg-lind text-moss"}`}
+      aria-label={b.title.replace(/\[\[|\]\]/g, "")}
+    >
+      <div className={`relative aspect-[4/3] md:aspect-auto md:min-h-[22rem] ${green ? "" : "md:order-2"}`}>
+        <Image src={shopifyImage(b.image, 1200)} alt={b.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+      </div>
+      <div className="flex flex-col justify-center p-6 sm:p-10 lg:p-12">
+        <h2 className="h3 text-balance">
+          <Highlight text={b.title} tone={green ? "dark" : "light"} />
+        </h2>
+        <p className={`mt-3 max-w-md text-lg ${green ? "text-white/85" : "text-moss/80"}`}>{b.text}</p>
+        {b.points && (
+          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+            {b.points.map((p) => (
+              <div key={p.title} className="rounded-2xl bg-white/70 p-4">
+                <dt className="font-semibold">{p.title}</dt>
+                <dd className="mt-1 text-sm leading-snug text-moss/80">{p.text}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {product && b.cta && (
+          <div className="mt-6">
+            <Link href={localeHref(locale, `/products/${product.handle}`)} className={`btn ${green ? "btn-on-dark" : "btn-primary"}`}>
+              {b.cta} · {formatMoney(product.priceRange.minVariantPrice, locale)} <ArrowRight width={16} height={16} />
+            </Link>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
