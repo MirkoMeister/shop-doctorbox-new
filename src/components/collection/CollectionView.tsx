@@ -73,7 +73,7 @@ export function CollectionView({
   intro: string | null;
   descriptionHtml?: string | null;
   handle: string | null;
-  /** hero photo from the collection's custom.hero_image metafield; wins over the bundled photo */
+  /** hero photo from the collection's custom.hero_bild metafield; wins over the bundled photo */
   heroImage?: string | null;
   products: ProductCard[];
   sort: ProductSort;

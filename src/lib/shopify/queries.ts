@@ -159,7 +159,7 @@ const COLLECTION_QUERY = /* GraphQL */ `
   query Collection($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, ${CTX_VARS}) ${CTX} {
     collection(handle: $handle) {
       ...CollectionFields
-      heroImage: metafield(namespace: "custom", key: "hero_image") {
+      heroImage: metafield(namespace: "custom", key: "hero_bild") {
         reference {
           ... on MediaImage {
             image {
@@ -222,7 +222,7 @@ export async function getCollection(
   return {
     ...rest,
     title: collectionTitle(rest.handle, rest.title),
-    // custom.hero_image (file) on the collection: the team swaps the hero photo in the Shopify admin
+    // custom.hero_bild (file) on the collection: the team swaps the hero photo in the Shopify admin
     heroImage: heroImage?.reference?.image ?? null,
     products: await applyReviewSummaries(cards),
   };
