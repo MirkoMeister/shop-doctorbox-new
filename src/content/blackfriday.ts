@@ -13,13 +13,19 @@ export const BLACKFRIDAY = {
   page: "/pages/black-friday",
   /** editorial groups; keys match the copy below */
   groups: [
-    { key: "sti", handles: ["sti-standard-5", "sti-test-1", "sti-test-hiv-syphilis-lues-hepatitis-c-geschlechtskrankheiten-test", "sti-test", "hpv-high-risk-typen"] },
-    { key: "naehrstoffe", handles: ["nahrstoff-rundum-check", "vitamin-d-test", "vitamin-b12-vegan-vegetarisch", "aminosaeuren-test", "haemoglobin-test"] },
-    { key: "check", handles: ["rundum-check-fur-frauen", "schilddrusen-check-plus", "allergietest"] },
+    { key: "sti" as const, slug: "sexuelle-gesundheit", image: "sexuelle-gesundheit.jpg", handles: ["sti-standard-5", "sti-test-1", "sti-test-hiv-syphilis-lues-hepatitis-c-geschlechtskrankheiten-test", "sti-test", "hpv-high-risk-typen"] },
+    { key: "naehrstoffe" as const, slug: "naehrstoffe-und-blut", image: "nahrstoffe-vitamine.jpg", handles: ["nahrstoff-rundum-check", "vitamin-d-test", "vitamin-b12-vegan-vegetarisch", "aminosaeuren-test", "haemoglobin-test"] },
+    { key: "check" as const, slug: "checks-fuer-den-ueberblick", image: "vorsorge.jpg", handles: ["rundum-check-fur-frauen", "schilddrusen-check-plus", "allergietest"] },
   ],
 };
 
-/** Every kit on the page. */
+export type BlackFridayGroup = (typeof BLACKFRIDAY.groups)[number];
+
+export function blackFridayGroupPath(group: BlackFridayGroup): string {
+  return `${BLACKFRIDAY.page}/${group.slug}`;
+}
+
+/** Every kit eligible for the campaign code. */
 export const blackFridayHandles = BLACKFRIDAY.groups.flatMap((g) => g.handles);
 
 export type BlackFridayPhase = "before" | "active" | "ended";
@@ -48,9 +54,10 @@ export type BlackFridayCopy = {
   note: string;
   beforeNote: string;
   perks: string[];
-  dealsTitle: string;
-  dealsText: string;
-  groups: Record<string, { title: string; text: string }>;
+  allTopics: string;
+  testsHeading: string;
+  unavailable: string;
+  groups: Record<BlackFridayGroup["key"], { title: string; text: string }>;
   dealBadge: string;
   withCode: string;
   instead: string;
@@ -75,7 +82,7 @@ const de: BlackFridayCopy = {
   barCta: "Zu den Deals",
   kicker: "Black Friday bis Cyber Monday",
   title: "25 % auf [[unsere Bestseller]]",
-  lead: "Vier Tage lang gibt es die meistbestellten Heimtests 25 % günstiger. Probe zu Hause nehmen, im akkreditierten Labor auswerten lassen, Befund in der App.",
+  lead: "Wähle dein Thema. Vom 27. bis 30. November sparst du mit BLACKFRIDAY26 auf ausgewählte Heimtests.",
   codeLabel: "Dein Code",
   copy: "Code kopieren",
   copied: "Kopiert",
@@ -83,23 +90,24 @@ const de: BlackFridayCopy = {
   startsLabel: "Die Deals starten in",
   units: ["Tage", "Std", "Min", "Sek"],
   cta: "Zu den Deals",
-  note: "Der Rabatt wird im Warenkorb abgezogen. Gültig vom 27. bis 30. November auf die Tests auf dieser Seite.",
-  beforeNote: "Ab 27. November gilt der Code auf die Tests auf dieser Seite. Ansehen kannst du sie dir jetzt schon.",
+  note: "Der Rabatt wird im Warenkorb abgezogen. Gültig vom 27. bis 30. November auf die ausgewählten Aktionsprodukte.",
+  beforeNote: "Ab 27. November gilt der Code auf die ausgewählten Aktionsprodukte. Ansehen kannst du sie dir jetzt schon.",
   perks: ["Akkreditiertes Labor in Deutschland", "Befund digital in der App", "Kostenloser, neutraler Versand in Deutschland"],
-  dealsTitle: "Die [[Black-Friday-Deals]]",
-  dealsText: "Die Tests, die bei uns am häufigsten bestellt werden, nach Thema sortiert. Alle 25 % günstiger mit dem Code.",
+  allTopics: "Alle Black-Friday-Themen",
+  testsHeading: "Heimtests zum Thema",
+  unavailable: "Aktuell sind für dieses Thema keine Aktionsprodukte verfügbar.",
   groups: {
     sti: {
       title: "Sexuelle Gesundheit",
-      text: "Unsere meistbestellten Tests. Viele Infektionen bleiben ohne Symptome, ein Test schafft Klarheit, diskret und ohne Praxisbesuch.",
+      text: "Entdecke die STI-Heimtests und den HPV-Test auf Hochrisikotypen.",
     },
     naehrstoffe: {
       title: "Nährstoffe & Blut",
-      text: "Gerade im Winter fehlt oft etwas. Vitamin D, B12, Eisenwerte und Aminosäuren zeigen, ob du gut versorgt bist.",
+      text: "Entdecke Tests für Vitamin D, Vitamin B12, Aminosäuren und Hämoglobin sowie den Nährstoff Rundum Check.",
     },
     check: {
       title: "Checks für den Überblick",
-      text: "Mehrere Werte aus einer Probe: für Frauen, für die Schilddrüse und für Allergien.",
+      text: "Hier findest du den Rundum Check für Frauen, den Schilddrüsen-Check und den Allergietest.",
     },
   },
   dealBadge: "−25 % mit Code",
@@ -109,7 +117,7 @@ const de: BlackFridayCopy = {
   giftText: "Das Set kommt neutral verpackt, ohne Hinweis auf den Inhalt. Registriert wird der Test erst von der Person, die ihn macht, in ihrer eigenen DoctorBox App.",
   howTitle: "So löst du den [[Rabatt]] ein",
   steps: [
-    { title: "Test wählen", text: "Lege einen oder mehrere Tests von dieser Seite in den Warenkorb." },
+    { title: "Test wählen", text: "Lege die gewünschten Heimtests aus der Aktion in den Warenkorb." },
     { title: "Code eingeben", text: "Im Warenkorb auf „Rabattcode eingeben“ tippen und BLACKFRIDAY26 eintragen." },
     { title: "25 % sparen", text: "Der Rabatt wird sofort abgezogen. Versand in neutraler Verpackung wie immer." },
   ],
@@ -120,7 +128,7 @@ const de: BlackFridayCopy = {
   endedText: "Die Aktion ist beendet. Die Tests gibt es weiterhin, und Mira hilft dir beim Auswählen.",
   endedCta: "Alle Heimtests ansehen",
   finePrint:
-    "Gültig vom 27. November 2026, 0:00 Uhr, bis 30. November 2026, 23:59 Uhr, auf die auf dieser Seite gezeigten Heimtests; nicht mit anderen Codes oder Abo-Rabatten kombinierbar. Ein Code pro Bestellung.",
+    "Gültig vom 27. November 2026, 0:00 Uhr, bis 30. November 2026, 23:59 Uhr, auf die ausgewählten Heimtests. Nicht mit anderen Codes oder Abo-Rabatten kombinierbar. Ein Code pro Bestellung.",
 };
 
 const en: BlackFridayCopy = {
@@ -131,7 +139,7 @@ const en: BlackFridayCopy = {
   barCta: "See the deals",
   kicker: "Black Friday to Cyber Monday",
   title: "25% off [[our best sellers]]",
-  lead: "For four days, our most-ordered home tests are 25% off. Take the sample at home, have it analysed in an accredited lab, read your result in the app.",
+  lead: "Pick a topic. From 27 to 30 November, save on selected home tests with BLACKFRIDAY26.",
   codeLabel: "Your code",
   copy: "Copy code",
   copied: "Copied",
@@ -139,23 +147,24 @@ const en: BlackFridayCopy = {
   startsLabel: "The deals start in",
   units: ["days", "hrs", "min", "sec"],
   cta: "See the deals",
-  note: "The discount is deducted in the cart. Valid 27 to 30 November on the tests on this page.",
-  beforeNote: "From 27 November the code applies to the tests on this page. You can browse them now.",
+  note: "The discount is deducted in the cart. Valid 27 to 30 November on selected campaign products.",
+  beforeNote: "From 27 November the code applies to selected campaign products. You can browse them now.",
   perks: ["Accredited lab in Germany", "Result digitally in the app", "Free, neutral shipping within Germany"],
-  dealsTitle: "The [[Black Friday deals]]",
-  dealsText: "The tests our customers order most, sorted by topic. All 25% off with the code.",
+  allTopics: "All Black Friday topics",
+  testsHeading: "Home tests for this topic",
+  unavailable: "No campaign products are currently available for this topic.",
   groups: {
     sti: {
       title: "Sexual health",
-      text: "Our most-ordered tests. Many infections stay without symptoms; a test brings clarity, discreetly and without a visit.",
+      text: "Explore home STI tests and screening for high-risk HPV types.",
     },
     naehrstoffe: {
       title: "Nutrients & blood",
-      text: "Especially in winter, something is often missing. Vitamin D, B12, iron values and amino acids show whether you are well supplied.",
+      text: "Choose a test for vitamin D, vitamin B12, amino acids or haemoglobin, or explore the comprehensive nutrient check.",
     },
     check: {
       title: "Checks for the big picture",
-      text: "Several values from one sample: for women, for the thyroid and for allergies.",
+      text: "Explore the comprehensive check for women, thyroid testing and the allergy test.",
     },
   },
   dealBadge: "−25% with code",
@@ -165,7 +174,7 @@ const en: BlackFridayCopy = {
   giftText: "The kit arrives in neutral packaging with no hint of its contents. The test is registered only by the person who takes it, in their own DoctorBox app.",
   howTitle: "How to redeem the [[discount]]",
   steps: [
-    { title: "Pick a test", text: "Add one or more tests from this page to your cart." },
+    { title: "Pick a test", text: "Add one or more eligible tests to your cart." },
     { title: "Enter the code", text: "Tap “Enter a discount code” in the cart and enter BLACKFRIDAY26." },
     { title: "Save 25%", text: "The discount is deducted right away. Shipped in neutral packaging as always." },
   ],
@@ -176,7 +185,7 @@ const en: BlackFridayCopy = {
   endedText: "The campaign has ended. The tests are still here, and Mira helps you choose.",
   endedCta: "See all home tests",
   finePrint:
-    "Valid from 27 November 2026, 00:00, to 30 November 2026, 23:59, on the home tests shown on this page; cannot be combined with other codes or subscription discounts. One code per order.",
+    "Valid from 27 November 2026, 00:00, to 30 November 2026, 23:59, on selected campaign home tests. Cannot be combined with other codes or subscription discounts. One code per order.",
 };
 
 export const blackFridayCopy = (locale: Locale): BlackFridayCopy => (locale === "en" ? en : de);
