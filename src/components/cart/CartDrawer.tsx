@@ -13,11 +13,13 @@ import { formatMoney, shopifyImage } from "@/lib/format";
 import { activeCode, cartSavings, lineOriginal } from "@/lib/cart/savings";
 import { CheckIcon, CloseIcon, MinusIcon, PinIcon, PlusIcon } from "@/components/ui/Icons";
 import { trackBeginCheckout } from "@/lib/tracking/events";
+import { useCheckoutUrl } from "@/lib/tracking/click-ids";
 import { lockScroll } from "@/lib/scroll-lock";
 import { UPSELL_LINE_ATTRIBUTE, type CartUpsell } from "@/content/cart-upsell";
 
 export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; dict: Dictionary; upsell?: CartUpsell | null }) {
   const { cart, open, setOpen, update, remove, add, pending } = useCart();
+  const checkoutUrl = useCheckoutUrl(cart?.checkoutUrl ?? "");
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -197,7 +199,7 @@ export function CartDrawer({ locale, dict, upsell = null }: { locale: Locale; di
               <PinIcon width={16} height={16} className="mt-0.5 shrink-0 text-green" />
               {dict.cart.pickupNote}
             </p>
-            <a href={cart.checkoutUrl} onClick={() => trackBeginCheckout(cart)} className="btn btn-primary btn-lg mt-4 w-full">
+            <a href={checkoutUrl} onClick={() => trackBeginCheckout(cart)} className="btn btn-primary btn-lg mt-4 w-full">
               {dict.cart.checkout}
             </a>
             <Link

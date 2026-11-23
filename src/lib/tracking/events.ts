@@ -11,11 +11,12 @@ import { shopifyAddToCart, shopifyProductView } from "./shopify";
  * of Klaviyo's Shopify integration, which only tracks these on a Shopify theme; they trigger
  * the browse and cart abandonment flows).
  *
- * dataLayer pushes are only processed once GTM runs, which iubenda allows after consent.
- * Meta and Reddit calls wait in a queue until their pixel was activated after consent
- * (see Analytics.tsx); Klaviyo calls wait in klaviyo.js's own queue until the script is
- * activated after consent. Shopify's own analytics (sessions, funnel): lib/tracking/shopify.ts.
- * Nothing leaves the browser without consent.
+ * GTM runs on every page in Google Consent Mode (see Analytics.tsx): without consent the
+ * Google tags only send cookieless pings, the other tags in the container wait for consent.
+ * Meta and Reddit calls wait in a queue until their pixel was activated after consent;
+ * Klaviyo calls wait in klaviyo.js's own queue until the script is activated after consent.
+ * Shopify's own analytics (sessions, funnel): lib/tracking/shopify.ts.
+ * Apart from the cookieless Google pings, nothing leaves the browser without consent.
  */
 
 export type TrackItem = {

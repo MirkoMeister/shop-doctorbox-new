@@ -10,10 +10,17 @@ import { RouteTracker } from "./RouteTracker";
  *    old theme; it takes precedence over the dashboard settings), then the embed with autoblocking and
  *    banner. The visitor's choice is passed on to Shopify's Customer Privacy API so the checkout
  *    (Meta, Google and Reddit apps) respects it.
- * 2. Every tag waits for consent ("prior blocking"): rendered as type="text/plain" and swapped
+ * 2. GTM loads on every page in Google Consent Mode: iubenda (googleConsentMode) first sets every
+ *    Google consent type to "denied", iubenda's updates switch them on per purpose. Without consent the
+ *    Google tags only send cookieless pings (gcs=G100) and set no _ga/_gcl cookies. The container itself
+ *    starts its tags after the matching consent.
+ *    Order: Next queues beforeInteractive scripts (self.__next_s) and runs them before hydration, but
+ *    after the inline scripts of the HTML. GTM therefore runs afterInteractive and only once iubenda's
+ *    consent default is in the dataLayer; if iubenda never sets one (blocked), GTM does not load.
+ * 3. The other tags wait for consent ("prior blocking"): rendered as type="text/plain" and swapped
  *    for a live script by iubenda (class _iub_cs_activate[-inline] + data-iub-purposes).
- *    Purpose 4 = measurement (GTM), purpose 5 = marketing (Meta, Reddit, Klaviyo).
- * 3. Without consent only Plausible (cookieless) and the Trusted Shops widget load.
+ *    Purpose 5 = marketing (Meta, Reddit, Klaviyo).
+ * 4. Without consent only GTM in consent mode, Plausible (cookieless) and the Trusted Shops widget load.
  *
  * E-commerce events: src/lib/tracking/events.ts
  */
@@ -114,7 +121,13 @@ window.__dbxMeta=true;(window.__dbxMetaQ||[]).splice(0).forEach(function(a){fbq.
 rdt('init','${t.redditPixelId}');rdt('track','PageVisit');
 window.__dbxReddit=true;(window.__dbxRedditQ||[]).splice(0).forEach(function(a){rdt.apply(null,a)});`;
 
-  const gtm = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${t.gtmId}');`;
+  // Standard GTM snippet, started only after iubenda's consent default (see 2. above); waits up to 5 s for it
+  const gtm = `(function(w){
+function hasDefault(){var d=w.dataLayer||[];for(var i=0;i<d.length;i++){var e=d[i];if(e&&e[0]==='consent'&&e[1]==='default')return true}return false}
+function start(){(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(w,document,'script','dataLayer','${t.gtmId}')}
+if(hasDefault())return start();
+var n=0,t=setInterval(function(){if(hasDefault()){clearInterval(t);start()}else if(++n>=50)clearInterval(t)},100);
+})(window);`;
 
   return (
     <>
@@ -127,10 +140,14 @@ window.__dbxReddit=true;(window.__dbxRedditQ||[]).splice(0).forEach(function(a){
         }}
       />
 
-      {/* 2. Tags, inert until consent */}
+      {/* 2. GTM in consent mode, after iubenda's consent default */}
       {t.gtmId && (
-        <script type="text/plain" className="_iub_cs_activate-inline" data-iub-purposes="4" dangerouslySetInnerHTML={{ __html: gtm }} />
+        <Script id="gtm" strategy="afterInteractive">
+          {gtm}
+        </Script>
       )}
+
+      {/* 3. Marketing tags, inert until consent */}
       {t.metaPixelId && (
         <script type="text/plain" className="_iub_cs_activate-inline" data-iub-purposes="5" dangerouslySetInnerHTML={{ __html: metaPixel }} />
       )}
@@ -147,7 +164,7 @@ window.__dbxReddit=true;(window.__dbxRedditQ||[]).splice(0).forEach(function(a){
         />
       )}
 
-      {/* 3. Without consent: Plausible (cookieless, no personal data) and the Trusted Shops review widget */}
+      {/* 4. Without consent: Plausible (cookieless, no personal data) and the Trusted Shops review widget */}
       {t.plausibleDomain && <Script defer data-domain={t.plausibleDomain} src="https://plausible.io/js/script.js" strategy="lazyOnload" />}
       {t.etrusted && <Script src="https://integrations.etrusted.com/applications/widget.js/v2" strategy="lazyOnload" />}
 
