@@ -39,6 +39,10 @@ Nicht genutzt (laut Mirko, 03.11.2026): Judge.me, Bloggle, Lucky Orange. Deaktiv
 
 **Im Checkout (unverändert, Shopify-Web-Pixel):** Google & YouTube (GA4 G-CGV5EJCVQQ, Google Ads AW-11030442108 mit Kauf-Conversion), Meta (725119135330052), Reddit, Klaviyo (Started Checkout, Placed Order), Microsoft Ads (UET 187218266), Pinterest (2613106093844), Lucky Orange, eine weitere App mit `myshopifyDomain`-Konfiguration, 5 Custom Pixels.
 
+**Im Headless-Shop:**
+- GTM lädt auf jeder Seite im Google Consent Mode. iubenda setzt vorher alle Google-Einwilligungen auf „denied“ (`gcs=G100`: nur cookielose Pings, keine `_ga`/`_gcl`-Cookies), nach „Erfolgsmessung“ `G101`, nach „Alle“ `G111`. Ohne iubenda-Standard im dataLayer startet GTM nicht (Analytics.tsx).
+- Google-Ads-Klick-IDs (`gclid`, `gbraid`, `wbraid`) aus der Einstiegs-URL hängt der Shop an die Checkout-Links. Sie liegen nur im Arbeitsspeicher, ein Neuladen verliert sie.
+
 **Im Headless-Shop (nach Einwilligung):**
 - GTM-N3DHSDL: GA4-Haupttag auf `view_item|view_item_list|select_item|add_to_cart|remove_from_cart|view_cart|begin_checkout|…`, Google-Ads-Basis und Remarketing, Bing UET mit `add_to_cart`, Clarity, TikTok-Basis, Engaged-User-Timer. Der Shop sendet `view_item`, `view_item_list`, `add_to_cart`, `remove_from_cart`, `view_cart` und `begin_checkout` im Format des alten Themes (4079387).
 - direkt: Meta (PageView, ViewContent, AddToCart), Reddit, Klaviyo, Plausible (cookielos).

@@ -17,6 +17,7 @@ import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 import { isSupplement, sampleMaterials } from "@/lib/shopify/reshape";
 import type { Cart, CartLine, ProductCard as ProductCardType } from "@/lib/shopify/types";
 import { trackViewCart, trackBeginCheckout } from "@/lib/tracking/events";
+import { useCheckoutUrl } from "@/lib/tracking/click-ids";
 import { activeCode, cartSavings, lineOriginal } from "@/lib/cart/savings";
 
 const PREVIEW = 8;
@@ -147,6 +148,7 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
   const [codeOpen, setCodeOpen] = useState(false);
   const [code, setCode] = useState("");
   const [invalid, setInvalid] = useState(false);
+  const checkoutUrl = useCheckoutUrl(cart.checkoutUrl);
   const activeCodeName = activeCode(cart);
   const applied = activeCodeName ? { code: activeCodeName } : null;
   // product discounts (MOVEMBER26) already sit in Shopify's subtotal, so show the price before all discounts
@@ -242,7 +244,7 @@ function Summary({ cart, locale, dict, hasTests, pending, applyDiscount }: { car
         {invalid && <p className="mt-2 text-sm text-red-700">{dict.cart.discountInvalid}</p>}
       </div>
 
-      <a href={cart.checkoutUrl} onClick={() => trackBeginCheckout(cart)} className="btn btn-primary btn-lg mt-6 w-full">
+      <a href={checkoutUrl} onClick={() => trackBeginCheckout(cart)} className="btn btn-primary btn-lg mt-6 w-full">
         {dict.cart.checkout} <ArrowRight width={18} height={18} />
       </a>
       <p className="mt-3 flex items-start gap-2 text-xs text-ink-muted">
@@ -309,6 +311,7 @@ function EmptyCart({ locale, dict }: { locale: Locale; dict: Dictionary }) {
 
 export function CartPageView({ locale, dict, suggestions = [] }: { locale: Locale; dict: Dictionary; suggestions?: ProductCardType[] }) {
   const { cart, loading, pending, update, remove, applyDiscount } = useCart();
+  const checkoutUrl = useCheckoutUrl(cart?.checkoutUrl ?? "");
   // view_cart once per visit of the cart page, as soon as the cart is known
   const viewTracked = useRef(false);
   useEffect(() => {
@@ -400,7 +403,7 @@ export function CartPageView({ locale, dict, suggestions = [] }: { locale: Local
                 <span className="block text-xs text-ink-muted">{dict.cart.total}</span>
                 <span className="block text-lg font-semibold tabular-nums">{formatMoney(cart.cost.totalAmount, locale)}</span>
               </span>
-              <a href={cart.checkoutUrl} onClick={() => trackBeginCheckout(cart)} className="btn btn-primary">
+              <a href={checkoutUrl} onClick={() => trackBeginCheckout(cart)} className="btn btn-primary">
                 {dict.cart.checkout} <ArrowRight width={16} height={16} />
               </a>
             </div>
