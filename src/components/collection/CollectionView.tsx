@@ -138,11 +138,11 @@ export function CollectionView({
       >
         {!hero && <Breadcrumbs items={crumbs} className="mb-5" />}
 
-        {/* Sexual health: situation picker and pathogen comparison before the grid */}
+        {/* Sexual health: pathogen comparison right under the hero, then the situation picker, before the grid */}
         {sti && (
           <>
+            <CompareTable products={products} locale={locale} dict={dict} id="vergleich" title={sti.compareTitle} text={sti.compareText} className="mt-0" fixed mobileCards />
             <StiSituations products={products} locale={locale} dict={dict} />
-            <CompareTable products={products} locale={locale} dict={dict} id="vergleich" title={sti.compareTitle} text={sti.compareText} />
             <StiWindows locale={locale} />
             <div className="mt-16" />
           </>

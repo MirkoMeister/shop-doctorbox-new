@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CheckIcon } from "@/components/ui/Icons";
 import { Highlight } from "@/components/ui/Highlight";
 import { formatMoney, shopifyImage } from "@/lib/format";
@@ -29,6 +29,9 @@ export function CompareTable({
   id = "compare",
   title,
   text,
+  className = "mt-16",
+  fixed = false,
+  mobileCards = false,
 }: {
   products: ProductCard[];
   locale: Locale;
@@ -36,8 +39,15 @@ export function CompareTable({
   id?: string;
   title?: string;
   text?: string;
+  className?: string;
+  /** above the filters (sexual health): the note must not point to filters */
+  fixed?: boolean;
+  /** below md: one swipeable card per test instead of the wide table */
+  mobileCards?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [active, setActive] = useState(0);
+  const track = useRef<HTMLUListElement>(null);
   const t = dict.collection;
 
   const withValues = products.filter((p) => p.biomarkers.length > 0);
@@ -55,10 +65,12 @@ export function CompareTable({
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], locale))
     .map(([v]) => v);
   const shown = expanded ? rows : rows.slice(0, PREVIEW_ROWS);
+  // cards on mobile: the best seller first, then the ladder
+  const cardCols = [star, ...cols.filter((p) => p.id !== star.id)];
   const hl = (p: ProductCard) => (p.id === star.id ? "bg-lind/30" : "");
 
   return (
-    <section id={id} className="mt-16 scroll-mt-24" aria-labelledby="compare-title">
+    <section id={id} className={`${className} scroll-mt-24`} aria-labelledby="compare-title">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 id="compare-title" className="h3">
@@ -66,10 +78,85 @@ export function CompareTable({
           </h2>
           <p className="mt-1 text-ink-muted">{text ?? t.compareText}</p>
         </div>
-        {comparable.length > MAX_PRODUCTS && <p className="text-sm text-ink-muted">{fill(t.compareNote, { n: MAX_PRODUCTS })}</p>}
+        {comparable.length > MAX_PRODUCTS && <p className="text-sm text-ink-muted">{fill(fixed ? t.compareNoteFixed : t.compareNote, { n: MAX_PRODUCTS })}</p>}
       </div>
 
-      <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line/70 bg-white shadow-card [contain:paint]">
+      {mobileCards && (
+        <div className="md:hidden">
+          <ul
+            ref={track}
+            onScroll={(e) => {
+              const el = e.currentTarget;
+              const card = el.firstElementChild as HTMLElement | null;
+              if (card) setActive(Math.round(el.scrollLeft / (card.offsetWidth + 12)));
+            }}
+            className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 pt-3"
+            aria-label={title?.replace(/\[\[|\]\]/g, "") ?? t.compareTitle}
+          >
+            {cardCols.map((p) => {
+              const isStar = p.id === star.id;
+              return (
+                <li key={p.id} className={`relative flex w-[82%] shrink-0 snap-center flex-col rounded-[var(--radius-card)] border p-5 shadow-card ${isStar ? "border-green/40 bg-lind/30" : "border-line/70 bg-white"}`}>
+                  {isStar && (
+                    <span className="absolute -top-2.5 left-5 rounded-full bg-moss px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-soft">{t.bestseller}</span>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <span className="relative h-14 w-20 shrink-0 overflow-hidden rounded-xl bg-white">
+                      {p.featuredImage && <Image src={shopifyImage(p.featuredImage.url, 240)} alt="" fill sizes="80px" className="object-cover" />}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-semibold leading-snug">{shortTitle(p.title)}</p>
+                      <p className="mt-0.5 flex items-baseline gap-2">
+                        <span className="text-lg font-semibold tabular-nums text-green">{formatMoney(p.priceRange.minVariantPrice, locale)}</span>
+                        <span className="text-xs text-ink-muted">{fill(dict.product.valuesCount, { n: p.biomarkers.length })}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-ink-muted">
+                    {dict.product.sampleMaterial}: {sampleMaterials(p.sampleMaterial)[0] ?? "–"}
+                  </p>
+                  <ul className="mt-3 flex-1 divide-y divide-line/60 border-y border-line/60">
+                    {rows.map((value) => {
+                      const has = p.biomarkers.includes(value);
+                      return (
+                        <li key={value} className={`flex items-center justify-between gap-3 py-2 text-sm ${has ? "font-medium" : "text-ink-muted/60"}`}>
+                          <span>{value}</span>
+                          {has ? (
+                            <CheckIcon width={18} height={18} strokeWidth={2.4} className="shrink-0 text-green" />
+                          ) : (
+                            <span className="inline-block h-px w-3 shrink-0 bg-line" aria-hidden />
+                          )}
+                          <span className="sr-only">{has ? "✓" : "–"}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <Link href={localeHref(locale, `/products/${p.handle}`)} className={`btn mt-4 w-full ${isStar ? "btn-primary" : "btn-secondary"}`}>
+                    {dict.guide.toTest}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-3 flex justify-center gap-1.5" aria-hidden>
+            {cardCols.map((p, i) => (
+              <button
+                key={p.id}
+                type="button"
+                tabIndex={-1}
+                onClick={() => {
+                  const el = track.current;
+                  const card = el?.children[i] as HTMLElement | undefined;
+                  if (el && card) el.scrollTo({ left: card.offsetLeft - 16, behavior: "smooth" });
+                }}
+                className={`h-1.5 rounded-full transition-all ${i === active ? "w-5 bg-green" : "w-1.5 bg-ink/20"}`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className={`overflow-x-auto rounded-[var(--radius-card)] border border-line/70 bg-white shadow-card [contain:paint] ${mobileCards ? "hidden md:block" : ""}`}>
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
             <tr>
