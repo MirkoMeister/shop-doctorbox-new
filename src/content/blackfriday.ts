@@ -61,6 +61,9 @@ export type BlackFridayCopy = {
   dealBadge: string;
   withCode: string;
   instead: string;
+  save: string;
+  dealsTitle: string;
+  topicMore: string;
   giftTitle: string;
   giftText: string;
   howTitle: string;
@@ -82,7 +85,7 @@ const de: BlackFridayCopy = {
   barCta: "Zu den Deals",
   kicker: "Black Friday bis Cyber Monday",
   title: "25 % auf [[unsere Bestseller]]",
-  lead: "Wähle dein Thema. Vom 27. bis 30. November sparst du mit BLACKFRIDAY26 auf ausgewählte Heimtests.",
+  lead: "Vom 27. bis 30. November sparst du mit BLACKFRIDAY26 25 % auf ausgewählte Heimtests.",
   codeLabel: "Dein Code",
   copy: "Code kopieren",
   copied: "Kopiert",
@@ -113,6 +116,9 @@ const de: BlackFridayCopy = {
   dealBadge: "−25 % mit Code",
   withCode: "mit Code",
   instead: "statt",
+  save: "Du sparst {amount}",
+  dealsTitle: "Alle [[Deals]] im Überblick",
+  topicMore: "Nur dieses Thema ansehen",
   giftTitle: "Ein Test als [[Geschenk]]?",
   giftText: "Das Set kommt neutral verpackt, ohne Hinweis auf den Inhalt. Registriert wird der Test erst von der Person, die ihn macht, in ihrer eigenen DoctorBox App.",
   howTitle: "So löst du den [[Rabatt]] ein",
@@ -139,7 +145,7 @@ const en: BlackFridayCopy = {
   barCta: "See the deals",
   kicker: "Black Friday to Cyber Monday",
   title: "25% off [[our best sellers]]",
-  lead: "Pick a topic. From 27 to 30 November, save on selected home tests with BLACKFRIDAY26.",
+  lead: "From 27 to 30 November, save 25% on selected home tests with BLACKFRIDAY26.",
   codeLabel: "Your code",
   copy: "Copy code",
   copied: "Copied",
@@ -170,6 +176,9 @@ const en: BlackFridayCopy = {
   dealBadge: "−25% with code",
   withCode: "with code",
   instead: "instead of",
+  save: "You save {amount}",
+  dealsTitle: "All [[deals]] at a glance",
+  topicMore: "View this topic only",
   giftTitle: "A test as a [[gift]]?",
   giftText: "The kit arrives in neutral packaging with no hint of its contents. The test is registered only by the person who takes it, in their own DoctorBox app.",
   howTitle: "How to redeem the [[discount]]",

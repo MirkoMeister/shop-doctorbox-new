@@ -6,9 +6,10 @@ import { fill, type Dictionary } from "@/lib/i18n/dictionaries";
 import type { ProductCard } from "@/lib/shopify/types";
 
 /** A deal: regular price struck through, the code price large, the badge on the image. */
-export function DealCard({ product, percent, badge, withCode, instead, locale, dict }: { product: ProductCard; percent: number; badge: string; withCode: string; instead: string; locale: Locale; dict: Dictionary }) {
+export function DealCard({ product, percent, badge, withCode, instead, save, locale, dict }: { product: ProductCard; percent: number; badge: string; withCode: string; instead: string; /** e.g. "Du sparst {amount}"; shown under the price when given */ save?: string; locale: Locale; dict: Dictionary }) {
   const price = product.priceRange.minVariantPrice;
   const deal = { amount: (parseFloat(price.amount) * (1 - percent / 100)).toFixed(2), currencyCode: price.currencyCode };
+  const saved = { amount: (parseFloat(price.amount) - parseFloat(deal.amount)).toFixed(2), currencyCode: price.currencyCode };
   const href = localeHref(locale, `/products/${product.handle}`);
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] bg-white text-ink shadow-card transition-shadow hover:shadow-float">
@@ -35,6 +36,7 @@ export function DealCard({ product, percent, badge, withCode, instead, locale, d
             {formatMoney(price, locale)}
           </s>
         </p>
+        {save && <p className="mt-1 text-sm font-medium text-moss">{fill(save, { amount: formatMoney(saved, locale) })}</p>}
       </div>
     </article>
   );

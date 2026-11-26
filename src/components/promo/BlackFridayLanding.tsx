@@ -6,7 +6,7 @@ import { Countdown } from "@/components/promo/Countdown";
 import { CopyCode } from "@/components/promo/CopyCode";
 import { Highlight } from "@/components/ui/Highlight";
 import { ArrowRight, CheckIcon } from "@/components/ui/Icons";
-import { BLACKFRIDAY, blackFridayCopy, blackFridayGroupPath, type BlackFridayGroup, type BlackFridayPhase } from "@/content/blackfriday";
+import { BLACKFRIDAY, blackFridayCopy, type BlackFridayGroup, type BlackFridayPhase } from "@/content/blackfriday";
 import { MOVEMBER, movemberActive } from "@/content/movember";
 import { localeHref, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -17,6 +17,19 @@ type Props = {
   group?: BlackFridayGroup;
   children?: ReactNode;
 };
+
+/** Sets the campaign code in running text apart as an okker pill. */
+function withCode(text: string): ReactNode {
+  const [before, ...rest] = text.split(BLACKFRIDAY.code);
+  if (rest.length === 0) return text;
+  return (
+    <>
+      {before}
+      <span className="whitespace-nowrap rounded-md bg-okker px-1.5 py-0.5 font-semibold tracking-[0.06em] text-moss">{BLACKFRIDAY.code}</span>
+      {rest.join(BLACKFRIDAY.code)}
+    </>
+  );
+}
 
 export function BlackFridayLanding({ locale, phase, group, children }: Props) {
   const t = blackFridayCopy(locale);
@@ -47,21 +60,21 @@ export function BlackFridayLanding({ locale, phase, group, children }: Props) {
             <h1 className="h-display mt-4 text-balance">
               <Highlight text={topic?.title ?? (phase === "ended" ? t.endedTitle : t.title)} tone="dark" />
             </h1>
-            <p className="mt-6 max-w-xl text-xl leading-relaxed text-soft/85">{topic?.text ?? (phase === "ended" ? t.endedText : t.lead)}</p>
+            <p className="mt-6 max-w-xl text-xl leading-relaxed text-soft/85">{withCode(topic?.text ?? (phase === "ended" ? t.endedText : t.lead))}</p>
           </div>
 
           {!group && (
             <nav id="deals" aria-label={t.allTopics} className="mt-6 grid scroll-mt-24 gap-3 lg:grid-cols-3">
               {BLACKFRIDAY.groups.map((item) => (
-                <Link
+                <a
                   key={item.key}
-                  href={href(blackFridayGroupPath(item))}
+                  href={`#deals-${item.slug}`}
                   className="flex items-center gap-4 rounded-[var(--radius-card)] border border-white/20 bg-white/10 p-2.5 pr-4 text-soft transition-colors hover:bg-white/20"
                 >
                   <Image src={`/hero/collections/${item.image}`} alt="" width={80} height={64} className="h-14 w-16 shrink-0 rounded-lg object-cover sm:h-16 sm:w-20" />
                   <span className="flex-1 text-lg font-semibold leading-tight">{t.groups[item.key].title}</span>
-                  <ArrowRight width={18} height={18} className="shrink-0" />
-                </Link>
+                  <ArrowRight width={18} height={18} className="shrink-0 rotate-90" />
+                </a>
               ))}
             </nav>
           )}
@@ -81,7 +94,7 @@ export function BlackFridayLanding({ locale, phase, group, children }: Props) {
           ) : (
             <div className="mt-10 grid gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-end lg:gap-14">
               <div className="grid gap-5">
-                <CopyCode code={BLACKFRIDAY.code} label={t.codeLabel} copy={t.copy} copied={t.copied} />
+                <CopyCode code={BLACKFRIDAY.code} label={t.codeLabel} copy={t.copy} copied={t.copied} coupon />
                 <div className="flex flex-wrap gap-3">
                   {group && (
                     <a href="#deals" className="btn btn-primary">
