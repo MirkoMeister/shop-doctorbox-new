@@ -14,7 +14,7 @@ export const BLACKFRIDAY = {
   /** editorial groups; keys match the copy below */
   groups: [
     { key: "sti" as const, slug: "sexuelle-gesundheit", image: "sexuelle-gesundheit.jpg", handles: ["sti-standard-5", "sti-test-1", "sti-test-hiv-syphilis-lues-hepatitis-c-geschlechtskrankheiten-test", "sti-test", "hpv-high-risk-typen"] },
-    { key: "naehrstoffe" as const, slug: "naehrstoffe-und-blut", image: "nahrstoffe-vitamine.jpg", handles: ["nahrstoff-rundum-check", "vitamin-d-test", "vitamin-b12-vegan-vegetarisch", "aminosaeuren-test", "haemoglobin-test"] },
+    { key: "naehrstoffe" as const, slug: "naehrstoffe-und-blut", image: "nahrstoffe-vitamine.jpg", handles: ["nahrstoff-rundum-check", "aminosaeuren-test", "haemoglobin-test"] },
     { key: "check" as const, slug: "checks-fuer-den-ueberblick", image: "vorsorge.jpg", handles: ["rundum-check-fur-frauen", "schilddrusen-check-plus", "allergietest"] },
   ],
 };
@@ -103,7 +103,7 @@ const de: BlackFridayCopy = {
     },
     naehrstoffe: {
       title: "Nährstoffe & Blut",
-      text: "Entdecke Tests für Vitamin D, Vitamin B12, Aminosäuren und Hämoglobin sowie den Nährstoff Rundum Check.",
+      text: "Entdecke den Nährstoff Rundum Check sowie Tests für Aminosäuren und Hämoglobin.",
     },
     check: {
       title: "Checks für den Überblick",
@@ -160,7 +160,7 @@ const en: BlackFridayCopy = {
     },
     naehrstoffe: {
       title: "Nutrients & blood",
-      text: "Choose a test for vitamin D, vitamin B12, amino acids or haemoglobin, or explore the comprehensive nutrient check.",
+      text: "Explore the comprehensive nutrient check, or choose a test for amino acids or haemoglobin.",
     },
     check: {
       title: "Checks for the big picture",
