@@ -642,6 +642,18 @@ export function getAllArticles(locale: Locale): Promise<Article[]> {
   return soft(_getAllArticles(locale), [], "getAllArticles");
 }
 
+/**
+ * Handles of blog articles without an English translation: Shopify then serves the German title under "en".
+ * Their /en/ copy points its canonical at the German URL and stays out of hreflang and the sitemap.
+ * Empty when the English list cannot be loaded, so a failed request never de-indexes the English blog.
+ */
+export async function getUntranslatedArticleHandles(): Promise<Set<string>> {
+  const [de, en] = await Promise.all([getAllArticles("de"), getAllArticles("en")]);
+  if (de.length === 0 || en.length === 0) return new Set();
+  const enTitle = new Map(en.map((a) => [a.handle, a.title.trim()]));
+  return new Set(de.filter((a) => enTitle.get(a.handle) === a.title.trim()).map((a) => a.handle));
+}
+
 
 const POLICIES_QUERY = /* GraphQL */ `
   query Policies(${CTX_VARS}) ${CTX} {

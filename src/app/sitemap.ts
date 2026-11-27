@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { listMigratedPages } from "@/lib/content/pages";
 import { BLOG_BASE, BLOG_TOPICS, GUIDE_BASE, articleHref, blogHref, guideHref, isGuidePage } from "@/lib/content/guides";
 import { absoluteUrl, locales } from "@/lib/i18n/config";
-import { getAllArticles, getAllPageHandles, getAllProducts, getCollections } from "@/lib/shopify/queries";
+import { getAllArticles, getAllPageHandles, getAllProducts, getCollections, getUntranslatedArticleHandles } from "@/lib/shopify/queries";
 
 export const revalidate = 3600;
 
@@ -11,13 +11,14 @@ type Entry = MetadataRoute.Sitemap[number];
 // Pages built in this app (not Shopify pages), so the Shopify page list does not include them
 const APP_PAGES = ["tasso", "apotheken", "eigener-test"];
 
-function entry(rawPath: string, lastModified?: string | Date, priority = 0.6, changeFrequency: Entry["changeFrequency"] = "weekly"): Entry[] {
+function entry(rawPath: string, lastModified?: string | Date, priority = 0.6, changeFrequency: Entry["changeFrequency"] = "weekly", germanOnly = false): Entry[] {
   // Same spelling as canonicals and links: handles like "coloalert®" are percent-encoded there
   const path = /%[0-9a-f]{2}/i.test(rawPath) ? rawPath : encodeURI(rawPath);
-  // One entry per locale, each carrying hreflang alternates
-  const languages = Object.fromEntries(locales.map((l) => [l, absoluteUrl(l, path)]));
+  // One entry per locale, each carrying hreflang alternates; German-only content gets the German URL alone
+  const entryLocales = germanOnly ? locales.filter((l) => l === "de") : locales;
+  const languages = Object.fromEntries(entryLocales.map((l) => [l, absoluteUrl(l, path)]));
   languages["x-default"] = absoluteUrl("de", path);
-  return locales.map((l) => ({
+  return entryLocales.map((l) => ({
     url: absoluteUrl(l, path),
     lastModified: lastModified ? new Date(lastModified) : undefined,
     changeFrequency,
@@ -34,6 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     listMigratedPages("de"),
     getAllArticles("de").catch(() => []),
   ]);
+  const untranslated = await getUntranslatedArticleHandles().catch(() => new Set<string>());
 
   const pageHandles = new Map<string, string>();
   for (const p of apiPages) pageHandles.set(p.handle, p.updatedAt);
@@ -57,6 +59,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...Array.from(pageHandles.entries())
       .filter(([h]) => h !== "ratgeber" && h !== "gesundheitsblog")
       .flatMap(([h, u]) => entry(guideHref(h), u, isGuidePage(h) ? 0.6 : 0.4, "monthly")),
-    ...articles.flatMap((a) => entry(articleHref(a.blog.handle, a.handle), a.publishedAt, 0.6, "monthly")),
+    ...articles.flatMap((a) => entry(articleHref(a.blog.handle, a.handle), a.publishedAt, 0.6, "monthly", untranslated.has(a.handle))),
   ];
 }

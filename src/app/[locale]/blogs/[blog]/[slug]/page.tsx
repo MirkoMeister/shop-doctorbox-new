@@ -18,6 +18,7 @@ import {
   getAllProducts,
   getArticle,
   getBlog,
+  getUntranslatedArticleHandles,
 } from "@/lib/shopify/queries";
 import type { Article } from "@/lib/shopify/types";
 
@@ -47,12 +48,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, params: p } = await resolveLocale(params);
   const a = await resolveArticle(p.slug, locale);
   if (!a) return {};
+  const untranslated = await getUntranslatedArticleHandles();
   return pageMetadata(locale, articleHref(a.blog.handle, a.handle), {
     title: a.seo.title || a.title,
     description:
       a.seo.description || truncate(stripHtml(a.excerpt || a.contentHtml), 160),
     image: a.image?.url,
     type: "article",
+    germanOnly: untranslated.has(a.handle),
   });
 }
 
