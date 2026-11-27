@@ -53,14 +53,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, params: p } = await resolveLocale(params);
   const product = await getProduct(decodeURIComponent(p.handle), locale);
   if (!product) return {};
-  return {
-    ...pageMetadata(locale, `/products/${product.handle}`, {
-      title: product.seo.title || product.title,
-      description: product.seo.description || truncate(stripHtml(product.descriptionHtml), 160),
-      image: product.featuredImage?.url,
-    }),
-    title: { absolute: product.seo.title || `${product.title} | DoctorBox` },
-  };
+  return pageMetadata(locale, `/products/${product.handle}`, {
+    title: product.seo.title || product.title,
+    description: product.seo.description || truncate(stripHtml(product.descriptionHtml), 160),
+    image: product.featuredImage?.url,
+  });
 }
 
 /** Product cards for the given handles, in that order; sold-out ones are left out */

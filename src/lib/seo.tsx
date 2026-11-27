@@ -5,26 +5,38 @@ import type { Locale } from "@/lib/i18n/config";
 import { absoluteUrl, alternates, siteUrl } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { Article, Product } from "@/lib/shopify/types";
-import { stripHtml, truncate } from "./format";
+import { brandTitle, decodeEntities, stripHtml, truncate } from "./format";
 
 export function pageMetadata(
   locale: Locale,
   path: string,
-  opts: { title?: string | null; description?: string | null; image?: string | null; noIndex?: boolean; type?: "website" | "article" },
+  opts: {
+    title?: string | null;
+    description?: string | null;
+    image?: string | null;
+    noIndex?: boolean;
+    type?: "website" | "article";
+    /** content exists only in German: canonical on the German URL, hreflang only for German */
+    germanOnly?: boolean;
+  },
 ): Metadata {
   const dict = getDictionary(locale);
-  const title = opts.title?.trim() || dict.meta.defaultTitle;
-  const description = truncate(opts.description?.trim() || dict.meta.defaultDescription, 160);
+  const title = decodeEntities(opts.title?.trim() || dict.meta.defaultTitle);
+  const description = truncate(decodeEntities(opts.description?.trim() || dict.meta.defaultDescription), 160);
   const alt = alternates(path);
+  const de = absoluteUrl("de", path);
+  const languages = opts.germanOnly ? { "x-default": de, de, "de-AT": de } : alt.languages;
+  const canonical = opts.germanOnly ? de : absoluteUrl(locale, path);
   return {
-    title,
+    // absolute: the layout template would add "| DoctorBox" a second time to Shopify SEO titles that already carry it
+    title: { absolute: brandTitle(title) },
     description,
-    alternates: { canonical: absoluteUrl(locale, path), languages: alt.languages },
+    alternates: { canonical, languages },
     robots: opts.noIndex ? { index: false, follow: true } : undefined,
     openGraph: {
       title,
       description,
-      url: absoluteUrl(locale, path),
+      url: canonical,
       siteName: dict.meta.siteName,
       locale: locale === "en" ? "en_GB" : "de_DE",
       type: opts.type ?? "website",

@@ -34,7 +34,8 @@ export function prepareGuide(html: string): PreparedGuide {
   // 1) Title
   let title: string | null = null;
   body = body.replace(/<h1[^>]*>([\s\S]*?)<\/h1>/i, (_, inner) => {
-    title = stripHtml(inner);
+    // some migrated pages carry the SEO title as H1 ("Halbmarathon: … | DoctorBox Ratgeber"); the brand stays out of the headline
+    title = stripHtml(inner).replace(/\s*[|–-]\s*DoctorBox(\s+(Ratgeber|Guide|Heimtests))?\s*$/i, "") || null;
     return "";
   });
 
