@@ -126,7 +126,7 @@ export default async function ProductPage({ params }: Props) {
   const accordion = [
     {
       title: dict.product.description,
-      content: <RichText html={product.descriptionHtml} locale={locale} className="!text-[0.98rem]" />,
+      content: <RichText html={product.descriptionHtml} locale={locale} className="!text-[0.98rem]" demoteH1 />,
     },
     ...(product.ingredientsHtml
       ? [{ title: dict.product.ingredients, content: <RichText html={product.ingredientsHtml} locale={locale} className="!text-[0.98rem]" /> }]

@@ -8,7 +8,18 @@ import { cleanContentHref } from "@/lib/links";
  * Rewrites absolute links to the old shop into relative ones so the
  * visitor stays inside the new storefront and the locale prefix is kept.
  */
-export function RichText({ html, locale, className = "" }: { html: string; locale: Locale; className?: string }) {
+export function RichText({
+  html,
+  locale,
+  className = "",
+  demoteH1 = false,
+}: {
+  html: string;
+  locale: Locale;
+  className?: string;
+  /** the page renders its own H1 (product pages): an H1 in the Shopify HTML becomes an H2 */
+  demoteH1?: boolean;
+}) {
   const prefix = localePrefix(locale);
   let out = html
     // CDN assets stay absolute (the old theme served them from shop.doctorbox.de/cdn/)
@@ -20,7 +31,11 @@ export function RichText({ html, locale, className = "" }: { html: string; local
     .replace(/\sdata-(?:ccp|list|aria|font|leveltext|listid|contrast)[a-z-]*='[^']*'/g, "")
     .replace(/\sdata-(?:ccp|list|aria|font|leveltext|listid|contrast)[a-z-]*="[^"]*"/g, "")
     .replace(/\sstyle="[^"]*"/g, "")
+    // old theme microdata (itemscope/itemtype="…/Product" without offers) made Google report invalid product snippets;
+    // the page's JSON-LD is the only structured data
+    .replace(/\s(?:itemscope|itemtype|itemprop|itemid|itemref)(?:="[^"]*"|='[^']*')?(?=[\s>/])/gi, "")
     .replace(/href="([^"]*)"/g, (_, h: string) => `href="${cleanContentHref(h)}"`);
+  if (demoteH1) out = out.replace(/<(\/?)h1(?=[\s>])/gi, "<$1h2");
   if (prefix) {
     // keep internal links in the current language
     out = out.replace(/href="\/(products|collections|pages|policies|blogs|blog)(\/|")/g, `href="${prefix}/$1$2`);
